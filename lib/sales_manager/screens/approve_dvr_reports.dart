@@ -41,7 +41,7 @@ class _SalesManagerApproveDvrReportsScreenState extends State<SalesManagerApprov
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 margin: const EdgeInsets.symmetric(vertical: 10),
                 child: ListTile(
-                  leading: const Icon(Icons.description, color: AppColors.textPrimary),
+                  leading: const Icon(Icons.description, color: AppColors.secondaryBlue),
                   title: Text('Executive: ${report['executiveName']}'),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

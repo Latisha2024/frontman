@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:role_based_app/constants/colors.dart';
 import '../providers/accountant_provider.dart';
 import '../theme/app_theme.dart';
 import 'acc_home_screen.dart';
@@ -179,7 +180,7 @@ class _FinancialLogsDisplayScreenState extends State<FinancialLogsDisplayScreen>
             title: const Text('Sign Out', style: TextStyle(color: AppTheme.accentColor)),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/Users/surma/Development/Projects/ff/lib/authpage/pages/login_page.dart');
+              Navigator.pushReplacementNamed(context, '/login');
             },
           ),
         ],

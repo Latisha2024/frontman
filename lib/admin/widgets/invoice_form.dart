@@ -328,7 +328,6 @@ class _InvoiceFormState extends State<InvoiceForm> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.secondaryBlue),
       ),
       child: TextField(
         controller: controller,
@@ -336,7 +335,7 @@ class _InvoiceFormState extends State<InvoiceForm> {
         maxLines: maxLines,
         decoration: InputDecoration(
           labelText: isRequired ? '$label *' : label,
-          prefixIcon: Icon(icon, color: AppColors.textSecondary),
+          prefixIcon: Icon(icon, color: AppColors.secondaryBlue),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           labelStyle: const TextStyle(color: AppColors.textSecondary),

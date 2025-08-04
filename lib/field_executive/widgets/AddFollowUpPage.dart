@@ -1,99 +1,108 @@
 import 'package:flutter/material.dart';
+import '../../constants/colors.dart';
 
-class AddFollowUpPage extends StatefulWidget {
+class AddFollowUpPage extends StatelessWidget {
   const AddFollowUpPage({super.key});
 
   @override
-  State<AddFollowUpPage> createState() => _AddFollowUpPageState();
-}
-
-class _AddFollowUpPageState extends State<AddFollowUpPage> {
-  final customerNameController = TextEditingController();
-  final feedbackController = TextEditingController();
-  DateTime? selectedDate;
-  final executiveId = "101";
-
-  Future<void> _pickDate(BuildContext context) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) setState(() => selectedDate = picked);
-  }
-
-  void _submitFollowUp() {
-    String summary = '''
-Executive ID: $executiveId
-Customer Name: ${customerNameController.text}
-Feedback: ${feedbackController.text}
-Next Follow-Up Date: ${selectedDate != null ? "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}" : "Not selected"}
-''';
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Follow-Up Scheduled"),
-        content: Text(summary),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))],
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final TextEditingController customerController = TextEditingController();
+    final TextEditingController followUpDetailsController = TextEditingController();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add Follow-Up"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primaryBlue,
+        title: const Text('Add Follow-Up'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: Container(
+        color: AppColors.backgroundGray,
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text("Executive ID: $executiveId", style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            TextField(
-              controller: customerNameController,
-              decoration: const InputDecoration(
-                labelText: "Customer Name",
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.white,
-              ),
+            _buildFormCard(
+              icon: Icons.person,
+              label: 'Customer Name',
+              controller: customerController,
+              hintText: 'Enter customer name',
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: feedbackController,
-              maxLines: 2,
-              decoration: const InputDecoration(
-                labelText: "Feedback",
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.white,
+            _buildFormCard(
+              icon: Icons.description,
+              label: 'Follow-Up Details',
+              controller: followUpDetailsController,
+              hintText: 'Enter follow-up details',
+              maxLines: 5,
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.save),
+                label: const Text('Save Follow-Up'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () {
+                  // Handle save action here
+                  final customer = customerController.text.trim();
+                  final followUpDetails = followUpDetailsController.text.trim();
+                  if (customer.isNotEmpty && followUpDetails.isNotEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Follow-up saved successfully!')),
+                    );
+                    Navigator.pop(context);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please fill in all fields')),
+                    );
+                  }
+                },
               ),
             ),
-            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFormCard({
+    required IconData icon,
+    required String label,
+    required TextEditingController controller,
+    required String hintText,
+    int maxLines = 1,
+  }) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
               children: [
-                const Text("Next Follow-Up Date: "),
-                TextButton(
-                  onPressed: () => _pickDate(context),
-                  child: Text(
-                    selectedDate != null
-                        ? "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}"
-                        : "Select Date",
-                  ),
-                )
+                Icon(icon, color: AppColors.primaryBlue),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
               ],
             ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: _submitFollowUp,
-              icon: const Icon(Icons.add_task),
-              label: const Text("Add Follow-Up"),
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              maxLines: maxLines,
+              decoration: InputDecoration(
+                hintText: hintText,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
             ),
           ],
         ),

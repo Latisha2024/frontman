@@ -1,5 +1,6 @@
 // create_order_page.dart
 import 'package:flutter/material.dart';
+import 'package:role_based_app/constants/colors.dart';
 
 class CreateOrderPage extends StatefulWidget {
   const CreateOrderPage({super.key});
@@ -51,7 +52,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Create Order"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -62,11 +63,11 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: createOrder,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
               child: const Text("Create Order"),
             ),
             const SizedBox(height: 12),
-            Text(message, style: const TextStyle(color: Colors.green)),
+            Text(message, style: const TextStyle(color: Colors.white)),
           ],
         ),
       ),

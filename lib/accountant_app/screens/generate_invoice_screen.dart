@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:role_based_app/constants/colors.dart';
 import '../models/invoice.dart';
 import '../providers/accountant_provider.dart';
 import '../theme/app_theme.dart';
-import 'preview_pdf_screen.dart';
 import 'acc_home_screen.dart';
 import 'maintain_financial_log_screen.dart';
 import 'track_financial_logs_screen.dart';
 import 'send_invoice_screen.dart';
 import 'verify_payment_screen.dart';
+import 'preview_pdf_screen.dart';
 
 class GenerateInvoiceScreen extends StatefulWidget {
   const GenerateInvoiceScreen({Key? key}) : super(key: key);
@@ -26,7 +27,16 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
   final _amountController = TextEditingController();
   final _notesController = TextEditingController();
 
-  DateTime _selectedDueDate = DateTime.now().add(const Duration(days: 30));
+  DateTime _dueDate = DateTime.now().add(const Duration(days: 30));
+  DateTime _createdDate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AccountantProvider>().loadInvoices();
+    });
+  }
 
   @override
   void dispose() {
@@ -53,19 +63,145 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
           color: AppTheme.backgroundColor,
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle('Client Information'),
-                  _buildClientInfoSection(),
-                  const SizedBox(height: 24),
-                  _buildSectionTitle('Invoice Details'),
-                  _buildInvoiceDetailsSection(),
-                  const SizedBox(height: 32),
-                  _buildActionButtons(),
-                ],
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Create New Invoice',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _clientNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Client Name',
+                          prefixIcon: Icon(Icons.person, color: AppTheme.accentColor),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter client name';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _clientEmailController,
+                        decoration: const InputDecoration(
+                          labelText: 'Client Email',
+                          prefixIcon: Icon(Icons.email, color: AppTheme.accentColor),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter client email';
+                          }
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                            return 'Please enter a valid email';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _clientAddressController,
+                        decoration: const InputDecoration(
+                          labelText: 'Client Address (Optional)',
+                          prefixIcon: Icon(Icons.location_on, color: AppTheme.accentColor),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _descriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          prefixIcon: Icon(Icons.description, color: AppTheme.accentColor),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a description';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _amountController,
+                        decoration: const InputDecoration(
+                          labelText: 'Amount',
+                          prefixIcon: Icon(Icons.attach_money, color: AppTheme.accentColor),
+                        ),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter an amount';
+                          }
+                          if (double.tryParse(value) == null) {
+                            return 'Please enter a valid number';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Due Date: ${_dueDate.day}/${_dueDate.month}/${_dueDate.year}',
+                              style: const TextStyle(color: AppTheme.textColor),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.calendar_today, color: AppTheme.accentColor),
+                            onPressed: () async {
+                              final pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: _dueDate,
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime(2100),
+                              );
+                              if (pickedDate != null && pickedDate != _dueDate) {
+                                setState(() {
+                                  _dueDate = pickedDate;
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _notesController,
+                        decoration: const InputDecoration(
+                          labelText: 'Notes (Optional)',
+                          prefixIcon: Icon(Icons.note, color: AppTheme.accentColor),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _generateInvoice,
+                          icon: const Icon(Icons.receipt_long),
+                          label: const Text('Generate Invoice'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.accentColor,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -193,7 +329,7 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
             title: const Text('Sign Out', style: TextStyle(color: AppTheme.accentColor)),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/Users/surma/Development/Projects/ff/lib/authpage/pages/login_page.dart');
+              Navigator.pushReplacementNamed(context, '/login');
             },
           ),
         ],
@@ -252,205 +388,23 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: AppTheme.textColor,
-      ),
-    );
-  }
-
-  Widget _buildClientInfoSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextFormField(
-              controller: _clientNameController,
-              decoration: const InputDecoration(
-                labelText: 'Client Name',
-                prefixIcon: Icon(Icons.person, color: AppTheme.accentColor),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter client name';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _clientEmailController,
-              decoration: const InputDecoration(
-                labelText: 'Client Email',
-                prefixIcon: Icon(Icons.email, color: AppTheme.accentColor),
-              ),
-              keyboardType: TextInputType.emailAddress,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter client email';
-                }
-                if (!value.contains('@')) {
-                  return 'Please enter a valid email';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _clientAddressController,
-              decoration: const InputDecoration(
-                labelText: 'Client Address (Optional)',
-                prefixIcon: Icon(Icons.location_on, color: AppTheme.accentColor),
-              ),
-              maxLines: 2,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInvoiceDetailsSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Service Description',
-                prefixIcon: Icon(Icons.description, color: AppTheme.accentColor),
-              ),
-              maxLines: 3,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter service description';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _amountController,
-              decoration: const InputDecoration(
-                labelText: 'Amount',
-                prefixIcon: Icon(Icons.attach_money, color: AppTheme.accentColor),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter amount';
-                }
-                if (double.tryParse(value) == null) {
-                  return 'Please enter a valid number';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              title: const Text('Due Date', style: TextStyle(color: AppTheme.textColor)),
-              subtitle: Text(
-                '${_selectedDueDate.day}/${_selectedDueDate.month}/${_selectedDueDate.year}',
-                style: const TextStyle(color: AppTheme.textColor),
-              ),
-              leading: const Icon(Icons.calendar_today, color: AppTheme.accentColor),
-              onTap: () => _selectDueDate(context),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: 'Additional Notes (Optional)',
-                prefixIcon: Icon(Icons.note, color: AppTheme.accentColor),
-              ),
-              maxLines: 2,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _previewInvoice,
-            icon: const Icon(Icons.preview),
-            label: const Text('Preview Invoice'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _generateInvoice,
-            icon: const Icon(Icons.save),
-            label: const Text('Generate & Save Invoice'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.accentColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _selectDueDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDueDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    if (picked != null && picked != _selectedDueDate) {
-      setState(() {
-        _selectedDueDate = picked;
-      });
-    }
-  }
-
-  void _previewInvoice() {
-    if (_formKey.currentState!.validate()) {
-      final invoice = _createInvoice();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PreviewPdfScreen(invoice: invoice),
-        ),
-      );
-    }
-  }
-
   void _generateInvoice() {
     if (_formKey.currentState!.validate()) {
-      final invoice = _createInvoice();
-      context.read<AccountantProvider>().addInvoice(invoice);
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invoice generated successfully!'),
-          backgroundColor: AppTheme.accentColor,
-        ),
+      final newInvoice = Invoice(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        clientName: _clientNameController.text,
+        clientEmail: _clientEmailController.text,
+        clientAddress: _clientAddressController.text.isEmpty ? null : _clientAddressController.text,
+        description: _descriptionController.text,
+        amount: double.parse(_amountController.text),
+        dueDate: _dueDate,
+        createdDate: _createdDate,
+        status: 'draft',
+        notes: _notesController.text.isEmpty ? null : _notesController.text,
       );
 
-      // Clear form
+      context.read<AccountantProvider>().addInvoice(newInvoice);
+
       _clientNameController.clear();
       _clientEmailController.clear();
       _clientAddressController.clear();
@@ -458,26 +412,15 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
       _amountController.clear();
       _notesController.clear();
       setState(() {
-        _selectedDueDate = DateTime.now().add(const Duration(days: 30));
+        _dueDate = DateTime.now().add(const Duration(days: 30));
       });
-    }
-  }
 
-  Invoice _createInvoice() {
-    return Invoice(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      clientName: _clientNameController.text.trim(),
-      clientEmail: _clientEmailController.text.trim(),
-      clientAddress: _clientAddressController.text.trim().isEmpty 
-          ? null 
-          : _clientAddressController.text.trim(),
-      description: _descriptionController.text.trim(),
-      amount: double.parse(_amountController.text),
-      dueDate: _selectedDueDate,
-      createdDate: DateTime.now(),
-      notes: _notesController.text.trim().isEmpty 
-          ? null 
-          : _notesController.text.trim(),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invoice generated successfully!'),
+          backgroundColor: AppTheme.accentColor,
+        ),
+      );
+    }
   }
 }

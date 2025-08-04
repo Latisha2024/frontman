@@ -1,5 +1,6 @@
 // track_order_page.dart
 import 'package:flutter/material.dart';
+import 'package:role_based_app/constants/colors.dart';
 
 class TrackOrderPage extends StatefulWidget {
   const TrackOrderPage({super.key});
@@ -33,7 +34,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Track Order Status"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -49,11 +50,11 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: trackOrder,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
               child: const Text("Track Order"),
             ),
             const SizedBox(height: 16),
-            Text(statusMessage, style: const TextStyle(color: Colors.blue)),
+            Text(statusMessage, style: const TextStyle(color: Colors.white)),
           ],
         ),
       ),

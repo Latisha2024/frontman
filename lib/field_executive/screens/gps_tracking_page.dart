@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:role_based_app/authpage/config/app_colors.dart';
 
 // Import the separate navigation pages
 import '../widgets/status_page.dart';
@@ -124,7 +125,7 @@ class _GpsTrackingPageState extends State<GpsTrackingPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFEAF1F3),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AuthColors.textDark,
         title: const Text('Tracking', style: TextStyle(color: Colors.black)),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
@@ -135,7 +136,7 @@ class _GpsTrackingPageState extends State<GpsTrackingPage> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 3,
             child: ListTile(
-              leading: const Icon(Icons.power_settings_new, color: Colors.green, size: 32),
+              leading: const Icon(Icons.power_settings_new, color: AuthColors.primaryBlue, size: 32),
               title: const Text("Start tracking"),
               subtitle: Text(trackingStatus),
               trailing: Switch(
@@ -156,7 +157,7 @@ class _GpsTrackingPageState extends State<GpsTrackingPage> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 3,
             child: ListTile(
-              leading: const Icon(Icons.location_on, color: Colors.blue, size: 30),
+              leading: const Icon(Icons.location_on, color: AuthColors.primaryBlue, size: 30),
               title: const Text("Status"),
               subtitle: const Text("View status and latest location data"),
               onTap: () => navigateTo("Status_page"),
@@ -167,7 +168,7 @@ class _GpsTrackingPageState extends State<GpsTrackingPage> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 3,
             child: ListTile(
-              leading: const Icon(Icons.task_alt, color: Colors.orange, size: 30),
+              leading: const Icon(Icons.task_alt, color: AuthColors.primaryBlue, size: 30),
               title: const Text("Tasks"),
               subtitle: const Text("Perform tasks"),
               onTap: () => navigateTo("Tasks_page"),
@@ -178,7 +179,7 @@ class _GpsTrackingPageState extends State<GpsTrackingPage> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 3,
             child: ListTile(
-              leading: const Icon(Icons.chat_bubble, color: Colors.teal, size: 30),
+              leading: const Icon(Icons.chat_bubble, color: AuthColors.primaryBlue, size: 30),
               title: const Text("Chat"),
               subtitle: const Text("Communicate with main account"),
               onTap: () => navigateTo("Chat_page"),
@@ -189,7 +190,7 @@ class _GpsTrackingPageState extends State<GpsTrackingPage> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 3,
             child: ListTile(
-              leading: const Icon(Icons.camera_alt, color: Colors.purple, size: 30),
+              leading: const Icon(Icons.camera_alt, color: AuthColors.primaryBlue, size: 30),
               title: const Text("Camera"),
               subtitle: const Text("Send photo with location"),
               onTap: () => navigateTo("Camera_page"),

@@ -379,7 +379,7 @@ class _VerifyPaymentScreenState extends State<VerifyPaymentScreen> {
             title: const Text('Sign Out', style: TextStyle(color: AppTheme.accentColor)),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/Users/surma/Development/Projects/ff/lib/authpage/pages/login_page.dart');
+              Navigator.pushReplacementNamed(context, '/login');
             },
           ),
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../constants/colors.dart';
 
 class GetProductDetailsPage extends StatelessWidget {
   const GetProductDetailsPage({super.key});
@@ -8,30 +9,57 @@ class GetProductDetailsPage extends StatelessWidget {
     final productIdController = TextEditingController();
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("Get Product Details"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
+        elevation: 2,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: productIdController,
-              decoration: const InputDecoration(
-                labelText: "Enter Product ID",
-                border: OutlineInputBorder(),
-              ),
+      body: Center(
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          margin: const EdgeInsets.all(24),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Product Lookup",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: productIdController,
+                  decoration: InputDecoration(
+                    labelText: "Enter Product ID",
+                    border: const OutlineInputBorder(),
+                    filled: true,
+                    fillColor: AppColors.inputFill,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      // Call API or fetch mock data
+                    },
+                    icon: const Icon(Icons.search),
+                    label: const Text("Fetch Product Info"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // call API or fetch mock data
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
-              child: const Text("Fetch Product Info"),
-            ),
-          ],
+          ),
         ),
       ),
     );

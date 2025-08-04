@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../constants/colors.dart'; // Ensure this has AppColors.primaryBlue
 
 class CaptureSignaturePage extends StatefulWidget {
   const CaptureSignaturePage({super.key});
@@ -11,8 +12,7 @@ class CaptureSignaturePage extends StatefulWidget {
 
 class _CaptureSignaturePageState extends State<CaptureSignaturePage> {
   final orderIdController = TextEditingController();
-  final signatureController = TextEditingController(); // For base64
-
+  final signatureController = TextEditingController(); // For base64 signature
   String message = '';
 
   Future<void> submitSignature() async {
@@ -25,36 +25,70 @@ class _CaptureSignaturePageState extends State<CaptureSignaturePage> {
       }),
     );
 
-    setState(() => message = response.statusCode == 200 ? "Submitted!" : "Failed");
+    setState(() {
+      message = response.statusCode == 200 ? "Signature submitted successfully!" : "Submission failed. Try again.";
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Capture Signature"), backgroundColor: const Color(0xFFA5C8D0)),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      appBar: AppBar(
+        title: const Text("Capture Signature"),
+        backgroundColor: AppColors.primaryBlue,
+        foregroundColor: Colors.white,
+      ),
+      body: Container(
+        color: Colors.grey.shade100,
+        padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: orderIdController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Order ID", border: OutlineInputBorder()),
+            const Text("Order Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            _buildTextField("Order ID", orderIdController, TextInputType.number),
+            const SizedBox(height: 12),
+            _buildTextField("Signature (base64 encoded)", signatureController, TextInputType.text, maxLines: 3),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: submitSignature,
+                icon: const Icon(Icons.edit),
+                label: const Text("Submit Signature"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryBlue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: signatureController,
-              decoration: const InputDecoration(labelText: "Signature (base64)", border: OutlineInputBorder()),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: submitSignature,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
-              child: const Text("Submit Signature"),
-            ),
-            if (message.isNotEmpty) Text(message, style: const TextStyle(color: Colors.green)),
+            if (message.isNotEmpty)
+              Text(
+                message,
+                style: TextStyle(
+                  color: message.contains("success") ? Colors.green : Colors.red,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, TextInputType inputType,
+      {int maxLines = 1}) {
+    return TextField(
+      controller: controller,
+      keyboardType: inputType,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
+        filled: true,
+        fillColor: Colors.white,
       ),
     );
   }

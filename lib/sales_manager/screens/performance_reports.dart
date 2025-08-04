@@ -32,7 +32,7 @@ class SalesManagerPerformanceReportsScreen extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             margin: const EdgeInsets.symmetric(vertical: 10),
             child: ListTile(
-              leading: const Icon(Icons.bar_chart, color: AppColors.textPrimary),
+              leading: const Icon(Icons.bar_chart, color: AppColors.secondaryBlue),
               title: Text(report['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
               subtitle: Text(report['summary']),
               trailing: Text('${report['date'].day}/${report['date'].month}/${report['date'].year}', style: const TextStyle(fontSize: 12, color: Colors.grey)),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../models/invoice.dart';
+import '../providers/accountant_provider.dart';
 import '../theme/app_theme.dart';
 import 'acc_home_screen.dart';
 import 'maintain_financial_log_screen.dart';
@@ -19,20 +21,8 @@ class PreviewPdfScreen extends StatelessWidget {
       data: AppTheme.themeData,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Invoice Preview'),
+          title: const Text('Preview Invoice'),
           backgroundColor: AppTheme.primaryColor,
-          actions: [
-            IconButton(
-              onPressed: () => _downloadPdf(context),
-              icon: const Icon(Icons.download),
-              tooltip: 'Download PDF',
-            ),
-            IconButton(
-              onPressed: () => _sharePdf(context),
-              icon: const Icon(Icons.share),
-              tooltip: 'Share PDF',
-            ),
-          ],
         ),
         drawer: _buildNavigationDrawer(context),
         body: Container(
@@ -40,24 +30,24 @@ class PreviewPdfScreen extends StatelessWidget {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildHeader(),
-                    const SizedBox(height: 32),
-                    _buildClientInfo(),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 16),
+                    _buildClientDetails(),
+                    const SizedBox(height: 16),
                     _buildInvoiceDetails(),
-                    const SizedBox(height: 32),
-                    _buildAmountSection(),
-                    if (invoice.notes != null) ...[
-                      const SizedBox(height: 32),
-                      _buildNotesSection(),
-                    ],
-                    const SizedBox(height: 32),
-                    _buildFooter(),
+                    const SizedBox(height: 16),
+                    _buildNotes(),
+                    const SizedBox(height: 24),
+                    _buildActions(context),
                   ],
                 ),
               ),
@@ -154,6 +144,13 @@ class PreviewPdfScreen extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.preview, color: AppTheme.accentColor),
+            title: const Text('Preview PDF', style: TextStyle(color: AppTheme.textColor)),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.send, color: AppTheme.accentColor),
             title: const Text('Send Invoice', style: TextStyle(color: AppTheme.textColor)),
             onTap: () {
@@ -181,11 +178,11 @@ class PreviewPdfScreen extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('Sign Out', style: TextStyle(color: Colors.red)),
+            leading: const Icon(Icons.logout, color: AppTheme.accentColor),
+            title: const Text('Sign Out', style: TextStyle(color: AppTheme.accentColor)),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/Users/surma/Development/Projects/ff/lib/authpage/pages/login_page.dart');
+              Navigator.pushReplacementNamed(context, '/login');
             },
           ),
         ],
@@ -194,50 +191,21 @@ class PreviewPdfScreen extends StatelessWidget {
   }
 
   Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'INVOICE',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primaryColor,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppTheme.secondaryColor,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                invoice.status.toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textColor,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Invoice #${invoice.id}',
-          style: const TextStyle(
-            fontSize: 16,
+        const Text(
+          'Invoice',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
             color: AppTheme.textColor,
           ),
         ),
-        const SizedBox(height: 4),
         Text(
-          'Created: ${invoice.createdDate.day}/${invoice.createdDate.month}/${invoice.createdDate.year}',
+          'ID: ${invoice.id}',
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 16,
             color: AppTheme.textColor,
           ),
         ),
@@ -245,58 +213,32 @@ class PreviewPdfScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildClientInfo() {
+  Widget _buildClientDetails() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Bill To:',
+          'Client Details',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppTheme.textColor,
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppTheme.backgroundColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppTheme.secondaryColor),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                invoice.clientName,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textColor,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                invoice.clientEmail,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textColor,
-                ),
-              ),
-              if (invoice.clientAddress != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  invoice.clientAddress ?? '',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.textColor,
-                  ),
-                ),
-              ],
-            ],
-          ),
+        Text(
+          'Name: ${invoice.clientName}',
+          style: const TextStyle(color: AppTheme.textColor),
         ),
+        Text(
+          'Email: ${invoice.clientEmail}',
+          style: const TextStyle(color: AppTheme.textColor),
+        ),
+        if (invoice.clientAddress != null)
+          Text(
+            'Address: ${invoice.clientAddress}',
+            style: const TextStyle(color: AppTheme.textColor),
+          ),
       ],
     );
   }
@@ -306,223 +248,99 @@ class PreviewPdfScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Service Details:',
+          'Invoice Details',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppTheme.textColor,
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppTheme.backgroundColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppTheme.secondaryColor),
+        Text(
+          'Description: ${invoice.description}',
+          style: const TextStyle(color: AppTheme.textColor),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Amount: \$${invoice.amount.toStringAsFixed(2)}',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppTheme.primaryColor,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                invoice.description,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textColor,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Due Date:',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textColor,
-                    ),
-                  ),
-                  Text(
-                    '${invoice.dueDate.day}/${invoice.dueDate.month}/${invoice.dueDate.year}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.textColor,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Due Date: ${invoice.dueDate.day}/${invoice.dueDate.month}/${invoice.dueDate.year}',
+          style: const TextStyle(color: AppTheme.textColor),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Created Date: ${invoice.createdDate.day}/${invoice.createdDate.month}/${invoice.createdDate.year}',
+          style: const TextStyle(color: AppTheme.textColor),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Status: ${invoice.status}',
+          style: TextStyle(
+            color: invoice.status == 'paid'
+                ? AppTheme.primaryColor
+                : invoice.status == 'overdue'
+                    ? AppTheme.accentColor
+                    : AppTheme.textColor,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildAmountSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.primaryColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.primaryColor),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Subtotal:',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textColor,
-                ),
-              ),
-              Text(
-                '\$${invoice.amount.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Tax (0%):',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textColor,
-                ),
-              ),
-              const Text(
-                '\$0.00',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textColor,
-                ),
-              ),
-            ],
-          ),
-          const Divider(height: 24, color: AppTheme.primaryColor),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Total Amount:',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textColor,
-                ),
-              ),
-              Text(
-                '\$${invoice.amount.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryColor,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildNotes() {
+    if (invoice.notes == null) return const SizedBox.shrink();
 
-  Widget _buildNotesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Additional Notes:',
+          'Notes',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppTheme.textColor,
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppTheme.backgroundColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppTheme.secondaryColor),
-          ),
-          child: Text(
-            invoice.notes!,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppTheme.textColor,
-            ),
-          ),
+        Text(
+          invoice.notes!,
+          style: const TextStyle(color: AppTheme.textColor),
         ),
       ],
     );
   }
 
-  Widget _buildFooter() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.secondaryColor.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
-            'Payment Terms:',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textColor,
-            ),
+  Widget _buildActions(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        if (invoice.status == 'draft')
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SendInvoiceScreen(),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentColor),
+            child: const Text('Send'),
           ),
-          SizedBox(height: 4),
-          Text(
-            'Payment is due within 30 days of invoice date. Late payments may incur additional charges.',
-            style: TextStyle(
-              fontSize: 12,
-              color: AppTheme.textColor,
-            ),
-          ),
-          SizedBox(height: 12),
-          Text(
-            'Thank you for your business!',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.primaryColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _downloadPdf(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('PDF download functionality would be implemented here'),
-        backgroundColor: AppTheme.primaryColor,
-      ),
-    );
-  }
-
-  void _sharePdf(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('PDF sharing functionality would be implemented here'),
-        backgroundColor: AppTheme.primaryColor,
-      ),
+        const SizedBox(width: 8),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryColor),
+          child: const Text('Close'),
+        ),
+      ],
     );
   }
 }

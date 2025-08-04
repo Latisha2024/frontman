@@ -62,7 +62,6 @@ class SalesManagerAssignTasksScreenState extends State<SalesManagerAssignTasksSc
           'priority': selectedPriority,
           'status': controller.tasks[idx]['status'],
         };
-        controller.notifyListeners();
       }
     } else {
       controller.addTask(
@@ -104,7 +103,7 @@ class SalesManagerAssignTasksScreenState extends State<SalesManagerAssignTasksSc
               'Assign Tasks',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             backgroundColor: AppColors.primaryBlue,
@@ -123,7 +122,7 @@ class SalesManagerAssignTasksScreenState extends State<SalesManagerAssignTasksSc
                 },
                 icon: Icon(
                   showForm ? Icons.list : Icons.add,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
                 tooltip: showForm ? 'View Tasks' : 'Add Task',
               ),

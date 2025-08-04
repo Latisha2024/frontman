@@ -219,7 +219,6 @@ class UserForm extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.secondaryBlue),
       ),
       child: TextField(
         controller: controller,
@@ -227,7 +226,7 @@ class UserForm extends StatelessWidget {
         maxLines: maxLines,
         decoration: InputDecoration(
           labelText: isRequired ? '$label *' : label,
-          prefixIcon: Icon(icon, color: AppColors.textSecondary),
+          prefixIcon: Icon(icon, color: AppColors.secondaryBlue),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           labelStyle: TextStyle(color: AppColors.textSecondary),
@@ -247,7 +246,6 @@ class UserForm extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.secondaryBlue),
       ),
       child: DropdownButtonFormField<String>(
         value: value,
@@ -255,7 +253,7 @@ class UserForm extends StatelessWidget {
         onChanged: onChanged,
         decoration: InputDecoration(
           labelText: label,
-          prefixIcon: Icon(icon, color: AppColors.textSecondary),
+          prefixIcon: Icon(icon, color: AppColors.secondaryBlue),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           labelStyle: TextStyle(color: AppColors.textSecondary),

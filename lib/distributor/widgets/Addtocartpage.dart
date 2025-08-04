@@ -1,5 +1,6 @@
 // add_to_cart_page.dart
 import 'package:flutter/material.dart';
+import 'package:role_based_app/constants/colors.dart';
 
 class AddToCartPage extends StatefulWidget {
   const AddToCartPage({super.key});
@@ -49,7 +50,7 @@ class _AddToCartPageState extends State<AddToCartPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Add to Cart"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -60,11 +61,11 @@ class _AddToCartPageState extends State<AddToCartPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: addToCart,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
               child: const Text("Add to Cart"),
             ),
             const SizedBox(height: 12),
-            Text(message, style: const TextStyle(color: Colors.green)),
+            Text(message, style: const TextStyle(color: Colors.white)),
           ],
         ),
       ),

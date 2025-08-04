@@ -1,5 +1,6 @@
 // place_order_page.dart
 import 'package:flutter/material.dart';
+import 'package:role_based_app/constants/colors.dart';
 
 class PlaceOrderPage extends StatefulWidget {
   const PlaceOrderPage({super.key});
@@ -52,7 +53,7 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Place Order"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -64,11 +65,11 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: submitOrder,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
               child: const Text("Submit Order"),
             ),
             const SizedBox(height: 12),
-            Text(message, style: const TextStyle(color: Colors.green)),
+            Text(message, style: const TextStyle(color: Colors.white)),
           ],
         ),
       ),

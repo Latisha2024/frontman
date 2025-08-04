@@ -45,7 +45,7 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
               'Invoices',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
 
             ),
@@ -63,7 +63,7 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
                 },
                 icon: Icon(
                   showForm ? Icons.list : Icons.add,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
                 tooltip: showForm ? 'View Users' : 'Add User',
               ),

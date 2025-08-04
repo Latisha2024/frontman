@@ -32,7 +32,7 @@ class SalesManagerGpsTrackingScreen extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             margin: const EdgeInsets.symmetric(vertical: 10),
             child: ListTile(
-              leading: const Icon(Icons.person_pin_circle, color: AppColors.textPrimary),
+              leading: const Icon(Icons.person_pin_circle, color: AppColors.secondaryBlue),
               title: Text(exec['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
               subtitle: Text(exec['location'] ?? 'No location'),
               trailing: Text(

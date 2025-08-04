@@ -119,27 +119,27 @@ class _WorkerShiftAlertsScreenState extends State<WorkerShiftAlertsScreen> {
     switch (type) {
       case 'shiftStart':
         iconData = Icons.play_circle_filled;
-        iconColor = Colors.green;
+        iconColor = AppColors.secondaryBlue;
         break;
       case 'breakTime':
         iconData = Icons.coffee;
-        iconColor = const Color.fromARGB(255, 98, 59, 0);
+        iconColor = AppColors.secondaryBlue;
         break;
       case 'lunchBreak':
         iconData = Icons.restaurant;
-        iconColor = Colors.purple;
+        iconColor = AppColors.secondaryBlue;
         break;
       case 'secondBreak':
         iconData = Icons.coffee;
-        iconColor = const Color.fromARGB(255, 98, 59, 0);
+        iconColor = AppColors.secondaryBlue;
         break;
       case 'shiftEnd':
         iconData = Icons.stop_circle;
-        iconColor = Colors.red;
+        iconColor = AppColors.secondaryBlue;
         break;
       default:
         iconData = Icons.notifications;
-        iconColor = AppColors.textPrimary;
+        iconColor = AppColors.secondaryBlue;
     }
     return Icon(iconData, color: iconColor, size: 32);
   }

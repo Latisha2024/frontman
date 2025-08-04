@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../constants/colors.dart'; // Use your global theme colors if available
 
 class AssignedCustomersPage extends StatelessWidget {
   const AssignedCustomersPage({super.key});
@@ -25,29 +26,50 @@ class AssignedCustomersPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Assigned Customers"),
-        backgroundColor: Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primaryBlue,
       ),
-      body: ListView.builder(
-        itemCount: customers.length,
-        itemBuilder: (context, index) {
-          final customer = customers[index];
-          return Card(
-            margin: const EdgeInsets.all(10),
-            child: ListTile(
-              leading: const Icon(Icons.person),
-              title: Text(customer["name"] ?? ''),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("ID: ${customer["id"]}"),
-                  Text("Location: ${customer["location"]}"),
-                  Text("Contact: ${customer["contact"]}"),
-                  Text("Email: ${customer["email"]}"),
-                ],
+      body: Container(
+        color: Colors.grey.shade100,
+        padding: const EdgeInsets.all(12),
+        child: ListView.builder(
+          itemCount: customers.length,
+          itemBuilder: (context, index) {
+            final customer = customers[index];
+            return Card(
+              elevation: 4,
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-            ),
-          );
-        },
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.person, size: 40, color: AppColors.primaryBlue),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            customer["name"] ?? '',
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 6),
+                          Text("ID: ${customer["id"]}", style: const TextStyle(fontSize: 14)),
+                          Text("Location: ${customer["location"]}", style: const TextStyle(fontSize: 14)),
+                          Text("Contact: ${customer["contact"]}", style: const TextStyle(fontSize: 14)),
+                          Text("Email: ${customer["email"]}", style: const TextStyle(fontSize: 14)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

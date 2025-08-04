@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../constants/colors.dart'; // Make sure AppColors is defined
 
 class CheckStockPage extends StatelessWidget {
   const CheckStockPage({super.key});
@@ -10,23 +11,42 @@ class CheckStockPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Check Stock"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primaryBlue,
+        foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: Container(
+        padding: const EdgeInsets.all(24),
+        color: Colors.grey.shade100,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text(
+              "Product Stock Checker",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
             TextField(
               controller: skuController,
-              decoration: const InputDecoration(labelText: "Enter SKU or Product ID", border: OutlineInputBorder()),
+              decoration: InputDecoration(
+                labelText: "Enter SKU or Product ID",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
+              ),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // API to check availability
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
-              child: const Text("Check Availability"),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  // TODO: Call your stock check API here
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                icon: const Icon(Icons.inventory),
+                label: const Text("Check Availability"),
+              ),
             ),
           ],
         ),

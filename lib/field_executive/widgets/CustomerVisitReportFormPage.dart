@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../constants/colors.dart'; // Ensure AppColors is defined here
 
 class CustomerVisitReportFormPage extends StatefulWidget {
   const CustomerVisitReportFormPage({super.key});
@@ -8,7 +9,6 @@ class CustomerVisitReportFormPage extends StatefulWidget {
 }
 
 class _CustomerVisitReportFormPageState extends State<CustomerVisitReportFormPage> {
-  // Controllers
   final customerController = TextEditingController();
   final locationController = TextEditingController();
   final presentController = TextEditingController();
@@ -18,13 +18,10 @@ class _CustomerVisitReportFormPageState extends State<CustomerVisitReportFormPag
   final feedbackController = TextEditingController();
   final reportByController = TextEditingController();
 
-  // Dropdown values
   String investigation = "None";
   String rootCause = "None";
   String correctiveAction = "None";
   String recommendation = "None";
-
-  // Date
   DateTime? visitDate;
 
   Future<void> _selectVisitDate(BuildContext context) async {
@@ -37,6 +34,22 @@ class _CustomerVisitReportFormPageState extends State<CustomerVisitReportFormPag
     if (picked != null) {
       setState(() => visitDate = picked);
     }
+  }
+
+  Widget sectionTitle(String title) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.primaryBlue.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        title,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        textAlign: TextAlign.center,
+      ),
+    );
   }
 
   Widget buildField(String label, TextEditingController controller, {int maxLines = 1}) {
@@ -68,7 +81,11 @@ class _CustomerVisitReportFormPageState extends State<CustomerVisitReportFormPag
         DropdownButtonFormField<String>(
           value: value,
           onChanged: onChanged,
-          decoration: const InputDecoration(border: OutlineInputBorder(), filled: true, fillColor: Colors.white),
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            filled: true,
+            fillColor: Colors.white,
+          ),
           items: options.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
         ),
         const SizedBox(height: 16),
@@ -79,7 +96,7 @@ class _CustomerVisitReportFormPageState extends State<CustomerVisitReportFormPag
   void _submitReport() {
     String summary = '''
 Customer: ${customerController.text}
-Date of Visit: ${visitDate != null ? visitDate.toString().split(' ')[0] : 'Not selected'}
+Date of Visit: ${visitDate != null ? "${visitDate!.day}/${visitDate!.month}/${visitDate!.year}" : 'Not selected'}
 Location: ${locationController.text}
 Present: ${presentController.text}
 Products: ${productsController.text}
@@ -108,42 +125,41 @@ Report Completed By: ${reportByController.text}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FA),
+      backgroundColor: const Color(0xFFF4F6F8),
       appBar: AppBar(
         title: const Text("Customer Visit Report"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primaryBlue,
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const Text("INFORMATION", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            sectionTitle("INFORMATION"),
             buildField("Customer", customerController),
             Row(
               children: [
-                const Text("Date of Visit: "),
-                TextButton(
+                const Text("Date of Visit: ", style: TextStyle(fontWeight: FontWeight.w600)),
+                TextButton.icon(
                   onPressed: () => _selectVisitDate(context),
-                  child: Text(
+                  icon: const Icon(Icons.calendar_today),
+                  label: Text(
                     visitDate != null
                         ? "${visitDate!.day}/${visitDate!.month}/${visitDate!.year}"
                         : "Select Date",
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
               ],
             ),
             buildField("Location", locationController),
-            buildField("Present", presentController),
-            buildField("Products", productsController, maxLines: 2),
+            buildField("People Present", presentController),
+            buildField("Products Discussed", productsController, maxLines: 2),
             buildField("Reason for Visit", reasonController),
 
-            const Divider(thickness: 1),
-            const SizedBox(height: 8),
-            const Text("QUALITY", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            sectionTitle("QUALITY"),
             buildField("Customer Concerns", concernsController, maxLines: 2),
-            buildDropdown("Investigation", investigation, ["None", "Ongoing", "Resolved"], (val) {
+            buildDropdown("Investigation Status", investigation, ["None", "Ongoing", "Resolved"], (val) {
               if (val != null) setState(() => investigation = val);
             }),
             buildDropdown("Root Cause", rootCause, ["None", "Product defect", "Miscommunication"], (val) {
@@ -156,21 +172,21 @@ Report Completed By: ${reportByController.text}
               if (val != null) setState(() => recommendation = val);
             }),
 
-            const Divider(thickness: 1),
-            const SizedBox(height: 8),
-            const Text("GENERAL", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            buildField("General Feedback / Comments", feedbackController, maxLines: 2),
+            sectionTitle("GENERAL FEEDBACK"),
+            buildField("Feedback / Comments", feedbackController, maxLines: 2),
             buildField("Report Completed By", reportByController),
 
             const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: _submitReport,
-              icon: const Icon(Icons.save),
-              label: const Text("Submit Report"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFA5C8D0),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _submitReport,
+                icon: const Icon(Icons.save_alt),
+                label: const Text("Submit Report"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
               ),
             ),
           ],

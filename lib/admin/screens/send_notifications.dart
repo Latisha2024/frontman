@@ -56,7 +56,6 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
                     children: [
                       Container(
                         margin: const EdgeInsets.symmetric(vertical: 10),
-                        padding: const EdgeInsets.only(left: 16, right: 16),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
@@ -80,7 +79,6 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
                       ),
                       Container(
                         margin: const EdgeInsets.symmetric(vertical: 10),
-                        padding: const EdgeInsets.only(left: 16, right: 16),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
@@ -101,7 +99,6 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
                       ),
                       Container(
                         margin: const EdgeInsets.symmetric(vertical: 10),
-                        padding: const EdgeInsets.only(left: 16, right: 16),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),

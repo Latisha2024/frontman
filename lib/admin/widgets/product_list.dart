@@ -67,7 +67,6 @@ class ProductList extends StatelessWidget {
                 borderSide: const BorderSide(color: AppColors.textPrimary),
               ),
               filled: true,
-              fillColor: AppColors.primaryBlue.withOpacity(0.1),
             ),
           ),
           const SizedBox(height: 16),
@@ -108,7 +107,6 @@ class ProductList extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.primaryBlue.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.textPrimary),
       ),
       child: DropdownButtonFormField<String>(
         value: value,

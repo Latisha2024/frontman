@@ -1,5 +1,6 @@
 // apply_promo_page.dart
 import 'package:flutter/material.dart';
+import 'package:role_based_app/constants/colors.dart';
 
 class ApplyPromoPage extends StatefulWidget {
   const ApplyPromoPage({super.key});
@@ -32,7 +33,7 @@ class _ApplyPromoPageState extends State<ApplyPromoPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Apply Promo Code"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -48,11 +49,11 @@ class _ApplyPromoPageState extends State<ApplyPromoPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: applyPromo,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
               child: const Text("Apply Code"),
             ),
             const SizedBox(height: 12),
-            Text(message, style: const TextStyle(color: Colors.green)),
+            Text(message, style: const TextStyle(color: Colors.white)),
           ],
         ),
       ),

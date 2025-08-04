@@ -36,7 +36,7 @@ class _SignUpPageState extends State<SignUpPage> {
     'Worker',
     'Field Executive',
     'Distributor',
-    'Accountant'
+    'Accountant',
     'Sales Manager',
   ];
 
@@ -82,7 +82,7 @@ class _SignUpPageState extends State<SignUpPage> {
         homeScreen = const WorkerDrawer();
         break;
       case 'Field Executive':
-        homeScreen = const FieldExecutiveHomePage();
+        homeScreen = const FieldExecutiveUI();
         break;
       case 'Distributor':
         homeScreen = const DistributorHomePage();

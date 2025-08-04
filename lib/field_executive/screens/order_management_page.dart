@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:role_based_app/authpage/config/app_colors.dart';
+import '../../constants/colors.dart';
 
 // Import your navigation target pages
 import '../widgets/PlaceOrderPage.dart';
@@ -57,10 +59,10 @@ class OrderManagementPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF6F8),
+      backgroundColor: AppColors.backgroundGray,
       appBar: AppBar(
         title: const Text("Order Management", style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AuthColors.textDark,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Column(

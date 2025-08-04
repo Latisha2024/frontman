@@ -43,7 +43,7 @@ class _AssignIncentiveScreenState extends State<AssignIncentiveScreen> {
               'Assign Incentive',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             backgroundColor: AppColors.primaryBlue,

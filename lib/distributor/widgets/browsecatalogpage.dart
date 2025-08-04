@@ -1,5 +1,6 @@
 // browse_catalog_page.dart
 import 'package:flutter/material.dart';
+import 'package:role_based_app/constants/colors.dart';
 
 class BrowseCatalogPage extends StatelessWidget {
   const BrowseCatalogPage({super.key});
@@ -9,7 +10,7 @@ class BrowseCatalogPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Browse Product Catalog"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

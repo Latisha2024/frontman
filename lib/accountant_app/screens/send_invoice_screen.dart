@@ -181,7 +181,7 @@ class _SendInvoiceScreenState extends State<SendInvoiceScreen> {
             title: const Text('Sign Out', style: TextStyle(color: AppTheme.accentColor)),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/Users/surma/Development/Projects/ff/lib/authpage/pages/login_page.dart');
+              Navigator.pushReplacementNamed(context, '/login');
             },
           ),
         ],
@@ -353,7 +353,7 @@ class _SendInvoiceScreenState extends State<SendInvoiceScreen> {
                   size: 64,
                   color: AppTheme.accentColor.withOpacity(0.6),
                 ),
-                const SizedBox(height: 16),
+                                const SizedBox(height: 16),
                 Text(
                   'Error: ${provider.error}',
                   style: const TextStyle(color: AppTheme.textColor),
@@ -369,34 +369,21 @@ class _SendInvoiceScreenState extends State<SendInvoiceScreen> {
           );
         }
 
-        if (provider.invoices.isEmpty) {
-          return Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: Column(
-                  children: const [
-                    Icon(
-                      Icons.receipt_long,
-                      size: 64,
-                      color: AppTheme.secondaryColor,
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'No invoices yet',
-                      style: TextStyle(
-                        color: AppTheme.textColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Generate your first invoice',
-                      style: TextStyle(color: AppTheme.textColor),
-                    ),
-                  ],
-                ),
+        final sentInvoices = provider.invoices
+            .where((invoice) => invoice.status == 'sent')
+            .toList();
+
+        if (sentInvoices.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppTheme.secondaryColor.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Center(
+              child: Text(
+                'No sent invoices available',
+                style: TextStyle(color: AppTheme.textColor),
               ),
             ),
           );
@@ -406,7 +393,7 @@ class _SendInvoiceScreenState extends State<SendInvoiceScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'All Invoices',
+              'Sent Invoices',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -417,17 +404,20 @@ class _SendInvoiceScreenState extends State<SendInvoiceScreen> {
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: provider.invoices.length,
+              itemCount: sentInvoices.length,
               itemBuilder: (context, index) {
-                final invoice = provider.invoices[index];
+                final invoice = sentInvoices[index];
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
+                  margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: _getStatusColor(invoice.status),
-                      child: Icon(
-                        _getStatusIcon(invoice.status),
-                        color: Colors.white,
+                      backgroundColor: AppTheme.primaryLight,
+                      child: Text(
+                        invoice.clientName[0].toUpperCase(),
+                        style: const TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     title: Text(
@@ -438,12 +428,14 @@ class _SendInvoiceScreenState extends State<SendInvoiceScreen> {
                       ),
                     ),
                     subtitle: Text(
-                      '${invoice.status.toUpperCase()} • \$${invoice.amount.toStringAsFixed(2)}',
+                      'Amount: \$${invoice.amount.toStringAsFixed(2)}',
                       style: const TextStyle(color: AppTheme.textColor),
                     ),
                     trailing: Text(
-                      '${invoice.createdDate.day}/${invoice.createdDate.month}/${invoice.createdDate.year}',
-                      style: const TextStyle(color: AppTheme.textColor),
+                      '${invoice.dueDate.day}/${invoice.dueDate.month}/${invoice.dueDate.year}',
+                      style: const TextStyle(
+                        color: AppTheme.textColor,
+                      ),
                     ),
                   ),
                 );
@@ -455,54 +447,27 @@ class _SendInvoiceScreenState extends State<SendInvoiceScreen> {
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'draft':
-        return AppTheme.secondaryColor;
-      case 'sent':
-        return AppTheme.primaryColor;
-      case 'paid':
-        return AppTheme.accentColor;
-      case 'overdue':
-        return AppTheme.accentColor.withOpacity(0.8);
-      default:
-        return AppTheme.secondaryColor;
-    }
-  }
-
-  IconData _getStatusIcon(String status) {
-    switch (status) {
-      case 'draft':
-        return Icons.edit;
-      case 'sent':
-        return Icons.send;
-      case 'paid':
-        return Icons.check_circle;
-      case 'overdue':
-        return Icons.warning;
-      default:
-        return Icons.receipt;
-    }
-  }
-
   void _sendInvoice() {
-    if (_selectedInvoiceId != null && _emailController.text.isNotEmpty) {
-      context.read<AccountantProvider>().sendInvoice(
-        _selectedInvoiceId!,
-        _emailController.text.trim(),
-      );
-
+    if (_emailController.text.isEmpty || _selectedInvoiceId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Invoice sent successfully!'),
+          content: Text('Please select an invoice and enter an email address'),
           backgroundColor: AppTheme.accentColor,
         ),
       );
-
-      setState(() {
-        _selectedInvoiceId = null;
-        _emailController.clear();
-      });
+      return;
     }
+
+    context.read<AccountantProvider>().sendInvoice(_selectedInvoiceId!, _emailController.text);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Invoice sent successfully!'),
+        backgroundColor: AppTheme.accentColor,
+      ),
+    );
+    setState(() {
+      _selectedInvoiceId = null;
+      _emailController.clear();
+    });
   }
 }

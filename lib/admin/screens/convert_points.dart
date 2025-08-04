@@ -25,7 +25,7 @@ class ConvertPointsToCashScreenState extends State<ConvertPointsToCashScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Convert Points To Cash'),
-        backgroundColor: AppColors.secondaryBlue,
+        backgroundColor: AppColors.primaryBlue,
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),

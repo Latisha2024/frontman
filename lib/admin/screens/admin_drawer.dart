@@ -16,13 +16,17 @@ class AdminDrawer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 12),
-                CircleAvatar(radius: 28,
-                    child: Icon(Icons.admin_panel_settings, size: 32)),
+                CircleAvatar(radius: 28, backgroundColor: AppColors.secondaryBlue ,child: Icon(Icons.admin_panel_settings, size: 32, color: Colors.white,),),
                 SizedBox(height: 12),
                 Text('Admin', style: TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 18)),
+                    fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
               ],
             ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.dashboard),
+            title: const Text('Admin Dashboard'),
+            onTap: () => Navigator.pushNamed(context, '/admin/dashboard'),
           ),
           ListTile(
             leading: const Icon(Icons.settings),

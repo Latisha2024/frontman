@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../../constants/colors.dart';
 
 class SalesManagerDrawer extends StatelessWidget {
@@ -12,8 +11,22 @@ class SalesManagerDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           const DrawerHeader(
-            decoration: const BoxDecoration(color: AppColors.primaryBlue),
-            child: const Text('Sales Manager Panel', style: TextStyle(fontSize: 22, color: Colors.black)),
+            decoration: BoxDecoration(color: AppColors.primaryBlue),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 12),
+                CircleAvatar(radius: 28, backgroundColor: AppColors.secondaryBlue ,child: Icon(Icons.manage_accounts, size: 32, color: Colors.white,),),
+                SizedBox(height: 12),
+                Text('Sales Manager', style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.dashboard),
+            title: const Text('Sales Manager Dashboard'),
+            onTap: () => Navigator.pushNamed(context, '/sales_manager/dashboard'),
           ),
           ListTile(
             leading: const Icon(Icons.gps_fixed),
@@ -44,4 +57,4 @@ class SalesManagerDrawer extends StatelessWidget {
       ),
     );
   }
-} 
+}

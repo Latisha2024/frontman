@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:role_based_app/admin/screens/admin_dashboard.dart';
+import 'package:role_based_app/external_seller/controllers/delivery_report.dart';
+import 'package:role_based_app/external_seller/screens/external_seller_dashboard.dart';
+import 'package:role_based_app/sales_manager/screens/sales_manager_dashboard.dart';
+import 'package:role_based_app/worker/screens/worker_dashboard.dart';
 import '../../sales_manager/screens/sales_manager_drawer.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
@@ -50,19 +55,19 @@ class _LoginPageState extends State<LoginPage> {
     Widget? homeScreen;
     
     if (email == 'admin@demo.com' && password == 'admin123') {
-      homeScreen = const AdminDrawer();
+      homeScreen = const AdminDashboardScreen();
     } else if (email == 'seller@demo.com' && password == 'seller123') {
-      homeScreen = const SellerDrawer();
+      homeScreen = const ExternalSellerDashboardScreen();
     } else if (email == 'worker@demo.com' && password == 'worker123') {
-      homeScreen = const WorkerDrawer();
+      homeScreen = const WorkerDashboardScreen();
     } else if (email == 'executive@demo.com' && password == 'executive123') {
-      homeScreen = const FieldExecutiveHomePage();
+      homeScreen = const FieldExecutiveUI();
     } else if (email == 'distributor@demo.com' && password == 'distributor123') {
       homeScreen = const DistributorHomePage();
     } else if (email == 'accountant@demo.com' && password == 'accountant123') {
       homeScreen = const AccountantHomeScreen();
     } else if (email == 'manager@demo.com' && password == 'manager123') {
-      homeScreen = const SalesManagerDrawer();
+      homeScreen = const SalesManagerDashboardScreen();
     }
 
     setState(() {

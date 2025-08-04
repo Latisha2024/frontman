@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../constants/colors.dart';
 
 class SyncOfflinePage extends StatefulWidget {
   const SyncOfflinePage({super.key});
@@ -11,7 +12,7 @@ class SyncOfflinePage extends StatefulWidget {
 
 class _SyncOfflinePageState extends State<SyncOfflinePage> {
   final executiveIdController = TextEditingController(text: '101');
-  final offlineDataController = TextEditingController(); // Should contain valid JSON
+  final offlineDataController = TextEditingController();
 
   String message = '';
   Color messageColor = Colors.green;
@@ -23,7 +24,7 @@ class _SyncOfflinePageState extends State<SyncOfflinePage> {
 
       if (parsedId == null) {
         setState(() {
-          message = "Invalid Executive ID.";
+          message = "❗ Invalid Executive ID.";
           messageColor = Colors.red;
         });
         return;
@@ -58,47 +59,78 @@ class _SyncOfflinePageState extends State<SyncOfflinePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("Sync Offline Data"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
+        elevation: 2,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: executiveIdController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: "Executive ID",
-                border: OutlineInputBorder(),
-              ),
+        padding: const EdgeInsets.all(20),
+        child: Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: ListView(
+              children: [
+                const Text(
+                  "Offline Data Sync",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: executiveIdController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: "Executive ID",
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    filled: true,
+                    fillColor: AppColors.inputFill,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: offlineDataController,
+                  maxLines: 6,
+                  decoration: InputDecoration(
+                    labelText: "Offline Data (JSON List/Map)",
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    filled: true,
+                    fillColor: AppColors.inputFill,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: syncData,
+                    icon: const Icon(Icons.sync),
+                    label: const Text("Sync Now"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (message.isNotEmpty)
+                  Center(
+                    child: Text(
+                      message,
+                      style: TextStyle(
+                        color: messageColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+              ],
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: offlineDataController,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: "Offline Data (as JSON List or Map)",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: syncData,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFA5C8D0),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
-              child: const Text("Sync Now"),
-            ),
-            const SizedBox(height: 12),
-            if (message.isNotEmpty)
-              Text(
-                message,
-                style: TextStyle(color: messageColor, fontSize: 14, fontWeight: FontWeight.w500),
-              ),
-          ],
+          ),
         ),
       ),
     );

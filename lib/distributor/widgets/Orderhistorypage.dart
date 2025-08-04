@@ -1,5 +1,6 @@
 // order_history_page.dart
 import 'package:flutter/material.dart';
+import 'package:role_based_app/constants/colors.dart';
 
 class OrderHistoryPage extends StatefulWidget {
   const OrderHistoryPage({super.key});
@@ -38,7 +39,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Order History"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -54,7 +55,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: fetchOrderHistory,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
               child: const Text("Fetch History"),
             ),
             const SizedBox(height: 16),

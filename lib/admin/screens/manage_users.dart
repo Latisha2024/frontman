@@ -45,7 +45,7 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
               'Manage Users',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
 
             ),
@@ -63,7 +63,7 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
                 },
                 icon: Icon(
                   showForm ? Icons.list : Icons.add,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
                 tooltip: showForm ? 'View Users' : 'Add User',
               ),

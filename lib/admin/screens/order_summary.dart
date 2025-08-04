@@ -42,7 +42,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
               'Order Summary',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             backgroundColor: AppColors.primaryBlue,
@@ -108,7 +108,6 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                 borderSide: const BorderSide(color: AppColors.textPrimary),
               ),
               filled: true,
-              fillColor: AppColors.primaryBlue.withOpacity(0.1),
             ),
           ),
           const SizedBox(height: 16),
@@ -119,7 +118,6 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.primaryBlue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.textPrimary),
                   ),
                   child: DropdownButtonFormField<String>(
                     value: controller.selectedStatus,

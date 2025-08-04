@@ -211,7 +211,7 @@ class _TrackFinancialLogsScreenState extends State<TrackFinancialLogsScreen> {
             title: const Text('Sign Out', style: TextStyle(color: AppTheme.accentColor)),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/Users/surma/Development/Projects/ff/lib/authpage/pages/login_page.dart');
+              Navigator.pushReplacementNamed(context, '/login');
             },
           ),
         ],
@@ -382,7 +382,7 @@ class _TrackFinancialLogsScreenState extends State<TrackFinancialLogsScreen> {
                     Icon(
                       Icons.category,
                       size: 48,
-                      color: AppTheme.secondaryColor,
+                      color: AppTheme.accentColor,
                     ),
                     SizedBox(height: 8),
                     Text(

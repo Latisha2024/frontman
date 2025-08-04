@@ -33,7 +33,7 @@ class ProductForm extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: AppColors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -124,7 +124,7 @@ class ProductForm extends StatelessWidget {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.secondaryBlue,
+                          backgroundColor: AppColors.primaryBlue,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -223,7 +223,6 @@ class ProductForm extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.secondaryBlue),
       ),
       child: TextField(
         controller: controller,
@@ -231,7 +230,7 @@ class ProductForm extends StatelessWidget {
         maxLines: maxLines,
         decoration: InputDecoration(
           labelText: isRequired ? '$label *' : label,
-          prefixIcon: Icon(icon, color: AppColors.textSecondary),
+          prefixIcon: Icon(icon, color: AppColors.secondaryBlue),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           labelStyle: const TextStyle(color: AppColors.textSecondary),
@@ -251,7 +250,6 @@ class ProductForm extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.secondaryBlue),
       ),
       child: DropdownButtonFormField<String>(
         value: value,
@@ -259,7 +257,7 @@ class ProductForm extends StatelessWidget {
         onChanged: onChanged,
         decoration: InputDecoration(
           labelText: label,
-          prefixIcon: Icon(icon, color: AppColors.textSecondary),
+          prefixIcon: Icon(icon, color: AppColors.secondaryBlue),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           labelStyle: const TextStyle(color: AppColors.textSecondary),

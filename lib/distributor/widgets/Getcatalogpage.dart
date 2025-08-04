@@ -1,5 +1,6 @@
 // get_catalog_page.dart
 import 'package:flutter/material.dart';
+import 'package:role_based_app/constants/colors.dart';
 
 class GetCatalogPage extends StatefulWidget {
   const GetCatalogPage({super.key});
@@ -26,7 +27,7 @@ class _GetCatalogPageState extends State<GetCatalogPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Get Product Catalog"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -35,7 +36,7 @@ class _GetCatalogPageState extends State<GetCatalogPage> {
           children: [
             ElevatedButton(
               onPressed: fetchCatalog,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
               child: const Text("Fetch Catalog"),
             ),
             const SizedBox(height: 16),

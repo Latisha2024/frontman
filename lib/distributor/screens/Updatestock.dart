@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:role_based_app/constants/colors.dart';
 
 class UpdateStockPage extends StatelessWidget {
   const UpdateStockPage({super.key});
@@ -11,7 +12,7 @@ class UpdateStockPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Update Stock"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -29,7 +30,7 @@ class UpdateStockPage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {},
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
               child: const Text("Update Stock"),
             ),
           ],

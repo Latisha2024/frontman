@@ -45,7 +45,7 @@ class ManageProductsScreenState extends State<ManageProductsScreen> {
               'Manage Products',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             backgroundColor: AppColors.primaryBlue,
@@ -62,7 +62,7 @@ class ManageProductsScreenState extends State<ManageProductsScreen> {
                 },
                 icon: Icon(
                   showForm ? Icons.list : Icons.add,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
                 tooltip: showForm ? 'View Products' : 'Add Product',
               ),

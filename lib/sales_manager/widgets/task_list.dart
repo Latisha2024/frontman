@@ -81,7 +81,6 @@ class TaskList extends StatelessWidget {
                 borderSide: const BorderSide(color: AppColors.textPrimary),
               ),
               filled: true,
-              fillColor: AppColors.primaryBlue.withOpacity(0.1),
             ),
           ),
           const SizedBox(height: 16),
@@ -112,7 +111,6 @@ class TaskList extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.primaryBlue.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.textPrimary),
       ),
       child: DropdownButtonFormField<String>(
         value: value,
@@ -161,7 +159,7 @@ class TaskList extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.assignment, color: AppColors.textSecondary, size: 28),
+                Icon(Icons.assignment, color: AppColors.secondaryBlue, size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(

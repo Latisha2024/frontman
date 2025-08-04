@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../constants/colors.dart'; // Uses your AppColors
 
 class PlaceOrderPage extends StatefulWidget {
   const PlaceOrderPage({super.key});
@@ -18,26 +19,28 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
 
   String selectedCountry = 'Canada';
   String selectedState = 'Ontario';
-  String selectedDelivery = 'Free';
   String selectedPayment = 'Card';
   bool subscribe = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("Place Order"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Row: 3 sections side by side in column for mobile view
-            Column(
+        child: Card(
+          color: AppColors.surface,
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 2. Delivery Address
                 _buildSectionTitle("DELIVERY ADDRESS"),
                 _buildTextField("Email Address", emailController),
                 Row(
@@ -52,9 +55,11 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
                 _buildTextField("Suburb / Town", townController),
                 Row(
                   children: [
-                    Expanded(child: _buildDropdown("State / Territory", selectedState, ['Ontario', 'Alberta', 'Quebec'], (val) {
-                      setState(() => selectedState = val ?? '');
-                    })),
+                    Expanded(
+                      child: _buildDropdown("State / Territory", selectedState, ['Ontario', 'Alberta', 'Quebec'], (val) {
+                        setState(() => selectedState = val ?? '');
+                      }),
+                    ),
                     const SizedBox(width: 10),
                     Expanded(child: _buildTextField("Postcode", postcodeController)),
                   ],
@@ -64,51 +69,45 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
                 }),
                 Row(
                   children: [
-                    Checkbox(
-                      value: true,
-                      onChanged: (_) {},
-                    ),
-                    const Text("Same billing address")
+                    Checkbox(value: true, onChanged: (_) {}),
+                    const Text("Same billing address"),
                   ],
                 ),
-
                 const SizedBox(height: 24),
-
-                // 3. Payment Method
                 _buildSectionTitle("SELECT PAYMENT METHOD"),
                 _buildPaymentOption(),
-
                 const SizedBox(height: 24),
-
-                // Order Summary
                 _buildSectionTitle("ORDER SUMMARY"),
                 _buildOrderSummary(),
-
                 Row(
                   children: [
                     Checkbox(
                       value: subscribe,
                       onChanged: (val) => setState(() => subscribe = val ?? false),
                     ),
-                    const Expanded(child: Text("I'm keen for new releases and subscriber exclusives. Sign me up!")),
+                    const Expanded(
+                      child: Text("I'm keen for new releases and subscriber exclusives. Sign me up!"),
+                    ),
                   ],
                 ),
-
-                const SizedBox(height: 10),
-
-                ElevatedButton(
-                  onPressed: () {
-                    // process order
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepOrange,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Process order
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text("PAY NOW", style: TextStyle(fontSize: 16, color: AppColors.buttonText)),
                   ),
-                  child: const Text("PAY NOW", style: TextStyle(fontSize: 16)),
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -117,7 +116,14 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
   Widget _buildSectionTitle(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+          color: AppColors.textPrimary,
+        ),
+      ),
     );
   }
 
@@ -126,7 +132,14 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
         controller: controller,
-        decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: AppColors.textSecondary),
+          border: OutlineInputBorder(borderSide: BorderSide(color: AppColors.border)),
+          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.inputFocus)),
+          filled: true,
+          fillColor: AppColors.inputFill,
+        ),
       ),
     );
   }
@@ -136,12 +149,20 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
       padding: const EdgeInsets.only(bottom: 12),
       child: DropdownButtonFormField<String>(
         value: value,
-        decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: AppColors.textSecondary),
+          border: OutlineInputBorder(borderSide: BorderSide(color: AppColors.border)),
+          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.inputFocus)),
+          filled: true,
+          fillColor: AppColors.inputFill,
+        ),
         items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
         onChanged: onChanged,
       ),
     );
   }
+
   Widget _buildPaymentOption() {
     return Column(
       children: [
@@ -150,12 +171,14 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
           groupValue: selectedPayment,
           onChanged: (val) => setState(() => selectedPayment = val!),
           title: const Text("Card"),
+          activeColor: AppColors.primary,
         ),
         RadioListTile<String>(
           value: 'PayPal',
           groupValue: selectedPayment,
           onChanged: (val) => setState(() => selectedPayment = val!),
           title: const Text("PayPal"),
+          activeColor: AppColors.primary,
         ),
       ],
     );
@@ -167,6 +190,9 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
     const total = 123.17;
 
     return Card(
+      color: AppColors.surfaceVariant,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -199,7 +225,10 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
           if (subtitle != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              child: Text(
+                subtitle,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
             ),
         ],
       ),

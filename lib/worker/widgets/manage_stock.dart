@@ -22,7 +22,6 @@ class WorkerManageStockForm extends StatelessWidget {
         children: [
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
-            padding: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -41,7 +40,6 @@ class WorkerManageStockForm extends StatelessWidget {
           ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
-            padding: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -61,7 +59,6 @@ class WorkerManageStockForm extends StatelessWidget {
           ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
-            padding: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -80,7 +77,6 @@ class WorkerManageStockForm extends StatelessWidget {
           ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
-            padding: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),

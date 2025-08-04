@@ -41,6 +41,8 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
   String? error;
   String? successMessage;
   List<Warranty> warranties = [];
+  List<Warranty> filteredWarranties = [];
+  String searchQuery = '';
   final productController = TextEditingController();
   final customerController = TextEditingController();
   final serialController = TextEditingController();
@@ -48,6 +50,22 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
   final expiryDateController = TextEditingController();
   Warranty? editingWarranty;
   bool isEditMode = false;
+
+  void searchWarranties(String query) {
+    searchQuery = query;
+    applyFilters();
+  }
+
+  void applyFilters() {
+    filteredWarranties = warranties.where((w) {
+      final q = searchQuery.toLowerCase();
+      return q.isEmpty ||
+        w.product.toLowerCase().contains(q) ||
+        w.customer.toLowerCase().contains(q) ||
+        w.serialNumber.toLowerCase().contains(q);
+    }).toList();
+    notifyListeners();
+  }
 
   void addWarranty() {
     if (productController.text.isEmpty || customerController.text.isEmpty || serialController.text.isEmpty || purchaseDateController.text.isEmpty || expiryDateController.text.isEmpty) {
@@ -64,6 +82,7 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
       expiryDate: DateTime.parse(expiryDateController.text.trim()),
     );
     warranties.add(newWarranty);
+    applyFilters();
     clearForm();
     successMessage = 'Warranty added.';
     notifyListeners();
@@ -97,6 +116,7 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
     final index = warranties.indexWhere((w) => w.id == editingWarranty!.id);
     if (index != -1) {
       warranties[index] = updatedWarranty;
+      applyFilters();
       clearForm();
       successMessage = 'Warranty updated.';
     }
@@ -105,6 +125,7 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
 
   void deleteWarranty(String id) {
     warranties.removeWhere((w) => w.id == id);
+    applyFilters();
     successMessage = 'Warranty deleted.';
     notifyListeners();
   }

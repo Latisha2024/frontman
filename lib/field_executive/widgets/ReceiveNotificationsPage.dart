@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../constants/colors.dart'; // Make sure this exists
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -20,7 +21,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     if (userId == null) {
       setState(() {
-        statusMessage = "Invalid User ID";
+        statusMessage = "❗ Invalid User ID";
         statusColor = Colors.red;
         notifications = [];
       });
@@ -45,7 +46,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         });
       } else {
         setState(() {
-          statusMessage = "❌ Failed to load notifications (Status ${response.statusCode})";
+          statusMessage = "❌ Failed (Status: ${response.statusCode})";
           statusColor = Colors.red;
           notifications = [];
         });
@@ -62,49 +63,91 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Notifications"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        title: const Text("Notifications", style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: AppColors.primary,
+        elevation: 3,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: userIdController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: "User ID",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: fetchNotifications,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFA5C8D0),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              ),
-              child: const Text("Get Notifications"),
-            ),
-            const SizedBox(height: 16),
-            if (statusMessage.isNotEmpty)
-              Text(statusMessage,
-                  style: TextStyle(color: statusColor, fontWeight: FontWeight.w500)),
-            const SizedBox(height: 10),
-            Expanded(
-              child: notifications.isEmpty
-                  ? const Center(child: Text("No notifications to show."))
-                  : ListView.separated(
-                      itemCount: notifications.length,
-                      separatorBuilder: (_, __) => const Divider(),
-                      itemBuilder: (_, i) => ListTile(
-                        leading: const Icon(Icons.notifications),
-                        title: Text(notifications[i]),
+        child: Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Check Notifications",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: userIdController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: "User ID",
+                    prefixIcon: const Icon(Icons.person),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    filled: true,
+                    fillColor: AppColors.inputFill,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: fetchNotifications,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text("Get Notifications"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
+                      textStyle: const TextStyle(fontSize: 16),
                     ),
-            )
-          ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (statusMessage.isNotEmpty)
+                  Text(
+                    statusMessage,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                const SizedBox(height: 10),
+                const Divider(thickness: 1),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: notifications.isEmpty
+                      ? const Center(
+                          child: Text(
+                            "No notifications to show.",
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: notifications.length,
+                          itemBuilder: (_, i) => Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            margin: const EdgeInsets.symmetric(vertical: 6),
+                            child: ListTile(
+                              leading: const Icon(Icons.notifications_active, color: Colors.blueAccent),
+                              title: Text(notifications[i]),
+                            ),
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

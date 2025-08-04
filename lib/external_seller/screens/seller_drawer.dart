@@ -16,11 +16,18 @@ class SellerDrawer extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(radius: 28, child: Icon(Icons.person, size: 32)),
                 SizedBox(height: 12),
-                Text('External Seller', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                CircleAvatar(radius: 28, backgroundColor: AppColors.secondaryBlue ,child: Icon(Icons.person, size: 32, color: Colors.white,),),
+                SizedBox(height: 12),
+                Text('External Seller', style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
               ],
             ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.dashboard),
+            title: const Text('External Seller Dashboard'),
+            onTap: () => Navigator.pushNamed(context, '/seller/dashboard'),
           ),
           ListTile(
             leading: const Icon(Icons.card_giftcard),

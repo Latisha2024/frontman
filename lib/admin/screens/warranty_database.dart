@@ -20,6 +20,7 @@ class _WarrantyDatabaseScreenState extends State<WarrantyDatabaseScreen> {
   void initState() {
     super.initState();
     controller = AdminWarrantyDatabaseController();
+    controller.applyFilters();
   }
 
   @override
@@ -45,7 +46,7 @@ class _WarrantyDatabaseScreenState extends State<WarrantyDatabaseScreen> {
               'Manage Warranty Database',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             backgroundColor: AppColors.primaryBlue,
@@ -62,7 +63,7 @@ class _WarrantyDatabaseScreenState extends State<WarrantyDatabaseScreen> {
                 },
                 icon: Icon(
                   showForm ? Icons.list : Icons.add,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
                 tooltip: showForm ? 'View Warranties' : 'Add Warranty',
               ),

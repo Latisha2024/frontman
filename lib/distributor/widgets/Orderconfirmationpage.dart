@@ -1,5 +1,6 @@
 // order_confirmation_page.dart
 import 'package:flutter/material.dart';
+import 'package:role_based_app/constants/colors.dart';
 
 class OrderConfirmationPage extends StatefulWidget {
   const OrderConfirmationPage({super.key});
@@ -34,7 +35,7 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Order Confirmation"),
-        backgroundColor: const Color(0xFFA5C8D0),
+        backgroundColor: AppColors.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -50,11 +51,11 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: getConfirmation,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA5C8D0)),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
               child: const Text("Get Confirmation"),
             ),
             const SizedBox(height: 16),
-            Text(confirmationDetails, style: const TextStyle(color: Colors.green)),
+            Text(confirmationDetails, style: const TextStyle(color: Colors.white)),
           ],
         ),
       ),
