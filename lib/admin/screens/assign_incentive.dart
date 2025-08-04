@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:role_based_app/sales_manager/screens/sales_manager_drawer.dart';
 import '../../constants/colors.dart';
 import '../controllers/assign_incentive.dart';
 import '../widgets/assign_incentive_form.dart';
 import 'admin_drawer.dart';
 
 class AssignIncentiveScreen extends StatefulWidget {
-  const AssignIncentiveScreen({super.key});
-
+  final String role;
+  const AssignIncentiveScreen({super.key, required this.role});
   @override
   State<AssignIncentiveScreen> createState() => _AssignIncentiveScreenState();
 }
@@ -49,7 +50,7 @@ class _AssignIncentiveScreenState extends State<AssignIncentiveScreen> {
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
           ),
-          drawer: AdminDrawer(),
+          drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
           body: Center(
             child: Container(
               padding: EdgeInsets.all(20),

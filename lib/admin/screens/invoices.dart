@@ -1,3 +1,4 @@
+import '../../sales_manager/screens/sales_manager_drawer.dart';
 import '../controllers/invoices.dart';
 import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
@@ -6,7 +7,8 @@ import '../widgets/invoice_form.dart';
 import 'admin_drawer.dart';
 
 class AdminInvoicesScreen extends StatefulWidget {
-  const AdminInvoicesScreen({super.key});
+  final String role;
+  const AdminInvoicesScreen({super.key, required this.role});
 
   @override
   State<AdminInvoicesScreen> createState() => _AdminInvoicesScreenState();
@@ -69,7 +71,7 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
               ),
             ],
           ),
-          drawer: const AdminDrawer(),
+          drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
           body: Column(
             children: [
               // Header with stats

@@ -1,10 +1,14 @@
+import '../../sales_manager/screens/sales_manager_drawer.dart';
 import './admin_drawer.dart';
 import 'package:flutter/material.dart';
 import '../controllers/generate_reports.dart';
 import '../../constants/colors.dart';
+import 'company_selection.dart';
 
 class GenerateReportsScreen extends StatefulWidget {
-  const GenerateReportsScreen({super.key});
+  final Company? company;
+  final String role;
+  const GenerateReportsScreen({super.key, this.company, required this.role});
 
   @override
   State<GenerateReportsScreen> createState() => _GenerateReportsScreenState();
@@ -16,7 +20,7 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
   @override
   void initState() {
     super.initState();
-    controller = AdminGenerateReportsController();
+    controller = AdminGenerateReportsController(companyId: widget.company?.id);
   }
 
   @override
@@ -41,13 +45,13 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
               ),
             ),
           ),
-          drawer: AdminDrawer(),
+          drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Report type selector
+                // Report type selector and total amount
                 Row(
                   children: [
                     const Text('Report Type:', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -64,8 +68,28 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                         if (type != null) controller.selectType(type);
                       },
                     ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryBlue,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'Total: \n₹${controller.totalAmount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                // Simple Chart
+                if (!controller.isLoading && controller.error == null && controller.filteredReports.isNotEmpty)
+                  _buildSimpleChart(),
                 const SizedBox(height: 16),
                 // Loading/Error
                 if (controller.isLoading)
@@ -85,7 +109,22 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                                 margin: const EdgeInsets.symmetric(vertical: 8),
                                 child: ListTile(
                                   title: Text(report.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  subtitle: Text(report.description),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(report.description),
+                                      if (report.userName != null) ...[
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'User: ${report.userName}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color: AppColors.primaryBlue,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                                   trailing: Text(
                                     '${report.date.year}-${report.date.month.toString().padLeft(2, '0')}-${report.date.day.toString().padLeft(2, '0')}',
                                     style: const TextStyle(fontSize: 12, color: Colors.grey),
@@ -99,6 +138,16 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(report.description),
+                                          if (report.userName != null) ...[
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              'User: ${report.userName}',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.primaryBlue,
+                                              ),
+                                            ),
+                                          ],
                                           const SizedBox(height: 12),
                                           ...report.details.entries.map((e) => Text('${e.key}: ${e.value}')),
                                         ],
@@ -121,6 +170,69 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSimpleChart() {
+    if (controller.filteredReports.isEmpty) return const SizedBox.shrink();
+    
+    final report = controller.filteredReports.first;
+    final details = report.details;
+    
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${controller.selectedType[0].toUpperCase() + controller.selectedType.substring(1)} Overview',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Column(
+              children: details.entries.take(4).map((entry) {
+                return Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      width: 150,
+                      child: Text(
+                        '${entry.key}:',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 40,
+                      child: Center(
+                        child: Text(
+                          entry.value.toString(),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryBlue,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 10,)
+                  ],
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

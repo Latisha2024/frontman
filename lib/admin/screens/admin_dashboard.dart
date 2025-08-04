@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'admin_drawer.dart';
 import '../../constants/colors.dart';
+import 'company_selection.dart';
+import 'manage_products.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
-  const AdminDashboardScreen({Key? key}) : super(key: key);
+  final Company? company;
+
+  const AdminDashboardScreen({Key? key, this.company}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +18,7 @@ class AdminDashboardScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      drawer: const AdminDrawer(),
+      drawer: AdminDrawer(company: company),
       body: Container(
         color: AppColors.backgroundColor,
         child: SingleChildScrollView(
@@ -50,19 +54,49 @@ class AdminDashboardScreen extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Icon(Icons.admin_panel_settings, color: Colors.white, size: 48),
-            SizedBox(height: 16),
-            Text(
-              'Welcome, Admin!',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.admin_panel_settings, color: Colors.white, size: 48),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Welcome, Admin!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (company != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          company!.name,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          company!.description,
+                          style: const TextStyle(
+                            color: Colors.white60,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 8),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Manage your business efficiently',
               style: TextStyle(
                 color: Colors.white70,
@@ -116,7 +150,12 @@ class AdminDashboardScreen extends StatelessWidget {
                   context,
                   icon: Icons.inventory,
                   label: 'Manage Products',
-                  onPressed: () => Navigator.pushNamed(context, '/admin/manage-products'),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ManageProductsScreen(company: company,role: "admin"),
+                    ),
+                  ),
                 ),
                 _buildActionButton(
                   context,

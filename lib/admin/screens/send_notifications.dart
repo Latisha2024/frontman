@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../sales_manager/screens/sales_manager_drawer.dart';
 import '../controllers/send_notifications.dart';
 import '../../constants/colors.dart';
 import 'admin_drawer.dart';
 
 class SendNotificationsScreen extends StatefulWidget {
-  const SendNotificationsScreen({super.key});
+  final String role;
+  const SendNotificationsScreen({super.key, required this.role});
 
   @override
   State<SendNotificationsScreen> createState() => _SendNotificationsScreenState();
@@ -43,7 +45,7 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
                   ),
             ),
           ),
-          drawer: AdminDrawer(),
+          drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Align(

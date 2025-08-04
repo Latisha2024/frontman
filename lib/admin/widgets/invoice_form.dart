@@ -100,13 +100,6 @@ class _InvoiceFormState extends State<InvoiceForm> {
               ),
               const SizedBox(height: 16),
               buildTextField(
-                controller: controller.issueDateController,
-                label: 'Issue Date (YYYY-MM-DD)',
-                icon: Icons.calendar_today,
-                isRequired: true,
-              ),
-              const SizedBox(height: 16),
-              buildTextField(
                 controller: controller.dueDateController,
                 label: 'Due Date (YYYY-MM-DD)',
                 icon: Icons.event,

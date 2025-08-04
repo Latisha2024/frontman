@@ -142,7 +142,7 @@ class AdminInvoicesController extends ChangeNotifier {
     final newInvoice = Invoice(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       invoiceNumber: invoiceNumberController.text.trim(),
-      issueDate: DateTime.parse(issueDateController.text.trim()),
+      issueDate: DateTime.now(),
       dueDate: DateTime.parse(dueDateController.text.trim()),
       reference: referenceController.text.trim(),
       billTo: billToController.text.trim(),
@@ -177,7 +177,6 @@ class AdminInvoicesController extends ChangeNotifier {
     if (!validateForm()) return;
     final updatedInvoice = editingInvoice!.copyWith(
       invoiceNumber: invoiceNumberController.text.trim(),
-      issueDate: DateTime.parse(issueDateController.text.trim()),
       dueDate: DateTime.parse(dueDateController.text.trim()),
       reference: referenceController.text.trim(),
       billTo: billToController.text.trim(),
@@ -219,7 +218,6 @@ class AdminInvoicesController extends ChangeNotifier {
   bool validateForm() {
     error = null;
     if (invoiceNumberController.text.trim().isEmpty ||
-        issueDateController.text.trim().isEmpty ||
         dueDateController.text.trim().isEmpty ||
         referenceController.text.trim().isEmpty ||
         billToController.text.trim().isEmpty ||

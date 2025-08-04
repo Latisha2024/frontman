@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
+import '../../sales_manager/screens/sales_manager_drawer.dart';
 import '../controllers/audit_logs.dart';
 import 'admin_drawer.dart';
 
 class AuditLogsScreen extends StatefulWidget {
-  const AuditLogsScreen({super.key});
+  final String role;
+  const AuditLogsScreen({super.key, required this.role});
 
   @override
   State<AuditLogsScreen> createState() => _AuditLogsScreenState();
@@ -48,7 +50,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
           ),
-          drawer: const AdminDrawer(),
+          drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

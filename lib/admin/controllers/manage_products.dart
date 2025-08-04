@@ -8,6 +8,7 @@ class Product {
   final double price;
   final int stock;
   final String status; // 'active' or 'inactive'
+  final String companyId; // Company this product belongs to
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -19,6 +20,7 @@ class Product {
     required this.price,
     required this.stock,
     required this.status,
+    required this.companyId,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -31,6 +33,7 @@ class Product {
     double? price,
     int? stock,
     String? status,
+    String? companyId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -42,6 +45,7 @@ class Product {
       price: price ?? this.price,
       stock: stock ?? this.stock,
       status: status ?? this.status,
+      companyId: companyId ?? this.companyId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -54,6 +58,10 @@ class AdminManageProductsController extends ChangeNotifier {
   bool isLoading = false;
   String? error;
   String? successMessage;
+  String? currentCompanyId;
+
+  // Getter for current company ID
+  String? get companyId => currentCompanyId;
 
   // Search and filter
   String searchQuery = '';
@@ -75,19 +83,23 @@ class AdminManageProductsController extends ChangeNotifier {
   // Available statuses
   final List<String> availableStatuses = ['active', 'inactive'];
 
-  // Available categories (could be dynamic in real app)
-  final List<String> availableCategories = [
+  // Available categories (could be dynamic)
+  List<String> availableCategories = [
     'All',
     'Electronics',
     'Apparel',
     'Home',
     'Sports',
+    'Industrial',
+    'Safety',
+    'Tools',
     'Other',
   ];
 
-  AdminManageProductsController() {
-    // Initialize with dummy product data
+  AdminManageProductsController({String? companyId}) {
+    currentCompanyId = companyId;
     products = [
+      // Company 1 products
       Product(
         id: '1',
         name: 'Premium Smartphone',
@@ -96,11 +108,74 @@ class AdminManageProductsController extends ChangeNotifier {
         price: 72999,
         stock: 50,
         status: 'active',
+        companyId: 'company1',
         createdAt: DateTime.now().subtract(const Duration(days: 30)),
         updatedAt: DateTime.now().subtract(const Duration(days: 5)),
       ),
+      Product(
+        id: '2',
+        name: 'Gaming Laptop',
+        description: 'High-performance gaming laptop with RTX graphics',
+        category: 'Electronics',
+        price: 89999,
+        stock: 25,
+        status: 'active',
+        companyId: 'company1',
+        createdAt: DateTime.now().subtract(const Duration(days: 25)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 3)),
+      ),
+      Product(
+        id: '3',
+        name: 'Wireless Headphones',
+        description: 'Noise-cancelling wireless headphones with premium sound quality',
+        category: 'Electronics',
+        price: 15999,
+        stock: 100,
+        status: 'active',
+        companyId: 'company1',
+        createdAt: DateTime.now().subtract(const Duration(days: 20)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 1)),
+      ),
+      // Company 2 products
+      Product(
+        id: '4',
+        name: 'Industrial Machine',
+        description: 'Heavy-duty industrial manufacturing machine',
+        category: 'Industrial',
+        price: 250000,
+        stock: 5,
+        status: 'active',
+        companyId: 'company2',
+        createdAt: DateTime.now().subtract(const Duration(days: 15)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 2)),
+      ),
+      Product(
+        id: '5',
+        name: 'Safety Equipment',
+        description: 'Complete safety equipment set for industrial workers',
+        category: 'Safety',
+        price: 45000,
+        stock: 75,
+        status: 'active',
+        companyId: 'company2',
+        createdAt: DateTime.now().subtract(const Duration(days: 10)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 1)),
+      ),
+      Product(
+        id: '6',
+        name: 'Factory Tools',
+        description: 'Professional grade tools for manufacturing processes',
+        category: 'Tools',
+        price: 35000,
+        stock: 40,
+        status: 'active',
+        companyId: 'company2',
+        createdAt: DateTime.now().subtract(const Duration(days: 8)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 1)),
+      ),
     ];
     filteredProducts = List.from(products);
+    applyFilters(); // Apply filters immediately
     notifyListeners();
   }
 
@@ -120,12 +195,21 @@ class AdminManageProductsController extends ChangeNotifier {
   }
 
   void applyFilters() {
-    filteredProducts = products.where((product) {
+
+    List<Product> companyFiltered = products;
+    if (currentCompanyId != null) {
+      companyFiltered = products.where((product) => product.companyId == currentCompanyId).toList();
+
+    }
+
+    // Then apply other filters
+    filteredProducts = companyFiltered.where((product) {
       bool matchesSearch = searchQuery.isEmpty ||
           product.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
           product.description.toLowerCase().contains(searchQuery.toLowerCase());
       bool matchesCategory = selectedCategory == 'All' || product.category == selectedCategory;
       bool matchesStatus = selectedStatus == 'All' || product.status == selectedStatus;
+      
       return matchesSearch && matchesCategory && matchesStatus;
     }).toList();
     notifyListeners();
@@ -141,6 +225,7 @@ class AdminManageProductsController extends ChangeNotifier {
       price: double.parse(priceController.text.trim()),
       stock: int.parse(stockController.text.trim()),
       status: selectedProductStatus,
+      companyId: currentCompanyId ?? 'company1',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -254,6 +339,84 @@ class AdminManageProductsController extends ChangeNotifier {
   void clearMessages() {
     error = null;
     successMessage = null;
+    notifyListeners();
+  }
+
+  // Category management methods
+  void addCategory(String categoryName) {
+    if (categoryName.trim().isEmpty) {
+      error = 'Category name cannot be empty.';
+      notifyListeners();
+      return;
+    }
+    
+    if (availableCategories.contains(categoryName.trim())) {
+      error = 'Category already exists.';
+      notifyListeners();
+      return;
+    }
+    
+    availableCategories.add(categoryName.trim());
+    error = null;
+    successMessage = 'Category "${categoryName.trim()}" added successfully!';
+    notifyListeners();
+  }
+
+  void renameCategory(String oldName, String newName) {
+    if (newName.trim().isEmpty) {
+      error = 'Category name cannot be empty.';
+      notifyListeners();
+      return;
+    }
+    
+    if (oldName == 'All' || oldName == 'All') {
+      error = 'Cannot rename the "All" category.';
+      notifyListeners();
+      return;
+    }
+    
+    if (availableCategories.contains(newName.trim())) {
+      error = 'Category name already exists.';
+      notifyListeners();
+      return;
+    }
+    
+    final index = availableCategories.indexOf(oldName);
+    if (index != -1) {
+      availableCategories[index] = newName.trim();
+      
+      // Update all products with the old category name
+      for (int i = 0; i < products.length; i++) {
+        if (products[i].category == oldName) {
+          products[i] = products[i].copyWith(category: newName.trim());
+        }
+      }
+      
+      error = null;
+      successMessage = 'Category renamed from "$oldName" to "${newName.trim()}" successfully!';
+      applyFilters();
+      notifyListeners();
+    }
+  }
+
+  void deleteCategory(String categoryName) {
+    if (categoryName == 'All') {
+      error = 'Cannot delete the "All" category.';
+      notifyListeners();
+      return;
+    }
+    
+    // Check if any products are using this category
+    final productsWithCategory = products.where((p) => p.category == categoryName).length;
+    if (productsWithCategory > 0) {
+      error = 'Cannot delete category "$categoryName" because $productsWithCategory product(s) are using it.';
+      notifyListeners();
+      return;
+    }
+    
+    availableCategories.remove(categoryName);
+    error = null;
+    successMessage = 'Category "$categoryName" deleted successfully!';
     notifyListeners();
   }
 

@@ -176,6 +176,22 @@ class ProductList extends StatelessWidget {
                           color: AppColors.textPrimary,
                         ),
                       ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryBlue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
+                        ),
+                        child: Text(
+                          'Company ${product.companyId.replaceAll('company', '')}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.primaryBlue,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

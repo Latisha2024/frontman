@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'sales_manager_drawer.dart';
 import '../../constants/colors.dart';
+import '../../admin/screens/company_selection.dart';
 
 class SalesManagerDashboardScreen extends StatelessWidget {
-  const SalesManagerDashboardScreen({Key? key}) : super(key: key);
+  final Company? company;
+  
+  const SalesManagerDashboardScreen({Key? key, this.company}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +17,7 @@ class SalesManagerDashboardScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      drawer: const SalesManagerDrawer(),
+      drawer: SalesManagerDrawer(company: company),
       body: Container(
         color: AppColors.backgroundColor,
         child: SingleChildScrollView(
@@ -50,20 +53,50 @@ class SalesManagerDashboardScreen extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Icon(Icons.admin_panel_settings, color: Colors.white, size: 48),
-            SizedBox(height: 16),
-            Text(
-              'Welcome, Manager!',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.people, color: Colors.white, size: 48),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Welcome, Manager!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (company != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          company!.name,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          company!.description,
+                          style: const TextStyle(
+                            color: Colors.white60,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 8),
-            Text(
-              'Manage your business efficiently',
+            const SizedBox(height: 16),
+            const Text(
+              'Manage your team and track performance',
               style: TextStyle(
                 color: Colors.white70,
                 fontSize: 16,
@@ -130,6 +163,18 @@ class SalesManagerDashboardScreen extends StatelessWidget {
                   label: 'Approve DVR',
                   onPressed: () => Navigator.pushNamed(context, '/sales_manager/approve_dvr_reports'),
                 ),
+                _buildActionButton(
+                  context,
+                  icon: Icons.people_alt,
+                  label: 'CRM',
+                  onPressed: () => _showCrmDialog(context),
+                ),
+                _buildActionButton(
+                  context,
+                  icon: Icons.map,
+                  label: 'Route Chart',
+                  onPressed: () => _showRouteChartDialog(context),
+                ),
               ],
             ),
           ],
@@ -165,6 +210,100 @@ class SalesManagerDashboardScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showCrmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Customer Relationship Management'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Customer Overview:'),
+              const SizedBox(height: 8),
+              _buildCrmCard('Total Customers', '1,250', Icons.people),
+              _buildCrmCard('Active Customers', '890', Icons.person),
+              _buildCrmCard('New This Month', '45', Icons.person_add),
+              _buildCrmCard('VIP Customers', '23', Icons.star),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRouteChartDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Distributor Route Chart'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Route Overview:'),
+              const SizedBox(height: 8),
+              _buildRouteCard('Total Routes', '15', Icons.route),
+              _buildRouteCard('Active Routes', '12', Icons.directions_car),
+              _buildRouteCard('Total Distance', '1,250 km', Icons.straighten),
+              _buildRouteCard('Efficiency', '94%', Icons.trending_up),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCrmCard(String title, String value, IconData icon) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      child: ListTile(
+        leading: Icon(icon, color: AppColors.primaryBlue),
+        title: Text(title),
+        trailing: Text(
+          value,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRouteCard(String title, String value, IconData icon) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      child: ListTile(
+        leading: Icon(icon, color: AppColors.primaryBlue),
+        title: Text(title),
+        trailing: Text(
+          value,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
         ),
       ),
     );

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
+import '../../sales_manager/screens/sales_manager_drawer.dart';
 import '../controllers/order_summary.dart';
 import 'admin_drawer.dart';
 
 class OrderSummaryScreen extends StatefulWidget {
-  const OrderSummaryScreen({super.key});
+  final String role;
+  const OrderSummaryScreen({super.key, required this.role});
 
   @override
   State<OrderSummaryScreen> createState() => _OrderSummaryScreenState();
@@ -48,7 +50,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
           ),
-          drawer: const AdminDrawer(),
+          drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

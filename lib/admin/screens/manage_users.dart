@@ -1,12 +1,14 @@
 import '../../constants/colors.dart';
 import 'package:flutter/material.dart';
+import '../../sales_manager/screens/sales_manager_drawer.dart';
 import '../controllers/manage_users.dart';
 import '../widgets/user_form.dart';
 import '../widgets/user_list.dart';
 import 'admin_drawer.dart';
 
 class ManageUsersScreen extends StatefulWidget {
-  const ManageUsersScreen({super.key});
+  final String role;
+  const ManageUsersScreen({super.key, required this.role});
 
   @override
   State<ManageUsersScreen> createState() => ManageUsersScreenState();
@@ -69,7 +71,7 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
               ),
             ],
           ),
-          drawer: const AdminDrawer(),
+          drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
           body: Column(
             children: [
               // Header with stats

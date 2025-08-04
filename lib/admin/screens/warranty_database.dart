@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../sales_manager/screens/sales_manager_drawer.dart';
 import '../controllers/warranty_database.dart';
 import '../../constants/colors.dart';
 import '../widgets/warranty_form.dart';
@@ -6,7 +7,8 @@ import '../widgets/warranty_list.dart';
 import 'admin_drawer.dart';
 
 class WarrantyDatabaseScreen extends StatefulWidget {
-  const WarrantyDatabaseScreen({super.key});
+  final String role;
+  const WarrantyDatabaseScreen({super.key, required this.role});
 
   @override
   State<WarrantyDatabaseScreen> createState() => _WarrantyDatabaseScreenState();
@@ -69,7 +71,7 @@ class _WarrantyDatabaseScreenState extends State<WarrantyDatabaseScreen> {
               ),
             ],
           ),
-          drawer: AdminDrawer(),
+          drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
