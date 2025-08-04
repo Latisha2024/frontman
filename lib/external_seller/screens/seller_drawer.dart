@@ -53,6 +53,12 @@ class SellerDrawer extends StatelessWidget {
                 Navigator.pushNamed(context, '/seller/validate-warranty'),
           ),
           ListTile(
+            leading: const Icon(Icons.work),
+            title: const Text('Commissioned Work'),
+            onTap: () =>
+                Navigator.pushNamed(context, '/seller/commissioned-work'),
+          ),
+          ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sign Out'),
             onTap: () => Navigator.pushReplacementNamed(context, '/login'),

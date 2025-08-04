@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
     
     if (email == 'admin@demo.com' && password == 'admin123') {
       homeScreen = const AdminDashboardScreen();
-    } else if (email == 'seller@demo.com' && password == 'seller123') {
+    } else if (email == 'plumber@demo.com' && password == 'plumber123') {
       homeScreen = const ExternalSellerDashboardScreen();
     } else if (email == 'worker@demo.com' && password == 'worker123') {
       homeScreen = const WorkerDashboardScreen();
@@ -196,7 +196,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 12),
             _buildCredentialRow('Admin', 'admin@demo.com', 'admin123'),
-            _buildCredentialRow('Seller', 'seller@demo.com', 'seller123'),
+            _buildCredentialRow('Plumber', 'plumber@demo.com', 'plumber123'),
             _buildCredentialRow('Worker', 'worker@demo.com', 'worker123'),
             _buildCredentialRow('Executive', 'executive@demo.com', 'executive123'),
             _buildCredentialRow('Distributor', 'distributor@demo.com', 'distributor123'),

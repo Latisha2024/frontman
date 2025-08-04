@@ -180,6 +180,7 @@ import './external_seller/screens/delivery_report.dart';
 import './external_seller/screens/register_warranty.dart';
 import './external_seller/screens/external_seller_dashboard.dart';
 import './external_seller/screens/validate_warranty.dart';
+import './external_seller/screens/commissioned_work.dart';
 import './worker/screens/worker_dashboard.dart';
 import './sales_manager/screens/sales_manager_dashboard.dart';
 import './worker/screens/production.dart';
@@ -292,6 +293,8 @@ class MyApp extends StatelessWidget {
               const ExternalSellerRegisterWarrantyScreen(),
           '/seller/validate-warranty': (context) =>
               const ExternalSellerValidateRegistrationScreen(),
+          '/seller/commissioned-work' : (context) =>
+            const CommissionedWorkScreen(),
           // Worker
           '/worker/dashboard': (context) => const WorkerDashboardScreen(),
           '/worker/production': (context) => const WorkerProductionScreen(),
