@@ -179,6 +179,7 @@ import './external_seller/screens/points.dart';
 import './external_seller/screens/delivery_report.dart';
 import './external_seller/screens/register_warranty.dart';
 import './external_seller/screens/external_seller_dashboard.dart';
+import './external_seller/screens/validate_warranty.dart';
 import './worker/screens/worker_dashboard.dart';
 import './sales_manager/screens/sales_manager_dashboard.dart';
 import './worker/screens/production.dart';
@@ -269,31 +270,46 @@ class MyApp extends StatelessWidget {
           '/admin/manage-users': (context) => const ManageUsersScreen(),
           '/admin/manage-products': (context) => const ManageProductsScreen(),
           '/admin/generate-reports': (context) => const GenerateReportsScreen(),
-          '/admin/convert-points-to-cash': (context) => const ConvertPointsToCashScreen(),
+          '/admin/convert-points-to-cash': (context) =>
+              const ConvertPointsToCashScreen(),
           '/admin/invoices': (context) => const AdminInvoicesScreen(),
-          '/admin/send-notifications': (context) => const SendNotificationsScreen(),
-          '/admin/warranty-database': (context) => const WarrantyDatabaseScreen(),
+          '/admin/send-notifications': (context) =>
+              const SendNotificationsScreen(),
+          '/admin/warranty-database': (context) =>
+              const WarrantyDatabaseScreen(),
           '/admin/order-summary': (context) => const OrderSummaryScreen(),
           '/admin/audit-logs': (context) => const AuditLogsScreen(),
           '/admin/assign-incentive': (context) => const AssignIncentiveScreen(),
           // External Seller
-          '/seller/dashboard': (context) => const ExternalSellerDashboardScreen(),
-          '/seller/incentives': (context) => const ExternalSellerIncentivesScreen(),
+          '/seller/dashboard': (context) =>
+              const ExternalSellerDashboardScreen(),
+          '/seller/incentives': (context) =>
+              const ExternalSellerIncentivesScreen(),
           '/seller/points': (context) => const ExternalSellerPointsScreen(),
-          '/seller/delivery-report': (context) => const ExternalSellerDeliveryReportScreen(),
-          '/seller/register-warranty': (context) => const ExternalSellerRegisterWarrantyScreen(),
+          '/seller/delivery-report': (context) =>
+              const ExternalSellerDeliveryReportScreen(),
+          '/seller/register-warranty': (context) =>
+              const ExternalSellerRegisterWarrantyScreen(),
+          '/seller/validate-warranty': (context) =>
+              const ExternalSellerValidateRegistrationScreen(),
           // Worker
           '/worker/dashboard': (context) => const WorkerDashboardScreen(),
           '/worker/production': (context) => const WorkerProductionScreen(),
           '/worker/manage-stock': (context) => const WorkerManageStockScreen(),
-          '/worker/report-damage': (context) => const WorkerReportDamageScreen(),
+          '/worker/report-damage': (context) =>
+              const WorkerReportDamageScreen(),
           '/worker/shift-alerts': (context) => const WorkerShiftAlertsScreen(),
           // Sales Manager
-          '/sales_manager/dashboard': (context) => const SalesManagerDashboardScreen(),
-          '/sales_manager/gps_tracking': (context) => const SalesManagerGpsTrackingScreen(),
-          '/sales_manager/performance_reports': (context) => const SalesManagerPerformanceReportsScreen(),
-          '/sales_manager/assign_tasks': (context) => const SalesManagerAssignTasksScreen(),
-          '/sales_manager/approve_dvr_reports': (context) => const SalesManagerApproveDvrReportsScreen(),
+          '/sales_manager/dashboard': (context) =>
+              const SalesManagerDashboardScreen(),
+          '/sales_manager/gps_tracking': (context) =>
+              const SalesManagerGpsTrackingScreen(),
+          '/sales_manager/performance_reports': (context) =>
+              const SalesManagerPerformanceReportsScreen(),
+          '/sales_manager/assign_tasks': (context) =>
+              const SalesManagerAssignTasksScreen(),
+          '/sales_manager/approve_dvr_reports': (context) =>
+              const SalesManagerApproveDvrReportsScreen(),
         },
       ),
     );
@@ -321,5 +337,3 @@ class MyApp extends StatelessWidget {
     return MaterialColor(color.value, swatch);
   }
 }
-
-

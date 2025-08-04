@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 
 class ExternalSellerRegisterWarrantyController extends ChangeNotifier {
@@ -20,6 +19,7 @@ class ExternalSellerRegisterWarrantyController extends ChangeNotifier {
     success = null;
     qrCodeData = null;
     notifyListeners();
+
     Future.delayed(const Duration(milliseconds: 500), () {
       if (productIdController.text.isEmpty ||
           serialNumberController.text.isEmpty ||
@@ -32,6 +32,7 @@ class ExternalSellerRegisterWarrantyController extends ChangeNotifier {
       } else {
         success = true;
         error = null;
+
         final warrantyDetails = {
           'productId': productIdController.text,
           'serialNumber': serialNumberController.text,
@@ -39,8 +40,10 @@ class ExternalSellerRegisterWarrantyController extends ChangeNotifier {
           'warrantyMonths': warrantyMonthsController.text,
           'sellerId': sellerIdController.text,
         };
+
         qrCodeData = jsonEncode(warrantyDetails);
       }
+
       isLoading = false;
       notifyListeners();
     });

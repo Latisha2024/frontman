@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../constants/colors.dart';
+import '../../../constants/colors.dart';
 
 class SellerDrawer extends StatelessWidget {
   const SellerDrawer({super.key});
@@ -16,18 +16,13 @@ class SellerDrawer extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                CircleAvatar(radius: 28, child: Icon(Icons.person, size: 32)),
                 SizedBox(height: 12),
-                CircleAvatar(radius: 28, backgroundColor: AppColors.secondaryBlue ,child: Icon(Icons.person, size: 32, color: Colors.white,),),
-                SizedBox(height: 12),
-                Text('External Seller', style: TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+                Text('External Seller',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
               ],
             ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.dashboard),
-            title: const Text('External Seller Dashboard'),
-            onTap: () => Navigator.pushNamed(context, '/seller/dashboard'),
           ),
           ListTile(
             leading: const Icon(Icons.card_giftcard),
@@ -42,7 +37,20 @@ class SellerDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.local_shipping),
             title: const Text('Post Delivery Report'),
-            onTap: () => Navigator.pushNamed(context, '/seller/delivery-report'),
+            onTap: () =>
+                Navigator.pushNamed(context, '/seller/delivery-report'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.assignment_turned_in),
+            title: const Text('Register Warranty'),
+            onTap: () =>
+                Navigator.pushNamed(context, '/seller/register-warranty'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.verified_user),
+            title: const Text('Validate Warranty'),
+            onTap: () =>
+                Navigator.pushNamed(context, '/seller/validate-warranty'),
           ),
           ListTile(
             leading: const Icon(Icons.logout),

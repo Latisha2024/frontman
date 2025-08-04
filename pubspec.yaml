@@ -1,10 +1,10 @@
 name: role_based_app
 description: A Flutter role-based application with multiple user types
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -14,12 +14,14 @@ dependencies:
   provider: ^6.0.5
   qr_flutter: ^4.1.0
   cupertino_icons: ^1.0.2
+  qr_code_tools: ^0.2.0
+  image_picker: ^1.0.4
+  google_mlkit_barcode_scanning: ^0.14.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
-
 
 flutter:
   uses-material-design: true

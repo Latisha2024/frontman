@@ -36,7 +36,8 @@ class RegisterWarrantyForm extends StatelessWidget {
             ),
             child: TextFormField(
               controller: controller.productIdController,
-              decoration: const InputDecoration(labelText: 'Product ID:', border: InputBorder.none),
+              decoration: const InputDecoration(
+                  labelText: 'Product ID:', border: InputBorder.none),
             ),
           ),
           Container(
@@ -54,7 +55,8 @@ class RegisterWarrantyForm extends StatelessWidget {
             ),
             child: TextFormField(
               controller: controller.serialNumberController,
-              decoration: const InputDecoration(labelText: 'Serial Number:', border: InputBorder.none),
+              decoration: const InputDecoration(
+                  labelText: 'Serial Number:', border: InputBorder.none),
             ),
           ),
           Container(
@@ -72,7 +74,9 @@ class RegisterWarrantyForm extends StatelessWidget {
             ),
             child: TextFormField(
               controller: controller.purchaseDateController,
-              decoration: const InputDecoration(labelText: 'Purchase Date (YYYY-MM-DD):', border: InputBorder.none),
+              decoration: const InputDecoration(
+                  labelText: 'Purchase Date (YYYY-MM-DD):',
+                  border: InputBorder.none),
             ),
           ),
           Container(
@@ -90,7 +94,8 @@ class RegisterWarrantyForm extends StatelessWidget {
             ),
             child: TextFormField(
               controller: controller.warrantyMonthsController,
-              decoration: const InputDecoration(labelText: 'Warranty Months:', border: InputBorder.none),
+              decoration: const InputDecoration(
+                  labelText: 'Warranty Months:', border: InputBorder.none),
               keyboardType: TextInputType.number,
             ),
           ),
@@ -109,7 +114,8 @@ class RegisterWarrantyForm extends StatelessWidget {
             ),
             child: TextFormField(
               controller: controller.sellerIdController,
-              decoration: const InputDecoration(labelText: 'Seller ID:', border: InputBorder.none),
+              decoration: const InputDecoration(
+                  labelText: 'Seller ID:', border: InputBorder.none),
             ),
           ),
           const SizedBox(height: 20),
