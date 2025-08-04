@@ -2,7 +2,7 @@ import './seller_drawer.dart';
 import 'package:flutter/material.dart';
 import '../controllers/points.dart';
 import '../widgets/points.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class ExternalSellerPointsScreen extends StatefulWidget {
   const ExternalSellerPointsScreen({super.key});

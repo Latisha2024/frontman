@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import '../controllers/assign_incentive.dart';
 
 class AssignIncentiveForm extends StatelessWidget {

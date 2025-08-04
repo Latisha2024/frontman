@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controllers/send_notifications.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import 'admin_drawer.dart';
 
 class SendNotificationsScreen extends StatefulWidget {

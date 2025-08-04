@@ -2,7 +2,7 @@ import './seller_drawer.dart';
 import 'package:flutter/material.dart';
 import '../controllers/incentives.dart';
 import '../widgets/incentives.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class ExternalSellerIncentivesScreen extends StatefulWidget {
   const ExternalSellerIncentivesScreen({super.key});

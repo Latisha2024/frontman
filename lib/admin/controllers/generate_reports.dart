@@ -23,6 +23,24 @@ class AdminGenerateReportsController extends ChangeNotifier {
   String selectedType = 'sales';
   final List<String> availableTypes = ['sales', 'inventory', 'performance'];
 
+  AdminGenerateReportsController() {
+    // Initialize with dummy report data
+    reports = [
+      ReportData(
+        type: 'sales',
+        title: 'Monthly Sales Report',
+        description: 'Comprehensive sales analysis for the current month',
+        date: DateTime.now().subtract(const Duration(days: 5)),
+        details: {
+          'totalSales': 125000.00,
+          'totalOrders': 45,
+          'averageOrderValue': 2777.78,
+          'topProduct': 'Premium Smartphone',
+        },
+      ),
+    ];
+  }
+
   void selectType(String type) {
     selectedType = type;
     notifyListeners();

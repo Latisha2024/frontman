@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import '../controllers/manage_products.dart';
 
 class ProductList extends StatelessWidget {
@@ -155,7 +155,7 @@ class ProductList extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.inventory_2, color: AppColors.textPrimary, size: 28),
+                const Icon(Icons.inventory_2, color: AppColors.secondaryBlue, size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -190,7 +190,7 @@ class ProductList extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                buildInfoChip(Icons.attach_money, 'Price', product.price.toStringAsFixed(2)),
+                buildInfoChip(Icons.currency_rupee_outlined, 'Price', product.price.toStringAsFixed(2)),
                 const SizedBox(width: 8),
                 buildInfoChip(Icons.storage, 'Stock', product.stock.toString()),
               ],
@@ -239,13 +239,13 @@ class ProductList extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary.withOpacity(0.2),
+        color: AppColors.secondaryBlue.withOpacity(0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: AppColors.textPrimary),
+          Icon(icon, size: 14, color: AppColors.secondaryBlue),
           const SizedBox(width: 4),
           Text(
             '$label: ',

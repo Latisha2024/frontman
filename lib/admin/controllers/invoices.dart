@@ -95,6 +95,35 @@ class AdminInvoicesController extends ChangeNotifier {
   String? error;
   String? successMessage;
 
+  AdminInvoicesController() {
+    // Initialize with dummy invoice data
+    invoices = [
+      Invoice(
+        id: '1',
+        invoiceNumber: 'INV-2024-001',
+        issueDate: DateTime.now().subtract(const Duration(days: 15)),
+        dueDate: DateTime.now().add(const Duration(days: 15)),
+        reference: 'REF-2024-001',
+        billTo: 'ABC Company Ltd.',
+        items: [
+          LineItem(
+            description: 'Premium Smartphone',
+            quantity: 2,
+            unitPrice: 72999,
+            amount: 80000,
+            gstRate: 18.0,
+          ),
+        ],
+        subtotal: 80000,
+        gstTotal: 1999,
+        totalDue: 81999,
+        signature: 'John Doe',
+      ),
+    ];
+    filteredInvoices = List.from(invoices);
+    notifyListeners();
+  }
+
   // Form controllers
   final invoiceNumberController = TextEditingController();
   final issueDateController = TextEditingController();

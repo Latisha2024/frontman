@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controllers/invoices.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class InvoiceForm extends StatefulWidget {
   final AdminInvoicesController controller;

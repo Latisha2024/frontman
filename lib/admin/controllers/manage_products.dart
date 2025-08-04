@@ -85,6 +85,25 @@ class AdminManageProductsController extends ChangeNotifier {
     'Other',
   ];
 
+  AdminManageProductsController() {
+    // Initialize with dummy product data
+    products = [
+      Product(
+        id: '1',
+        name: 'Premium Smartphone',
+        description: 'Latest smartphone with advanced features and high-quality camera',
+        category: 'Electronics',
+        price: 72999,
+        stock: 50,
+        status: 'active',
+        createdAt: DateTime.now().subtract(const Duration(days: 30)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 5)),
+      ),
+    ];
+    filteredProducts = List.from(products);
+    notifyListeners();
+  }
+
   void searchProducts(String query) {
     searchQuery = query;
     applyFilters();

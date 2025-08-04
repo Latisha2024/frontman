@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../controllers/manage_products.dart';
 import '../widgets/product_list.dart';
 import '../widgets/product_form.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class ManageProductsScreen extends StatefulWidget {
   const ManageProductsScreen({super.key});

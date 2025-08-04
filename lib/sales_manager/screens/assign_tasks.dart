@@ -3,7 +3,7 @@ import '../controllers/assign_tasks.dart';
 import 'sales_manager_drawer.dart';
 import '../widgets/task_form.dart';
 import '../widgets/task_list.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class SalesManagerAssignTasksScreen extends StatefulWidget {
   const SalesManagerAssignTasksScreen({super.key});

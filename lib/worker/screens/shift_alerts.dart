@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controllers/shift_alerts.dart';
 import 'worker_drawer.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import 'dart:async';
 
 class WorkerShiftAlertsScreen extends StatefulWidget {

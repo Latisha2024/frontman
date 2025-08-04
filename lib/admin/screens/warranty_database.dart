@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controllers/warranty_database.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import '../widgets/warranty_form.dart';
 import '../widgets/warranty_list.dart';
 import 'admin_drawer.dart';

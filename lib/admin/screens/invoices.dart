@@ -1,6 +1,6 @@
 import '../controllers/invoices.dart';
 import 'package:flutter/material.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import '../widgets/invoice_list.dart';
 import '../widgets/invoice_form.dart';
 import 'admin_drawer.dart';
@@ -149,7 +149,7 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
           Text(
             value,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
               color: AppColors.textSecondary,
             ),

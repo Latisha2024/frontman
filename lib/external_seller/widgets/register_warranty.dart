@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import '../controllers/register_warranty.dart';
 
 class RegisterWarrantyForm extends StatelessWidget {
@@ -23,7 +23,6 @@ class RegisterWarrantyForm extends StatelessWidget {
         children: [
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
-            padding: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -42,7 +41,6 @@ class RegisterWarrantyForm extends StatelessWidget {
           ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
-            padding: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -61,7 +59,6 @@ class RegisterWarrantyForm extends StatelessWidget {
           ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
-            padding: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -80,7 +77,6 @@ class RegisterWarrantyForm extends StatelessWidget {
           ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
-            padding: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -100,7 +96,6 @@ class RegisterWarrantyForm extends StatelessWidget {
           ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
-            padding: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),

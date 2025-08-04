@@ -27,6 +27,16 @@ class AdminAuditLogsController extends ChangeNotifier {
   final List<String> availableActions = ['All', 'Login', 'Update Product', 'Delete User'];
 
   AdminAuditLogsController() {
+    // Initialize with dummy audit log data
+    logs = [
+      AuditLog(
+        id: '1',
+        user: 'Admin User Management',
+        action: 'Update Product',
+        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
+        details: 'Updated product "Premium Smartphone" price from 899.99 to 999.99',
+      ),
+    ];
     filteredLogs = List.from(logs);
   }
 

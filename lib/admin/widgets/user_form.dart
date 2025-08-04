@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controllers/manage_users.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class UserForm extends StatelessWidget {
   final AdminManageUsersController controller;

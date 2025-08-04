@@ -162,6 +162,7 @@ class UserList extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
+                  backgroundColor: AppColors.secondaryBlue,
                   radius: 25,
                   child: Text(
                     user.name.substring(0, 1).toUpperCase(),

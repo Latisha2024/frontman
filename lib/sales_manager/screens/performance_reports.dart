@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controllers/performance_reports.dart';
 import 'sales_manager_drawer.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class SalesManagerPerformanceReportsScreen extends StatelessWidget {
   const SalesManagerPerformanceReportsScreen({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import '../controllers/warranty_database.dart';
 
 class WarrantyList extends StatelessWidget {

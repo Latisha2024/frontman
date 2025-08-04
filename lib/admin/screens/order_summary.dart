@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import '../controllers/order_summary.dart';
 import 'admin_drawer.dart';
 
@@ -172,7 +172,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.receipt_long, color: AppColors.textPrimary, size: 28),
+                const Icon(Icons.receipt_long, color: AppColors.secondaryBlue, size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -217,13 +217,13 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-          color: AppColors.textPrimary.withOpacity(0.2),
+        color: AppColors.secondaryBlue.withOpacity(0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: AppColors.textPrimary),
+          Icon(icon, size: 14, color: AppColors.secondaryBlue),
           const SizedBox(width: 4),
           Text('$label: $value', style: const TextStyle(fontSize: 13, color: Colors.black87)),
         ],

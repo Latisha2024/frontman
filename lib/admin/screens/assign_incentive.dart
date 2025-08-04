@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import '../controllers/assign_incentive.dart';
 import '../widgets/assign_incentive_form.dart';
 import 'admin_drawer.dart';

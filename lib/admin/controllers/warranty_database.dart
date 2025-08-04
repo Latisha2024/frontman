@@ -44,6 +44,22 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
   List<Warranty> filteredWarranties = [];
   String searchQuery = '';
   final productController = TextEditingController();
+
+  AdminWarrantyDatabaseController() {
+    // Initialize with dummy warranty data
+    warranties = [
+      Warranty(
+        id: '1',
+        product: 'Premium Smartphone',
+        customer: 'John Smith',
+        serialNumber: 'SN-2024-001',
+        purchaseDate: DateTime.now().subtract(const Duration(days: 60)),
+        expiryDate: DateTime.now().add(const Duration(days: 300)),
+      ),
+    ];
+    filteredWarranties = List.from(warranties);
+    notifyListeners();
+  }
   final customerController = TextEditingController();
   final serialController = TextEditingController();
   final purchaseDateController = TextEditingController();

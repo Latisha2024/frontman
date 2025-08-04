@@ -101,8 +101,20 @@ class AdminManageUsersController extends ChangeNotifier {
   final List<String> availableStatuses = ['active', 'inactive', 'suspended', 'pending'];
 
   AdminManageUsersController() {
-    users = [];
-    filteredUsers = [];
+    // Initialize with dummy admin users
+    users = [
+      User(
+        id: '1',
+        name: 'Mano',
+        email: 'mano06@admin.com',
+        role: 'admin',
+        phone: '+9782341324',
+        status: 'active',
+        createdAt: DateTime.now().subtract(const Duration(days: 30)),
+        address: 'VIT vellore',
+      )
+    ];
+    filteredUsers = List.from(users);
     notifyListeners();
   }
 

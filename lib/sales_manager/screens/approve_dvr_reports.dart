@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controllers/approve_dvr_reports.dart';
 import 'sales_manager_drawer.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class SalesManagerApproveDvrReportsScreen extends StatefulWidget {
   const SalesManagerApproveDvrReportsScreen({super.key});

@@ -2,7 +2,7 @@ import './seller_drawer.dart';
 import 'package:flutter/material.dart';
 import '../controllers/register_warranty.dart';
 import '../widgets/register_warranty.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class ExternalSellerRegisterWarrantyScreen extends StatefulWidget {
   const ExternalSellerRegisterWarrantyScreen({super.key});

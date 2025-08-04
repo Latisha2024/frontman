@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class TaskList extends StatelessWidget {
   final List<Map<String, dynamic>> tasks;

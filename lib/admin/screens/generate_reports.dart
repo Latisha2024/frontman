@@ -1,7 +1,7 @@
 import './admin_drawer.dart';
 import 'package:flutter/material.dart';
 import '../controllers/generate_reports.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class GenerateReportsScreen extends StatefulWidget {
   const GenerateReportsScreen({super.key});

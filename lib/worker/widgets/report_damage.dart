@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import '../controllers/report_damage.dart';
 
 class WorkerReportDamageForm extends StatelessWidget {

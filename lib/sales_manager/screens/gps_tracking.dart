@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controllers/gps_tracking.dart';
 import 'sales_manager_drawer.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class SalesManagerGpsTrackingScreen extends StatelessWidget {
   const SalesManagerGpsTrackingScreen({super.key});

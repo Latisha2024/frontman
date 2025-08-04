@@ -2,7 +2,7 @@ import './seller_drawer.dart';
 import 'package:flutter/material.dart';
 import '../controllers/delivery_report.dart';
 import '../widgets/delivery_report.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class ExternalSellerDeliveryReportScreen extends StatefulWidget {
   const ExternalSellerDeliveryReportScreen({super.key});

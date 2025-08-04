@@ -27,6 +27,16 @@ class AdminOrderSummaryController extends ChangeNotifier {
   final List<String> availableStatuses = ['All', 'Completed', 'Pending', 'Cancelled'];
 
   AdminOrderSummaryController() {
+    // Initialize with dummy order summary data
+    orders = [
+      OrderSummary(
+        id: 'ORD-2024-001',
+        customer: 'John Smith',
+        date: DateTime.now().subtract(const Duration(days: 10)),
+        total: 2359.97,
+        status: 'Completed',
+      ),
+    ];
     filteredOrders = List.from(orders);
   }
 

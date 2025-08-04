@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import '../controllers/invoices.dart';
 
 class InvoiceList extends StatefulWidget {
@@ -118,7 +118,7 @@ class _InvoiceListState extends State<InvoiceList> {
                   ),
                 ),
                 Text(
-                  ' 24${invoice.totalDue.toStringAsFixed(2)}',
+                  '${invoice.totalDue.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.green,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 import '../controllers/audit_logs.dart';
 import 'admin_drawer.dart';
 
@@ -172,7 +172,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.history, color: AppColors.textPrimary, size: 28),
+                const Icon(Icons.history, color: AppColors.secondaryBlue, size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -215,7 +215,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.textSecondary.withOpacity(0.2),
+        color: AppColors.secondaryBlue.withOpacity(0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(

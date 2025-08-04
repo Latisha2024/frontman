@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../constants/colors.dart';
+import '../../constants/colors.dart';
 
 class AdminDrawer extends StatelessWidget {
   const AdminDrawer({super.key});
