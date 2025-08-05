@@ -110,13 +110,15 @@ class ExternalSellerDashboardScreen extends StatelessWidget {
                   context,
                   icon: Icons.people,
                   label: 'View Incentives',
-                  onPressed: () => Navigator.pushNamed(context, '/seller/incentives'),
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/seller/incentives'),
                 ),
                 _buildActionButton(
                   context,
                   icon: Icons.inventory,
                   label: 'Track Points',
-                  onPressed: () => Navigator.pushNamed(context, '/seller/points'),
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/seller/points'),
                 ),
               ],
             ),
@@ -126,7 +128,10 @@ class ExternalSellerDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(BuildContext context, {required IconData icon, required String label, required VoidCallback onPressed}) {
+  Widget _buildActionButton(BuildContext context,
+      {required IconData icon,
+      required String label,
+      required VoidCallback onPressed}) {
     return SizedBox(
       width: double.infinity,
       height: 54,
@@ -134,7 +139,8 @@ class ExternalSellerDashboardScreen extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.secondaryBlue,
           foregroundColor: AppColors.textPrimary,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         ),
