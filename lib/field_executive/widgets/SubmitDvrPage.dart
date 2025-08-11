@@ -23,8 +23,14 @@ Feedback: ${feedbackController.text}
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("DVR Submitted", style: TextStyle(color: AppColors.primaryBlue)),
-        content: Text(summary, style: const TextStyle(color: AppColors.textSecondary)),
+        title: const Text(
+          "DVR Submitted",
+          style: TextStyle(color: AppColors.primaryBlue),
+        ),
+        content: Text(
+          summary,
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -41,12 +47,16 @@ Feedback: ${feedbackController.text}
       appBar: AppBar(
         title: const Text(
           "Submit DVR",
-          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textLight),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textLight,
+          ),
         ),
         backgroundColor: AppColors.primaryBlue,
         elevation: 2,
         iconTheme: const IconThemeData(color: AppColors.textLight),
       ),
+      backgroundColor: Colors.grey.shade100,
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Card(
@@ -101,7 +111,10 @@ Feedback: ${feedbackController.text}
                   child: ElevatedButton.icon(
                     onPressed: _submit,
                     icon: const Icon(Icons.send, color: AppColors.textLight),
-                    label: const Text("Submit DVR", style: TextStyle(color: AppColors.textLight)),
+                    label: const Text(
+                      "Submit DVR",
+                      style: TextStyle(color: AppColors.textLight),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryBlue,
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),

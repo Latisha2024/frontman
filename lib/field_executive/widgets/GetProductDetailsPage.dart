@@ -8,12 +8,23 @@ class GetProductDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final productIdController = TextEditingController();
 
+    // Mock function to simulate backend data
+    Map<String, dynamic>? getProductById(String id) {
+      const mockProductData = {
+        "P123": {"name": "Wireless Mouse", "price": 499.0, "stock": 12},
+        "P456": {"name": "Bluetooth Speaker", "price": 999.0, "stock": 5},
+        "P789": {"name": "Gaming Keyboard", "price": 1299.0, "stock": 0},
+      };
+      return mockProductData[id];
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("Get Product Details"),
         backgroundColor: AppColors.primary,
         elevation: 2,
+        foregroundColor: Colors.white,
       ),
       body: Center(
         child: Card(
@@ -34,6 +45,7 @@ class GetProductDetailsPage extends StatelessWidget {
                   controller: productIdController,
                   decoration: InputDecoration(
                     labelText: "Enter Product ID",
+                    hintText: "e.g. P123",
                     border: const OutlineInputBorder(),
                     filled: true,
                     fillColor: AppColors.inputFill,
@@ -44,7 +56,39 @@ class GetProductDetailsPage extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      // Call API or fetch mock data
+                      String productId = productIdController.text.trim();
+                      if (productId.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Please enter a Product ID")),
+                        );
+                        return;
+                      }
+
+                      final product = getProductById(productId);
+
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: const Text("Product Details"),
+                          content: product != null
+                              ? Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Name: ${product['name']}"),
+                                    Text("Price: ₹${product['price']}"),
+                                    Text("Stock: ${product['stock']}"),
+                                  ],
+                                )
+                              : const Text("Product not found!"),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.search),
                     label: const Text("Fetch Product Info"),

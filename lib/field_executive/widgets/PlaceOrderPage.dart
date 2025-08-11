@@ -42,17 +42,17 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildSectionTitle("DELIVERY ADDRESS"),
-                _buildTextField("Email Address", emailController),
+                _buildTextField("Email Address", emailController, "example@mail.com"),
                 Row(
                   children: [
-                    Expanded(child: _buildTextField("First Name", firstNameController)),
+                    Expanded(child: _buildTextField("First Name", firstNameController, "John")),
                     const SizedBox(width: 10),
-                    Expanded(child: _buildTextField("Last Name", lastNameController)),
+                    Expanded(child: _buildTextField("Last Name", lastNameController, "Doe")),
                   ],
                 ),
-                _buildTextField("Telephone", phoneController),
-                _buildTextField("Delivery Address", addressController),
-                _buildTextField("Suburb / Town", townController),
+                _buildTextField("Telephone", phoneController, "+1 234 567 890"),
+                _buildTextField("Delivery Address", addressController, "123 Main St, Apt 4B"),
+                _buildTextField("Suburb / Town", townController, "Toronto"),
                 Row(
                   children: [
                     Expanded(
@@ -61,7 +61,7 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
                       }),
                     ),
                     const SizedBox(width: 10),
-                    Expanded(child: _buildTextField("Postcode", postcodeController)),
+                    Expanded(child: _buildTextField("Postcode", postcodeController, "M5H 2N2")),
                   ],
                 ),
                 _buildDropdown("Country", selectedCountry, ['Canada', 'USA', 'India'], (val) {
@@ -127,13 +127,15 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(String label, TextEditingController controller, String hint) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.grey),
           labelStyle: const TextStyle(color: AppColors.textSecondary),
           border: OutlineInputBorder(borderSide: BorderSide(color: AppColors.border)),
           focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.inputFocus)),

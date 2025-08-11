@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../constants/colors.dart'; // Make sure this exists
+import '../../constants/colors.dart'; // Ensure AppColors.primary and AppColors.inputFill are defined
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -29,6 +29,26 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
 
     try {
+      // Simulated placeholder response
+      await Future.delayed(const Duration(seconds: 1)); // Simulate loading
+      final fetched = [
+        "🔔 New order assigned to you.",
+        "📦 Product XYZ is low on stock.",
+        "✅ Payment for order #123 confirmed.",
+        "📝 Meeting scheduled with client ABC.",
+        "📍 Location update required for today's visit.",
+        "📄 Document approval pending from manager.",
+        "📊 Monthly performance report available."
+      ];
+
+      setState(() {
+        notifications = fetched;
+        statusMessage = "✅ Placeholder notifications loaded.";
+        statusColor = Colors.green;
+      });
+
+      // Uncomment for real API call
+      /*
       final response = await http.post(
         Uri.parse("https://yourapi.com/api/notifications"),
         headers: {'Content-Type': 'application/json'},
@@ -51,6 +71,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           notifications = [];
         });
       }
+      */
     } catch (e) {
       setState(() {
         statusMessage = "⚠️ Error: ${e.toString()}";
@@ -63,10 +84,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         title: const Text("Notifications", style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
         elevation: 3,
       ),
       body: Padding(
@@ -79,8 +101,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Check Notifications",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text(
+                  "Check Notifications",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: userIdController,
@@ -139,7 +163,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             ),
                             margin: const EdgeInsets.symmetric(vertical: 6),
                             child: ListTile(
-                              leading: const Icon(Icons.notifications_active, color: Colors.blueAccent),
+                              leading: const Icon(Icons.notifications, color: Colors.orangeAccent),
                               title: Text(notifications[i]),
                             ),
                           ),

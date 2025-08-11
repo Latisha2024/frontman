@@ -12,20 +12,27 @@ class OrderHistoryPage extends StatefulWidget {
 class _OrderHistoryPageState extends State<OrderHistoryPage> {
   final distributorIdController = TextEditingController();
   List<String> orderHistory = [];
+  bool isError = false;
 
   void fetchOrderHistory() {
     final distributorId = distributorIdController.text.trim();
     if (distributorId.isEmpty) {
-      setState(() => orderHistory = ['Please enter a distributor ID']);
+      setState(() {
+        orderHistory = ['⚠️ Please enter a valid Distributor ID'];
+        isError = true;
+      });
       return;
     }
 
-    // Mock data
-    setState(() => orderHistory = [
-      'Order ID: 001 - Delivered',
-      'Order ID: 002 - In Transit',
-      'Order ID: 003 - Cancelled',
-    ]);
+    // Simulated order data
+    setState(() {
+      orderHistory = [
+        'Order ID: 001 - ✅ Delivered',
+        'Order ID: 002 - 🚚 In Transit',
+        'Order ID: 003 - ❌ Cancelled',
+      ];
+      isError = false;
+    });
   }
 
   @override
@@ -37,12 +44,14 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         title: const Text("Order History"),
         backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             TextField(
@@ -53,21 +62,36 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: fetchOrderHistory,
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-              child: const Text("Fetch History"),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: orderHistory.length,
-                itemBuilder: (context, index) => ListTile(
-                  leading: const Icon(Icons.history),
-                  title: Text(orderHistory[index]),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: fetchOrderHistory,
+                icon: const Icon(Icons.history),
+                label: const Text("Fetch History"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
               ),
             ),
+            const SizedBox(height: 24),
+            if (orderHistory.isNotEmpty)
+              Expanded(
+                child: ListView.separated(
+                  itemCount: orderHistory.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) => ListTile(
+                    leading: const Icon(Icons.assignment),
+                    title: Text(
+                      orderHistory[index],
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: isError ? Colors.red[800] : Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

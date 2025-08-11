@@ -9,7 +9,7 @@ import '../widgets/createorderpage.dart';
 import '../widgets/Trackorderpage.dart';
 import '../widgets/Orderhistorypage.dart';
 import '../widgets/Orderconfirmationpage.dart';
-import 'Updatestock.dart';
+import 'ManageStockPage.dart';
 
 class DistributorHomePage extends StatelessWidget {
   const DistributorHomePage({super.key});
@@ -68,7 +68,7 @@ class DistributorHomePage extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.inventory),
               title: const Text("Stock Management"),
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UpdateStockPage())),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageStockPage())),
             ),
             ListTile(
               leading: const Icon(Icons.logout),
@@ -110,7 +110,7 @@ class DistributorHomePage extends StatelessWidget {
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
-              child: _dashboardButton(context, "Update Stock", Icons.inventory, const UpdateStockPage()),
+              child: _dashboardButton(context, "Update Stock", Icons.inventory, const ManageStockPage()),
             ),
           ],
         ),

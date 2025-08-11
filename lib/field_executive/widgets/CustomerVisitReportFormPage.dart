@@ -9,20 +9,20 @@ class CustomerVisitReportFormPage extends StatefulWidget {
 }
 
 class _CustomerVisitReportFormPageState extends State<CustomerVisitReportFormPage> {
-  final customerController = TextEditingController();
-  final locationController = TextEditingController();
-  final presentController = TextEditingController();
-  final productsController = TextEditingController();
-  final reasonController = TextEditingController();
-  final concernsController = TextEditingController();
-  final feedbackController = TextEditingController();
-  final reportByController = TextEditingController();
+  final customerController = TextEditingController(text: "ABC Pvt Ltd");
+  final locationController = TextEditingController(text: "Chennai");
+  final presentController = TextEditingController(text: "Mr. Kumar, Ms. Priya");
+  final productsController = TextEditingController(text: "Product X, Product Y");
+  final reasonController = TextEditingController(text: "Regular check-in & product feedback");
+  final concernsController = TextEditingController(text: "Packaging issues reported");
+  final feedbackController = TextEditingController(text: "Customer appreciated the support.");
+  final reportByController = TextEditingController(text: "John Doe");
 
-  String investigation = "None";
-  String rootCause = "None";
-  String correctiveAction = "None";
-  String recommendation = "None";
-  DateTime? visitDate;
+  String investigation = "Ongoing";
+  String rootCause = "Product defect";
+  String correctiveAction = "Replace batch";
+  String recommendation = "Increase QA checks";
+  DateTime? visitDate = DateTime.now();
 
   Future<void> _selectVisitDate(BuildContext context) async {
     final picked = await showDatePicker(

@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../../constants/colors.dart';
 
 class UpdateStockPage extends StatefulWidget {
   const UpdateStockPage({super.key});
@@ -11,121 +8,166 @@ class UpdateStockPage extends StatefulWidget {
 }
 
 class _UpdateStockPageState extends State<UpdateStockPage> {
-  final productIdController = TextEditingController();
-  final newStockController = TextEditingController();
+  final List<String> categories = ["Electronics", "Groceries", "Clothing"];
+  final Map<String, List<Map<String, dynamic>>> stock = {
+    "Electronics": [
+      {"name": "Laptop", "quantity": 10},
+      {"name": "Mobile", "quantity": 25}
+    ],
+    "Groceries": [
+      {"name": "Rice", "quantity": 50},
+      {"name": "Sugar", "quantity": 30}
+    ],
+    "Clothing": [
+      {"name": "T-shirt", "quantity": 40},
+      {"name": "Jeans", "quantity": 15}
+    ],
+  };
 
-  String message = '';
-  Color messageColor = Colors.green;
+  String? selectedCategory;
 
-  Future<void> updateStock() async {
-    final productId = productIdController.text.trim();
-    final stockText = newStockController.text.trim();
-    final newStock = int.tryParse(stockText);
-
-    if (productId.isEmpty || newStock == null || newStock < 0) {
-      setState(() {
-        message = "❗ Please enter valid product ID and positive stock quantity.";
-        messageColor = Colors.red;
-      });
-      return;
-    }
-
-    try {
-      final response = await http.put(
-        Uri.parse('https://yourapi.com/api/products/$productId/stock'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'stock': newStock}),
-      );
-
-      setState(() {
-        if (response.statusCode == 200) {
-          message = "✅ Stock updated successfully!";
-          messageColor = Colors.green;
-        } else {
-          message = "❌ Failed to update stock. (${response.statusCode})";
-          messageColor = Colors.red;
-        }
-      });
-    } catch (e) {
-      setState(() {
-        message = "⚠️ Error: \${e.toString()}";
-        messageColor = Colors.red;
-      });
-    }
+  void addCategory() {
+    TextEditingController controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Add Category"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: "Enter category name"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              String newCat = controller.text.trim();
+              if (newCat.isNotEmpty && !categories.contains(newCat)) {
+                setState(() {
+                  categories.add(newCat);
+                  stock[newCat] = [];
+                });
+              }
+              Navigator.pop(context);
+            },
+            child: const Text("Add"),
+          ),
+        ],
+      ),
+    );
   }
 
-  @override
-  void dispose() {
-    productIdController.dispose();
-    newStockController.dispose();
-    super.dispose();
+  void renameCategory(String oldCategory) {
+    TextEditingController controller =
+        TextEditingController(text: oldCategory);
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Rename Category"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: "Enter new category name"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              String newCat = controller.text.trim();
+              if (newCat.isNotEmpty &&
+                  !categories.contains(newCat) &&
+                  newCat != oldCategory) {
+                setState(() {
+                  int index = categories.indexOf(oldCategory);
+                  categories[index] = newCat;
+                  stock[newCat] = stock.remove(oldCategory)!;
+                });
+              }
+              Navigator.pop(context);
+            },
+            child: const Text("Rename"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void UpdateStockPageQuantity(String category, int index, int change) {
+    setState(() {
+      stock[category]![index]["quantity"] += change;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Update Stock"),
-        backgroundColor: AppColors.primary,
+        title: const Text("Manage Stock"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: addCategory,
+          )
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const Text(
-                  "Enter Stock Update Details",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: productIdController,
-                  decoration: InputDecoration(
-                    labelText: "Product ID",
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    filled: true,
-                    fillColor: AppColors.inputFill,
+      body: Row(
+        children: [
+          // Sidebar for categories
+          Container(
+            width: 150,
+            color: Colors.grey.shade200,
+            child: ListView.builder(
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                String category = categories[index];
+                return ListTile(
+                  title: Text(category),
+                  selected: selectedCategory == category,
+                  trailing: IconButton(
+                    icon: const Icon(Icons.edit, size: 18),
+                    onPressed: () => renameCategory(category),
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: newStockController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: "New Stock Quantity",
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    filled: true,
-                    fillColor: AppColors.inputFill,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: updateStock,
-                  icon: const Icon(Icons.update),
-                  label: const Text("Update Stock"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                if (message.isNotEmpty)
-                  Text(
-                    message,
-                    style: TextStyle(color: messageColor, fontWeight: FontWeight.w500),
-                    textAlign: TextAlign.center,
-                  ),
-              ],
+                  onTap: () {
+                    setState(() {
+                      selectedCategory = category;
+                    });
+                  },
+                );
+              },
             ),
           ),
-        ),
+          // Stock items
+          Expanded(
+            child: selectedCategory == null
+                ? const Center(child: Text("Select a category"))
+                : ListView.builder(
+                    itemCount: stock[selectedCategory]!.length,
+                    itemBuilder: (context, index) {
+                      var item = stock[selectedCategory]![index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 8),
+                        child: ListTile(
+                          title: Text(item["name"]),
+                          subtitle:
+                              Text("Quantity: ${item["quantity"].toString()}"),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.remove, color: Colors.red),
+                                onPressed: () => UpdateStockPageQuantity(
+                                    selectedCategory!, index, -1),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.add, color: Colors.green),
+                                onPressed: () => UpdateStockPageQuantity(
+                                    selectedCategory!, index, 1),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }

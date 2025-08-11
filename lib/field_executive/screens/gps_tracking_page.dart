@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:role_based_app/authpage/config/app_colors.dart';
+import '../../constants/colors.dart';
 
 // Import the separate navigation pages
 import '../widgets/status_page.dart';
@@ -123,7 +124,7 @@ class _GpsTrackingPageState extends State<GpsTrackingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEAF1F3),
+      backgroundColor: AppColors.backgroundGray,
       appBar: AppBar(
         backgroundColor: AuthColors.textDark,
         title: const Text('Tracking', style: TextStyle(color: Colors.black)),

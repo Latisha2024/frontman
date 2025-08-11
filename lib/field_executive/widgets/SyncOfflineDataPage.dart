@@ -12,7 +12,22 @@ class SyncOfflinePage extends StatefulWidget {
 
 class _SyncOfflinePageState extends State<SyncOfflinePage> {
   final executiveIdController = TextEditingController(text: '101');
-  final offlineDataController = TextEditingController();
+  final offlineDataController = TextEditingController(
+    text: jsonEncode([
+      {
+        "customerId": 123,
+        "visitDate": "2025-08-04",
+        "feedback": "Interested in new offers",
+        "location": {"lat": 12.9716, "lng": 77.5946}
+      },
+      {
+        "customerId": 456,
+        "visitDate": "2025-08-03",
+        "feedback": "Requested follow-up next week",
+        "location": {"lat": 19.0760, "lng": 72.8777}
+      }
+    ]),
+  );
 
   String message = '';
   Color messageColor = Colors.green;
@@ -44,7 +59,7 @@ class _SyncOfflinePageState extends State<SyncOfflinePage> {
           message = "✅ Data synced successfully!";
           messageColor = Colors.green;
         } else {
-          message = "❌ Failed to sync. Status: ${response.statusCode}";
+          message = "❌ Sync failed. Status: ${response.statusCode}";
           messageColor = Colors.red;
         }
       });
@@ -61,8 +76,15 @@ class _SyncOfflinePageState extends State<SyncOfflinePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Sync Offline Data"),
+        title: const Text(
+          "Sync Offline Data",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textLight,
+          ),
+        ),
         backgroundColor: AppColors.primary,
+        iconTheme: const IconThemeData(color: AppColors.textLight),
         elevation: 2,
       ),
       body: Padding(
@@ -76,7 +98,11 @@ class _SyncOfflinePageState extends State<SyncOfflinePage> {
               children: [
                 const Text(
                   "Offline Data Sync",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textColor,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
@@ -84,6 +110,8 @@ class _SyncOfflinePageState extends State<SyncOfflinePage> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: "Executive ID",
+                    hintText: "Enter Executive ID (e.g., 101)",
+                    labelStyle: const TextStyle(color: AppColors.textSecondary),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     filled: true,
                     fillColor: AppColors.inputFill,
@@ -92,9 +120,11 @@ class _SyncOfflinePageState extends State<SyncOfflinePage> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: offlineDataController,
-                  maxLines: 6,
+                  maxLines: 10,
                   decoration: InputDecoration(
                     labelText: "Offline Data (JSON List/Map)",
+                    hintText: "Paste JSON-formatted offline data here",
+                    labelStyle: const TextStyle(color: AppColors.textSecondary),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     filled: true,
                     fillColor: AppColors.inputFill,
@@ -104,8 +134,11 @@ class _SyncOfflinePageState extends State<SyncOfflinePage> {
                 Center(
                   child: ElevatedButton.icon(
                     onPressed: syncData,
-                    icon: const Icon(Icons.sync),
-                    label: const Text("Sync Now"),
+                    icon: const Icon(Icons.sync, color: AppColors.textLight),
+                    label: const Text(
+                      "Sync Now",
+                      style: TextStyle(color: AppColors.textLight),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),

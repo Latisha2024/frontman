@@ -6,8 +6,11 @@ class AddFollowUpPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController customerController = TextEditingController();
-    final TextEditingController followUpDetailsController = TextEditingController();
+    // ✅ Pre-filled demo data
+    final TextEditingController customerController = TextEditingController(text: 'Priya Sharma');
+    final TextEditingController followUpDetailsController = TextEditingController(
+      text: 'Wants to reschedule delivery for next Monday',
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -17,53 +20,65 @@ class AddFollowUpPage extends StatelessWidget {
       body: Container(
         color: AppColors.backgroundGray,
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildFormCard(
-              icon: Icons.person,
-              label: 'Customer Name',
-              controller: customerController,
-              hintText: 'Enter customer name',
-            ),
-            const SizedBox(height: 16),
-            _buildFormCard(
-              icon: Icons.description,
-              label: 'Follow-Up Details',
-              controller: followUpDetailsController,
-              hintText: 'Enter follow-up details',
-              maxLines: 5,
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.save),
-                label: const Text('Save Follow-Up'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryBlue,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () {
-                  // Handle save action here
-                  final customer = customerController.text.trim();
-                  final followUpDetails = followUpDetailsController.text.trim();
-                  if (customer.isNotEmpty && followUpDetails.isNotEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Follow-up saved successfully!')),
-                    );
-                    Navigator.pop(context);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please fill in all fields')),
-                    );
-                  }
-                },
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Recent Follow-Ups',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              _buildFollowUpCard('John Doe', 'Pending payment confirmation', '2:28'),
+              _buildFollowUpCard('Ayesha', 'Requested delivery status update', '2:28'),
+              _buildFollowUpCard('Ravi Kumar', 'Needs rescheduling of visit', '2:28'),
+              const SizedBox(height: 24),
+
+              _buildFormCard(
+                icon: Icons.person,
+                label: 'Customer Name',
+                controller: customerController,
+                hintText: 'Enter customer name',
+              ),
+              const SizedBox(height: 16),
+              _buildFormCard(
+                icon: Icons.description,
+                label: 'Follow-Up Details',
+                controller: followUpDetailsController,
+                hintText: 'Enter follow-up details',
+                maxLines: 5,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.save),
+                  label: const Text('Save Follow-Up'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryBlue,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    final customer = customerController.text.trim();
+                    final followUpDetails = followUpDetailsController.text.trim();
+                    if (customer.isNotEmpty && followUpDetails.isNotEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Follow-up saved successfully!')),
+                      );
+                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please fill in all fields')),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -106,6 +121,21 @@ class AddFollowUpPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFollowUpCard(String name, String details, String time) {
+    return Card(
+      color: Colors.purple.shade50,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        leading: const Icon(Icons.person_pin_circle, color: Colors.purple),
+        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(details),
+        trailing: Text('Updated: $time', style: const TextStyle(fontSize: 12, color: Colors.grey)),
       ),
     );
   }
