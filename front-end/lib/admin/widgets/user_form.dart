@@ -57,10 +57,10 @@ class UserForm extends StatelessWidget {
               
               buildTextField(
                 controller: controller.phoneController,
-                label: 'Phone Number',
+                label: 'Phone Number (Optional)',
                 icon: Icons.phone,
                 keyboardType: TextInputType.phone,
-                isRequired: true,
+                isRequired: false,
               ),
               const SizedBox(height: 16),
               
@@ -69,6 +69,15 @@ class UserForm extends StatelessWidget {
                 label: 'Address (Optional)',
                 icon: Icons.location_on,
                 maxLines: 2,
+              ),
+              const SizedBox(height: 16),
+              
+              buildTextField(
+                controller: controller.passwordController,
+                label: controller.isEditMode ? 'Password (leave empty to keep current)' : 'Password',
+                icon: Icons.lock,
+                obscureText: true,
+                isRequired: !controller.isEditMode,
               ),
               const SizedBox(height: 16),
               
@@ -91,7 +100,6 @@ class UserForm extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               
-
               buildDropdown(
                 value: controller.selectedUserStatus,
                 items: controller.availableStatuses.map((status) {
@@ -108,12 +116,14 @@ class UserForm extends StatelessWidget {
                   }
                 },
               ),
+              const SizedBox(height: 16),
+              
               const SizedBox(height: 24),
               Row(
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: controller.isLoading ? null : () {
                         if (controller.isEditMode) {
                           controller.updateUser();
                         } else {
@@ -128,10 +138,19 @@ class UserForm extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(
-                        controller.isEditMode ? 'Update User' : 'Add User',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
+                      child: controller.isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              controller.isEditMode ? 'Update User' : 'Add User',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -214,6 +233,7 @@ class UserForm extends StatelessWidget {
     TextInputType? keyboardType,
     int maxLines = 1,
     bool isRequired = false,
+    bool obscureText = false,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -224,6 +244,7 @@ class UserForm extends StatelessWidget {
         controller: controller,
         keyboardType: keyboardType,
         maxLines: maxLines,
+        obscureText: obscureText,
         decoration: InputDecoration(
           labelText: isRequired ? '$label *' : label,
           prefixIcon: Icon(icon, color: AppColors.secondaryBlue),

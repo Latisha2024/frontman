@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 
 class LineItem {
   final String description;
@@ -44,6 +45,8 @@ class Invoice {
   final double gstTotal;
   final double totalDue;
   final String? signature;
+  final String? orderId;
+  final String? pdfUrl;
 
   Invoice({
     required this.id,
@@ -57,6 +60,8 @@ class Invoice {
     required this.gstTotal,
     required this.totalDue,
     this.signature,
+    this.orderId,
+    this.pdfUrl,
   });
 
   Invoice copyWith({
@@ -71,6 +76,8 @@ class Invoice {
     double? gstTotal,
     double? totalDue,
     String? signature,
+    String? orderId,
+    String? pdfUrl,
   }) {
     return Invoice(
       id: id ?? this.id,
@@ -84,6 +91,8 @@ class Invoice {
       gstTotal: gstTotal ?? this.gstTotal,
       totalDue: totalDue ?? this.totalDue,
       signature: signature ?? this.signature,
+      orderId: orderId ?? this.orderId,
+      pdfUrl: pdfUrl ?? this.pdfUrl,
     );
   }
 }
@@ -94,33 +103,39 @@ class AdminInvoicesController extends ChangeNotifier {
   bool isLoading = false;
   String? error;
   String? successMessage;
+  
+  // Base URL for API calls - update this to match your backend
+  static const String baseUrl = 'http://10.0.2.2:5000'; // Update with your actual backend URL
+  
+  // Dio instance for HTTP requests
+  late final Dio _dio;
+
+  void _initializeDio() {
+    _dio = Dio(BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 3),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    ));
+    
+    // Add interceptors for logging and error handling
+    _dio.interceptors.add(LogInterceptor(
+      requestBody: true,
+      responseBody: true,
+      logPrint: (obj) => print(obj),
+    ));
+  }
+
 
   AdminInvoicesController() {
-    // Initialize with dummy invoice data
-    invoices = [
-      Invoice(
-        id: '1',
-        invoiceNumber: 'INV-2024-001',
-        issueDate: DateTime.now().subtract(const Duration(days: 15)),
-        dueDate: DateTime.now().add(const Duration(days: 15)),
-        reference: 'REF-2024-001',
-        billTo: 'ABC Company Ltd.',
-        items: [
-          LineItem(
-            description: 'Premium Smartphone',
-            quantity: 2,
-            unitPrice: 72999,
-            amount: 80000,
-            gstRate: 18.0,
-          ),
-        ],
-        subtotal: 80000,
-        gstTotal: 1999,
-        totalDue: 81999,
-        signature: 'John Doe',
-      ),
-    ];
-    filteredInvoices = List.from(invoices);
+    // Initialize Dio
+    _initializeDio();
+    
+    // Initialize with empty invoice data - will be loaded from API
+    invoices = [];
+    filteredInvoices = [];
     notifyListeners();
   }
 
@@ -241,6 +256,203 @@ class AdminInvoicesController extends ChangeNotifier {
     isEditMode = false;
     error = null;
     successMessage = null;
+    notifyListeners();
+  }
+
+  // GET /admin/invoices - Fetch all invoices
+  Future<List<Invoice>> fetchInvoices({String? orderId, String? userId, String? startDate, String? endDate}) async {
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+      
+      final queryParams = <String, dynamic>{};
+      if (orderId != null) queryParams['orderId'] = orderId;
+      if (userId != null) queryParams['userId'] = userId;
+      if (startDate != null) queryParams['startDate'] = startDate;
+      if (endDate != null) queryParams['endDate'] = endDate;
+      
+      final response = await _dio.get('/admin/invoices', queryParameters: queryParams);
+      
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        final List<Invoice> fetchedInvoices = data.map((item) => _mapBackendInvoiceToModel(item)).toList();
+        
+        invoices = fetchedInvoices;
+        filteredInvoices = List.from(invoices);
+        successMessage = 'Invoices loaded successfully';
+        return fetchedInvoices;
+      } else {
+        error = 'Failed to fetch invoices: ${response.statusCode}';
+        notifyListeners();
+        return [];
+      }
+    } on DioException catch (e) {
+      _handleDioError(e);
+      return [];
+    } catch (e) {
+      error = 'Unexpected error: $e';
+      notifyListeners();
+      return [];
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+  
+  // GET /admin/invoices/:id - Fetch specific invoice by ID
+  Future<Invoice?> fetchInvoiceById(String id) async {
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+      
+      final response = await _dio.get('/admin/invoices/$id');
+      
+      if (response.statusCode == 200) {
+        final invoice = _mapBackendInvoiceToModel(response.data);
+        successMessage = 'Invoice loaded successfully';
+        notifyListeners();
+        return invoice;
+      } else {
+        error = 'Failed to fetch invoice: ${response.statusCode}';
+        notifyListeners();
+        return null;
+      }
+    } on DioException catch (e) {
+      _handleDioError(e);
+      return null;
+    } catch (e) {
+      error = 'Unexpected error: $e';
+      notifyListeners();
+      return null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+  
+  // POST - Create manual invoice (new endpoint for manual creation)
+  Future<Invoice?> createManualInvoice() async {
+    if (!validateForm()) return null;
+    
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+      
+      final invoiceData = {
+        'invoiceNumber': invoiceNumberController.text.trim(),
+        'issueDate': DateTime.now().toIso8601String(),
+        'dueDate': DateTime.parse(dueDateController.text.trim()).toIso8601String(),
+        'reference': referenceController.text.trim(),
+        'billTo': billToController.text.trim(),
+        'items': formItems.map((item) => {
+          'description': item.description,
+          'quantity': item.quantity,
+          'unitPrice': item.unitPrice,
+          'amount': item.amount,
+          'gstRate': item.gstRate,
+        }).toList(),
+        'subtotal': calculateSubtotal(),
+        'gstTotal': calculateGstTotal(),
+        'totalAmount': calculateTotalDue(),
+        'signature': signatureController.text.trim(),
+      };
+      
+      final response = await _dio.post('/admin/invoices', data: invoiceData);
+      
+      if (response.statusCode == 201) {
+        final invoice = _mapBackendInvoiceToModel(response.data['invoice']);
+        invoices.add(invoice);
+        filteredInvoices = List.from(invoices);
+        clearForm();
+        successMessage = 'Invoice created successfully!';
+        notifyListeners();
+        return invoice;
+      } else {
+        error = 'Failed to create invoice: ${response.statusCode}';
+        notifyListeners();
+        return null;
+      }
+    } on DioException catch (e) {
+      _handleDioError(e);
+      return null;
+    } catch (e) {
+      error = 'Unexpected error: $e';
+      notifyListeners();
+      return null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+  
+  // Generate invoice from existing order
+  Future<Invoice?> generateInvoiceFromOrder(String orderId) async {
+    // This endpoint does not exist on the backend. Keep the method, but avoid calling a non-existent API.
+    isLoading = true;
+    error = null;
+    successMessage = null;
+    notifyListeners();
+
+    await Future.delayed(const Duration(milliseconds: 10));
+    error = 'Generate from order is not supported by the current backend API.';
+    isLoading = false;
+    notifyListeners();
+    return null;
+  }
+  
+  // Helper method to refresh invoices from API
+  Future<void> refreshInvoices() async {
+    await fetchInvoices();
+  }
+  
+  // Map backend invoice data to frontend model
+  Invoice _mapBackendInvoiceToModel(Map<String, dynamic> data) {
+    final orderItems = data['order']?['orderItems'] as List<dynamic>? ?? [];
+    final items = orderItems.map((item) => LineItem(
+      description: item['product']?['name'] ?? item['description'] ?? 'Unknown Product',
+      quantity: item['quantity'] ?? 1,
+      unitPrice: (item['unitPrice'] ?? item['product']?['price'] ?? 0.0).toDouble(),
+      amount: ((item['unitPrice'] ?? 0.0) * (item['quantity'] ?? 1)).toDouble(),
+      gstRate: 18.0, // Default GST rate
+    )).toList();
+    
+    return Invoice(
+      id: data['id'].toString(),
+      invoiceNumber: data['invoiceNumber'] ?? 'INV-${data['id']}',
+      issueDate: DateTime.parse(data['invoiceDate'] ?? data['issueDate'] ?? DateTime.now().toIso8601String()),
+      dueDate: data['dueDate'] != null ? DateTime.parse(data['dueDate']) : DateTime.now().add(const Duration(days: 30)),
+      reference: data['reference'] ?? data['orderId'] ?? '',
+      billTo: data['billTo'] ?? data['order']?['user']?['name'] ?? 'Unknown Customer',
+      items: items,
+      subtotal: (data['subtotal'] ?? data['totalAmount'] ?? 0.0).toDouble(),
+      gstTotal: (data['gstTotal'] ?? 0.0).toDouble(),
+      totalDue: (data['totalAmount'] ?? data['totalDue'] ?? 0.0).toDouble(),
+      signature: data['signature'],
+      orderId: data['orderId'],
+      pdfUrl: data['pdfUrl'],
+    );
+  }
+  
+  // Handle Dio errors
+  void _handleDioError(DioException e) {
+    if (e.type == DioExceptionType.connectionTimeout) {
+      error = 'Connection timeout. Please check your internet connection.';
+    } else if (e.type == DioExceptionType.receiveTimeout) {
+      error = 'Server response timeout. Please try again.';
+    } else if (e.response?.statusCode == 401) {
+      error = 'Unauthorized access. Please login again.';
+    } else if (e.response?.statusCode == 403) {
+      error = 'Access forbidden. You do not have permission.';
+    } else if (e.response?.statusCode == 404) {
+      error = 'Invoice not found.';
+    } else if (e.response?.statusCode == 500) {
+      error = 'Server error. Please try again later.';
+    } else {
+      error = 'Network error: ${e.message}';
+    }
     notifyListeners();
   }
 

@@ -46,35 +46,6 @@ class ProductForm extends StatelessWidget {
                   isRequired: true,
                 ),
                 const SizedBox(height: 16),
-                // Description
-                buildTextField(
-                  controller: controller.descriptionController,
-                  label: 'Description (Optional)',
-                  icon: Icons.description,
-                  maxLines: 2,
-                ),
-                const SizedBox(height: 16),
-                // Category
-                buildDropdown(
-                  value: controller.categoryController.text.isNotEmpty
-                      ? controller.categoryController.text
-                      : (controller.availableCategories.length > 1 ? controller.availableCategories[1] : ''),
-                  items: controller.availableCategories
-                      .where((cat) => cat != 'All')
-                      .map((cat) => DropdownMenuItem(
-                            value: cat,
-                            child: Text(cat, style: const TextStyle(color: AppColors.textPrimary)),
-                          ))
-                      .toList(),
-                  label: 'Category',
-                  icon: Icons.category,
-                  onChanged: (value) {
-                    if (value != null) {
-                      controller.categoryController.text = value;
-                    }
-                  },
-                ),
-                const SizedBox(height: 16),
                 // Price
                 buildTextField(
                   controller: controller.priceController,
@@ -84,31 +55,22 @@ class ProductForm extends StatelessWidget {
                   isRequired: true,
                 ),
                 const SizedBox(height: 16),
-                // Stock
+                // Stock Quantity
                 buildTextField(
                   controller: controller.stockController,
-                  label: 'Stock',
+                  label: 'Stock Quantity',
                   icon: Icons.storage,
                   keyboardType: TextInputType.number,
                   isRequired: true,
                 ),
                 const SizedBox(height: 16),
-                // Status
-                buildDropdown(
-                  value: controller.selectedProductStatus,
-                  items: controller.availableStatuses
-                      .map((status) => DropdownMenuItem(
-                            value: status,
-                            child: Text(status.toUpperCase(), style: const TextStyle(color: AppColors.textPrimary)),
-                          ))
-                      .toList(),
-                  label: 'Status',
-                  icon: Icons.circle,
-                  onChanged: (value) {
-                    if (value != null) {
-                      controller.selectedProductStatus = value;
-                    }
-                  },
+                // Warranty Period (Months)
+                buildTextField(
+                  controller: controller.warrantyController,
+                  label: 'Warranty Period (Months)',
+                  icon: Icons.verified_user,
+                  keyboardType: TextInputType.number,
+                  isRequired: true,
                 ),
                 const SizedBox(height: 24),
                 // Action Buttons
@@ -116,7 +78,7 @@ class ProductForm extends StatelessWidget {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: controller.isLoading ? null : () {
                           if (controller.isEditMode) {
                             controller.updateProduct();
                           } else {
@@ -131,16 +93,25 @@ class ProductForm extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: Text(
-                          controller.isEditMode ? 'Update Product' : 'Add Product',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
+                        child: controller.isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : Text(
+                                controller.isEditMode ? 'Update Product' : 'Add Product',
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => controller.clearForm(),
+                        onPressed: controller.isLoading ? null : () => controller.clearForm(),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.textSecondary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -239,32 +210,4 @@ class ProductForm extends StatelessWidget {
     );
   }
 
-  Widget buildDropdown({
-    required String value,
-    required List<DropdownMenuItem<String>> items,
-    required String label,
-    required IconData icon,
-    required Function(String?) onChanged,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        items: items,
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon, color: AppColors.secondaryBlue),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          labelStyle: const TextStyle(color: AppColors.textSecondary),
-        ),
-        dropdownColor: Colors.white,
-        style: const TextStyle(color: AppColors.textSecondary),
-      ),
-    );
-  }
-} 
+}

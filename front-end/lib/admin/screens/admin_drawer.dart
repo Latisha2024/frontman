@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:role_based_app/admin/screens/invoices.dart';
 import 'package:role_based_app/admin/screens/send_notifications.dart';
+import 'package:role_based_app/admin/screens/shift_alerts.dart';
+import 'package:role_based_app/admin/screens/stock_management.dart';
 import 'package:role_based_app/admin/screens/warranty_database.dart';
+import 'package:role_based_app/external_seller/screens/incentives.dart';
 import '../../constants/colors.dart';
+import '../../sales_manager/screens/gps_tracking.dart';
 import 'admin_dashboard.dart';
 import 'assign_incentive.dart';
 import 'audit_logs.dart';
@@ -59,7 +63,7 @@ class AdminDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.dashboard),
-            title: const Text('Admin Dashboard'),
+            title: const Text('Dashboard'),
             onTap: () {
               Navigator.push(
                 context,
@@ -76,7 +80,7 @@ class AdminDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ManageUsersScreen(role: "admin"),
+                  builder: (context) => ManageUsersScreen(company: company, role: "admin"),
                 ),
               );
             },
@@ -107,7 +111,7 @@ class AdminDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.bookmark_border),
-            title: const Text('Order Summary'),
+            title: const Text('Orders'),
             onTap: () {
               Navigator.push(
                 context,
@@ -119,7 +123,7 @@ class AdminDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.bar_chart),
-            title: const Text('Generate Reports'),
+            title: const Text('Reports'),
             onTap: () {
               Navigator.push(
                 context,
@@ -131,7 +135,7 @@ class AdminDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.currency_rupee_outlined),
-            title: const Text('Convert Points To Cash'),
+            title: const Text('Points'),
             onTap: () {
               Navigator.push(
                 context,
@@ -143,7 +147,7 @@ class AdminDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.notifications),
-            title: const Text('Send Push Notifications'),
+            title: const Text('Notifications'),
             onTap: () {
               Navigator.push(
                 context,
@@ -154,8 +158,32 @@ class AdminDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.crisis_alert_sharp),
+            title: const Text('Shift Alerts'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ShiftAlertsScreen(role: "admin"),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.inventory),
+            title: const Text('Manage Stocks'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StockManagementScreen(role: "admin"),
+                ),
+              );
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.verified_user),
-            title: const Text('Manage Warranty Database'),
+            title: const Text('Warranty'),
             onTap: () {
               Navigator.push(
                 context,
@@ -178,13 +206,25 @@ class AdminDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.card_giftcard),
-            title: const Text('Assign Incentive'),
+            leading: const Icon(Icons.card_membership),
+            title: const Text('Incentives'),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => AssignIncentiveScreen(role: "admin"),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.gps_fixed),
+            title: const Text('Location'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SalesManagerGpsTrackingScreen(role: "admin"),
                 ),
               );
             },

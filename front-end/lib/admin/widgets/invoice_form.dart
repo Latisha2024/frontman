@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import '../controllers/invoices.dart';
 import '../../constants/colors.dart';
@@ -222,7 +223,9 @@ class _InvoiceFormState extends State<InvoiceForm> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: controller.isEditMode ? controller.updateInvoice : controller.addInvoice,
+                      onPressed: controller.isLoading 
+                          ? null 
+                          : (controller.isEditMode ? controller.updateInvoice : controller.createManualInvoice),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.buttonPrimary,
                         foregroundColor: Colors.white,
@@ -231,10 +234,19 @@ class _InvoiceFormState extends State<InvoiceForm> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(
-                        controller.isEditMode ? 'Update Invoice' : 'Add Invoice',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
+                      child: controller.isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : Text(
+                              controller.isEditMode ? 'Update Invoice' : 'Create Invoice',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
                     ),
                   ),
                   const SizedBox(width: 12),

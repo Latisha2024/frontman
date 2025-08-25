@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import '../../authpage/auth_services.dart';
+import '../../admin/screens/admin_dashboard.dart';
+import '../../external_seller/screens/external_seller_dashboard.dart';
+import '../../worker/screens/worker_dashboard.dart';
+import '../../field_executive/screens/executiveUI.dart';
+import '../../distributor/screens/distributorsUI.dart';
+import '../../accountant_app/screens/acc_home_screen.dart';
+import '../../sales_manager/screens/sales_manager_dashboard.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/logo_widget.dart';
 import '../widgets/gradient_background.dart';
 import '../config/app_theme.dart';
-import '../../admin/screens/admin_drawer.dart';
-import '../../external_seller/screens/seller_drawer.dart';
-import '../../worker/screens/worker_drawer.dart';
-import '../../field_executive/screens/executiveUI.dart';
-import '../../distributor/screens/distributorsUI.dart';
-import '../../accountant_app/screens/acc_home_screen.dart';
-import '../../sales_manager/screens/sales_manager_drawer.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -21,86 +23,136 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _nameController = TextEditingController(); // registration
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  final _phoneController = TextEditingController(); // registration
+  final _roleController = TextEditingController(); // registration
   bool _isLoading = false;
   bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-  String _selectedRole = 'External Seller';
-
-  final List<String> _roles = [
-    'Admin',
-    'External Seller',
-    'Worker',
-    'Field Executive',
-    'Distributor',
-    'Accountant',
-    'Sales Manager',
-  ];
+  bool _isRegister = true; // Start in register mode
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
+    _phoneController.dispose();
+    _roleController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleSignUp() async {
+  Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
+    final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5000"));
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
 
-    setState(() {
-      _isLoading = false;
-    });
+    try {
+      Response response;
+      if (_isRegister) {
+        final name = _nameController.text.trim();
+        final phone = _phoneController.text.trim();
+        final role =
+            _roleController.text.trim(); // must match backend role keys
 
-    if (mounted) {
-      _navigateToRoleDashboard();
+        response = await dio.post('/auth/register', data: {
+          'name': name,
+          'email': email,
+          'password': password,
+          'phone': phone,
+          'role': role,
+        });
+
+        print('Register response: ${response.data}');
+        setState(() => _isRegister = false);
+        _showDialog('Registration successful! Please login.');
+      } else {
+        response = await dio.post('/auth/login', data: {
+          'email': email,
+          'password': password,
+        });
+
+        print('Login response: ${response.data}');
+        final token = response.data['token'];
+        final user = response.data['user'];
+
+        AuthService().setToken(token, user);
+
+        final savedToken = await AuthService().getToken();
+        final savedUser = await AuthService().getUser();
+        print("🔎 Retrieved token: $savedToken");
+        print("🔎 Retrieved user: $savedUser");
+
+        Widget homeScreen;
+        switch (user['role']) {
+          case 'Admin':
+            homeScreen = const AdminDashboardScreen();
+            break;
+          case 'ExternalSeller':
+            homeScreen = const ExternalSellerDashboardScreen();
+            break;
+          case 'Worker':
+            homeScreen = const WorkerDashboardScreen();
+            break;
+          case 'FieldExecutive':
+            homeScreen = const FieldExecutiveUI();
+            break;
+          case 'Distributor':
+            homeScreen = const DistributorHomePage();
+            break;
+          case 'Accountant':
+            homeScreen = const AccountantHomeScreen();
+            break;
+          case 'SalesManager':
+            homeScreen = const SalesManagerDashboardScreen();
+            break;
+          default:
+            throw Exception('Unknown role: ${user['role']}');
+        }
+
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => homeScreen),
+          );
+        }
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'Operation failed';
+      if (e.response != null) {
+        print('Dio error response: ${e.response?.data}');
+        errorMessage = e.response?.data['message'] ?? errorMessage;
+      } else {
+        print('Dio error: $e');
+        errorMessage = 'Operation failed: ${e.message}';
+      }
+      _showDialog(errorMessage);
+    } catch (e) {
+      print('Unexpected error: $e');
+      _showDialog('Unexpected error: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  void _navigateToRoleDashboard() {
-    Widget? homeScreen;
-    
-    switch (_selectedRole) {
-      case 'Admin':
-        homeScreen = const AdminDrawer();
-        break;
-      case 'External Seller':
-        homeScreen = const SellerDrawer();
-        break;
-      case 'Worker':
-        homeScreen = const WorkerDrawer();
-        break;
-      case 'Field Executive':
-        homeScreen = const FieldExecutiveUI();
-        break;
-      case 'Distributor':
-        homeScreen = const DistributorHomePage();
-        break;
-      case 'Accountant':
-        homeScreen = const AccountantHomeScreen();
-        break;
-      case 'Sales Manager':
-        homeScreen = const SalesManagerDrawer();
-        break;
-    }
-
-    if (homeScreen != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => homeScreen!),
-      );
-    }
+  void _showDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(_isRegister ? 'Register' : 'Login'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -117,140 +169,97 @@ class _SignUpPageState extends State<SignUpPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 20),
-                    const Center(child: LogoWidget(size: 60)),
-                    const SizedBox(height: 32),
-                    CustomTextField(
-                      label: 'Full Name',
-                      controller: _nameController,
-                      prefixIcon: const Icon(Icons.person_outlined),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your full name';
-                        }
-                        if (value.length < 2) {
-                          return 'Name must be at least 2 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 40),
+                    const Center(child: LogoWidget()),
+                    const SizedBox(height: 48),
+                    if (_isRegister)
+                      CustomTextField(
+                        label: 'Name',
+                        controller: _nameController,
+                        keyboardType: TextInputType.name,
+                        prefixIcon: const Icon(Icons.person_outline),
+                        validator: (value) {
+                          if (value == null || value.isEmpty)
+                            return 'Enter your name';
+                          return null;
+                        },
+                      ),
+                    if (_isRegister) const SizedBox(height: 16),
+                    if (_isRegister)
+                      CustomTextField(
+                        label: 'Phone',
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        prefixIcon: const Icon(Icons.phone),
+                        validator: (value) {
+                          if (value == null || value.isEmpty)
+                            return 'Enter your phone';
+                          return null;
+                        },
+                      ),
+                    if (_isRegister) const SizedBox(height: 16),
+                    if (_isRegister)
+                      CustomTextField(
+                        label: 'Role',
+                        controller: _roleController,
+                        keyboardType: TextInputType.text,
+                        prefixIcon: const Icon(Icons.badge_outlined),
+                        validator: (value) {
+                          if (value == null || value.isEmpty)
+                            return 'Enter your role';
+                          return null;
+                        },
+                      ),
+                    if (_isRegister) const SizedBox(height: 16),
                     CustomTextField(
                       label: 'Email',
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: const Icon(Icons.email_outlined),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                          return 'Please enter a valid email';
-                        }
+                        if (value == null || value.isEmpty)
+                          return 'Enter your email';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(value)) return 'Enter a valid email';
                         return null;
                       },
                     ),
-                    const SizedBox(height: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Role',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          value: _selectedRole,
-                          decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.work_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                          ),
-                          items: _roles.map((role) {
-                            return DropdownMenuItem(
-                              value: role,
-                              child: Text(role),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedRole = value!;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
                     CustomTextField(
                       label: 'Password',
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       prefixIcon: const Icon(Icons.lock_outlined),
                       suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
+                        icon: Icon(_obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off),
+                        onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        if (value.length < 6) {
+                        if (value == null || value.isEmpty)
+                          return 'Enter your password';
+                        if (value.length < 6)
                           return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    CustomTextField(
-                      label: 'Confirm Password',
-                      controller: _confirmPasswordController,
-                      obscureText: _obscureConfirmPassword,
-                      prefixIcon: const Icon(Icons.lock_outlined),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureConfirmPassword = !_obscureConfirmPassword;
-                          });
-                        },
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please confirm your password';
-                        }
-                        if (value != _passwordController.text) {
-                          return 'Passwords do not match';
-                        }
                         return null;
                       },
                     ),
                     const SizedBox(height: 32),
                     CustomButton(
-                      text: 'Sign Up',
-                      onPressed: _handleSignUp,
+                      text: _isRegister ? 'Register' : 'Login',
+                      onPressed: _handleSubmit,
                       isLoading: _isLoading,
                     ),
                     const SizedBox(height: 24),
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/login');
-                      },
-                      child: const Text('Already have an account? Login'),
+                      onPressed: () =>
+                          setState(() => _isRegister = !_isRegister),
+                      child: Text(_isRegister
+                          ? 'Already have an account? Login'
+                          : 'Don\'t have an account? Sign up'),
                     ),
+                    const SizedBox(height: 32),
                   ],
                 ),
               ),

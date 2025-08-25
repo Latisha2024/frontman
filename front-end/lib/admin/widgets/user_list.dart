@@ -20,15 +20,17 @@ class UserList extends StatelessWidget {
             
             // Users List
             Expanded(
-              child: controller.filteredUsers.isEmpty
-                  ? buildEmptyState()
-                  : ListView.builder(
-                      itemCount: controller.filteredUsers.length,
-                      itemBuilder: (context, index) {
-                        final user = controller.filteredUsers[index];
-                        return buildUserCard(context, user);
-                      },
-                    ),
+              child: controller.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : controller.filteredUsers.isEmpty
+                      ? buildEmptyState()
+                      : ListView.builder(
+                          itemCount: controller.filteredUsers.length,
+                          itemBuilder: (context, index) {
+                            final user = controller.filteredUsers[index];
+                            return buildUserCard(context, user);
+                          },
+                        ),
             ),
           ],
         );
@@ -75,7 +77,7 @@ class UserList extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           
-          // Filter Row
+          // Filter Row 1
           Row(
             children: [
               Expanded(
@@ -97,6 +99,8 @@ class UserList extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          
         ],
       ),
     );
@@ -193,17 +197,31 @@ class UserList extends StatelessWidget {
                           color: Colors.grey.shade600,
                         ),
                       ),
+                      Text(
+                        'Company ${user.companyId.replaceAll('company', '')}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.primaryBlue,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                buildStatusChip(user.status),
+                Column(
+                  children: [
+                    buildRoleChip(user.role),
+                    const SizedBox(height: 4),
+                    buildStatusChip(user.status),
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 12),
             
             // User Details
-            buildDetailRow(Icons.work, 'Role', user.role.replaceAll('_', ' ').toUpperCase()),
-            buildDetailRow(Icons.phone, 'Phone', user.phone),
+            buildDetailRow(Icons.work, 'Role', user.role),
+            if (user.phone != null) buildDetailRow(Icons.phone, 'Phone', user.phone!),
             if (user.address != null) buildDetailRow(Icons.location_on, 'Address', user.address!),
             buildDetailRow(Icons.calendar_today, 'Joined', formatDate(user.createdAt)),
             
@@ -214,7 +232,7 @@ class UserList extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => controller.editUser(user),
+                    onPressed: controller.isLoading ? null : () => controller.editUser(user),
                     icon: const Icon(Icons.edit, size: 16),
                     label: const Text('Edit'),
                     style: OutlinedButton.styleFrom(
@@ -229,7 +247,7 @@ class UserList extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => showDeleteDialog(context, user),
+                    onPressed: controller.isLoading ? null : () => showDeleteDialog(context, user),
                     icon: const Icon(Icons.delete, size: 16),
                     label: const Text('Delete'),
                     style: OutlinedButton.styleFrom(
@@ -278,6 +296,69 @@ class UserList extends StatelessWidget {
     );
   }
 
+  Widget buildRoleChip(String role) {
+    Color color;
+    IconData icon;
+    
+    switch (role) {
+      case 'Admin':
+        color = Colors.red;
+        icon = Icons.admin_panel_settings;
+        break;
+      case 'SalesManager':
+        color = Colors.blue;
+        icon = Icons.sell;
+        break;
+      case 'Worker':
+        color = Colors.green;
+        icon = Icons.work;
+        break;
+      case 'Accountant':
+        color = Colors.orange;
+        icon = Icons.account_balance;
+        break;
+      case 'Distributor':
+        color = Colors.purple;
+        icon = Icons.local_shipping;
+        break;
+      case 'FieldExecutive':
+        color = Colors.teal;
+        icon = Icons.person_pin_circle;
+        break;
+      case 'ExternalSeller':
+        color = Colors.indigo;
+        icon = Icons.storefront;
+        break;
+      default:
+        color = AppColors.textSecondary;
+        icon = Icons.person;
+    }
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 10, color: color),
+          const SizedBox(width: 2),
+          Text(
+            role.toUpperCase(),
+            style: TextStyle(
+              fontSize: 8,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
   Widget buildStatusChip(String status) {
     Color color;
     IconData icon;
@@ -305,21 +386,21 @@ class UserList extends StatelessWidget {
     }
     
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
+          Icon(icon, size: 10, color: color),
+          const SizedBox(width: 2),
           Text(
             status.toUpperCase(),
             style: TextStyle(
-              fontSize: 10,
+              fontSize: 8,
               fontWeight: FontWeight.bold,
               color: color,
             ),
@@ -360,6 +441,7 @@ class UserList extends StatelessWidget {
       ),
     );
   }
+
 
   String formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';

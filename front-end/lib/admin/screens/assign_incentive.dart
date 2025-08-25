@@ -49,67 +49,72 @@ class _AssignIncentiveScreenState extends State<AssignIncentiveScreen> {
             ),
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
+            actions: [
+              IconButton(
+                onPressed: controller.isLoading ? null : () => controller.fetchAllIncentives(),
+                icon: const Icon(Icons.refresh, color: Colors.white),
+                tooltip: 'Refresh Incentives',
+              ),
+            ],
           ),
           drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
-          body: Center(
-            child: Container(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 16),
-                  AssignIncentiveForm(
-                    controller: controller,
-                    onSubmit: controller.assignPoints,
+          body: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                // Error/Success Messages
+                if (controller.error != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error, color: Colors.red.shade600, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            controller.error!,
+                            style: TextStyle(color: Colors.red.shade700),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  if (controller.error != null) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.shade200),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.error, color: Colors.red.shade600, size: 20),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              controller.error!,
-                              style: TextStyle(color: Colors.red.shade700),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  if (controller.successMessage != null) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green.shade200),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              controller.successMessage!,
-                              style: TextStyle(color: Colors.green.shade700),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  const SizedBox(height: 16),
                 ],
-              ),
+                if (controller.successMessage != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            controller.successMessage!,
+                            style: TextStyle(color: Colors.green.shade700),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                
+                // Main Content
+                Expanded(
+                  child: AssignIncentiveForm(controller: controller),
+                ),
+              ],
             ),
           ),
         );

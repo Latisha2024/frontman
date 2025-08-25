@@ -22,6 +22,16 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
   void initState() {
     super.initState();
     controller = AdminInvoicesController();
+    // Load invoices from API on initialization
+    _loadInvoices();
+  }
+
+  Future<void> _loadInvoices() async {
+    await controller.fetchInvoices();
+  }
+
+  Future<void> _refreshInvoices() async {
+    await controller.refreshInvoices();
   }
 
   @override
@@ -49,11 +59,30 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
-
             ),
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
             actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: controller.isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Padding(
+                          padding: EdgeInsets.all(2.0),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                      )
+                    : IconButton(
+                        tooltip: 'Refresh',
+                        onPressed: _refreshInvoices,
+                        icon: const Icon(Icons.refresh, color: Colors.white),
+                      ),
+              ),
               IconButton(
                 onPressed: () {
                   setState(() {
@@ -67,13 +96,79 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
                   showForm ? Icons.list : Icons.add,
                   color: Colors.white,
                 ),
-                tooltip: showForm ? 'View Users' : 'Add User',
+                tooltip: showForm ? 'View Invoices' : 'Add Invoice',
               ),
             ],
           ),
           drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
           body: Column(
             children: [
+              // Error message display
+              if (controller.error != null)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red.shade600),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          controller.error!,
+                          style: TextStyle(color: Colors.red.shade700),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          controller.error = null;
+                          controller.notifyListeners();
+                        },
+                        color: Colors.red.shade600,
+                        iconSize: 20,
+                      ),
+                    ],
+                  ),
+                ),
+              // Success message display
+              if (controller.successMessage != null)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle_outline, color: Colors.green.shade600),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          controller.successMessage!,
+                          style: TextStyle(color: Colors.green.shade700),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          controller.successMessage = null;
+                          controller.notifyListeners();
+                        },
+                        color: Colors.green.shade600,
+                        iconSize: 20,
+                      ),
+                    ],
+                  ),
+                ),
               // Header with stats
               buildStatsHeader(),
 
@@ -89,6 +184,7 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
       },
     );
   }
+
   Widget buildStatsHeader() {
     double totalDue = controller.invoices.fold(0, (sum, inv) => sum + inv.totalDue);
     return Container(
@@ -178,7 +274,10 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
   Widget buildListView() {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: InvoiceList(controller: controller),
+      child: InvoiceList(
+        controller: controller,
+        onRefresh: _refreshInvoices,
+      ),
     );
   }
 }

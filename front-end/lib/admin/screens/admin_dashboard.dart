@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:role_based_app/admin/screens/warranty_database.dart';
 import 'admin_drawer.dart';
 import '../../constants/colors.dart';
 import 'company_selection.dart';
+import 'generate_reports.dart';
 import 'manage_products.dart';
+import 'manage_users.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   final Company? company;
@@ -144,7 +147,14 @@ class AdminDashboardScreen extends StatelessWidget {
                   context,
                   icon: Icons.people,
                   label: 'Manage Users',
-                  onPressed: () => Navigator.pushNamed(context, '/admin/manage-users'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ManageUsersScreen(company: company,role: "admin"),
+                      ),
+                    );
+                  },
                 ),
                 _buildActionButton(
                   context,
@@ -161,13 +171,27 @@ class AdminDashboardScreen extends StatelessWidget {
                   context,
                   icon: Icons.verified_user,
                   label: 'Manage Warranty',
-                  onPressed: () => Navigator.pushNamed(context, '/admin/warranty-database'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WarrantyDatabaseScreen(role: "admin"),
+                      ),
+                    );
+                  },
                 ),
                 _buildActionButton(
                   context,
                   icon: Icons.bar_chart,
                   label: 'View Reports',
-                  onPressed: () => Navigator.pushNamed(context, '/admin/generate-reports'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => GenerateReportsScreen(company: company,role: "admin"),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

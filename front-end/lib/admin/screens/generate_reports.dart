@@ -20,7 +20,8 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
   @override
   void initState() {
     super.initState();
-    controller = AdminGenerateReportsController(companyId: widget.company?.id);
+    final company = widget.company ?? CompanySelection.selectedCompany;
+    controller = AdminGenerateReportsController(companyId: company?.id);
   }
 
   @override
@@ -36,7 +37,7 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
       builder: (context, _) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Generate Reports'),
+            title: const Text('Reports'),
             backgroundColor: AppColors.primaryBlue,
             leading: Builder(
               builder: (context) => IconButton(
@@ -45,7 +46,7 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
               ),
             ),
           ),
-          drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
+          drawer: widget.role == "admin" ? AdminDrawer(company: widget.company) : SalesManagerDrawer(company: widget.company),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

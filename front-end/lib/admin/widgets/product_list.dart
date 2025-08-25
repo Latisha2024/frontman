@@ -16,15 +16,19 @@ class ProductList extends StatelessWidget {
             buildSearchAndFilter(),
             const SizedBox(height: 20),
             Expanded(
-              child: controller.filteredProducts.isEmpty
-                  ? buildEmptyState()
-                  : ListView.builder(
-                      itemCount: controller.filteredProducts.length,
-                      itemBuilder: (context, index) {
-                        final product = controller.filteredProducts[index];
-                        return buildProductCard(context, product);
-                      },
-                    ),
+              child: controller.isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : controller.filteredProducts.isEmpty
+                      ? buildEmptyState()
+                      : ListView.builder(
+                          itemCount: controller.filteredProducts.length,
+                          itemBuilder: (context, index) {
+                            final product = controller.filteredProducts[index];
+                            return buildProductCard(context, product);
+                          },
+                        ),
             ),
           ],
         );
@@ -52,7 +56,7 @@ class ProductList extends StatelessWidget {
           TextField(
             onChanged: controller.searchProducts,
             decoration: InputDecoration(
-              hintText: 'Search products by name or description...',
+              hintText: 'Search products by name...',
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -69,70 +73,11 @@ class ProductList extends StatelessWidget {
               filled: true,
             ),
           ),
-          const SizedBox(height: 16),
-          // Filter Row
-          Row(
-            children: [
-              Expanded(
-                child: buildFilterDropdown(
-                  value: controller.selectedCategory,
-                  items: controller.availableCategories,
-                  label: 'Category',
-                  onChanged: controller.filterByCategory,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: buildFilterDropdown(
-                  value: controller.selectedStatus,
-                  items: ['All', ...controller.availableStatuses],
-                  label: 'Status',
-                  onChanged: controller.filterByStatus,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
   }
 
-  Widget buildFilterDropdown({
-    required String value,
-    required List<String> items,
-    required String label,
-    required Function(String) onChanged,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.primaryBlue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        items: items.map((item) {
-          return DropdownMenuItem(
-            value: item,
-            child: Text(
-              item == 'All' ? 'All $label' : item,
-              style: const TextStyle(fontSize: 14),
-            ),
-          );
-        }).toList(),
-        onChanged: (newValue) {
-          if (newValue != null) onChanged(newValue);
-        },
-        decoration: InputDecoration(
-          labelText: label,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          labelStyle: const TextStyle(color: AppColors.textPrimary, fontSize: 12),
-        ),
-        dropdownColor: Colors.white,
-        style: const TextStyle(color: Colors.black87, fontSize: 14),
-      ),
-    );
-  }
 
   Widget buildProductCard(BuildContext context, Product product) {
     return Container(
@@ -170,47 +115,34 @@ class ProductList extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        product.category,
+                        'ID: ${product.id}',
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryBlue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
-                        ),
-                        child: Text(
-                          'Company ${product.companyId.replaceAll('company', '')}',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.primaryBlue,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
-                buildStatusChip(product.status),
+                const SizedBox.shrink(),
               ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              product.description,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
             ),
             const SizedBox(height: 10),
             Row(
               children: [
-                buildInfoChip(Icons.currency_rupee_outlined, 'Price', product.price.toStringAsFixed(2)),
+                buildInfoChip(Icons.currency_rupee_outlined, 'Price', '₹${product.price.toStringAsFixed(2)}'),
                 const SizedBox(width: 8),
-                buildInfoChip(Icons.storage, 'Stock', product.stock.toString()),
+                buildInfoChip(Icons.storage, 'Stock', product.stockQuantity.toString()),
+                const SizedBox(width: 8),
+                buildInfoChip(Icons.verified_user, 'Warranty', '${product.warrantyPeriodInMonths} mo'),
               ],
             ),
+            const SizedBox(height: 8),
+            if (product.createdAt != null)
+              Text(
+                'Created: ${product.createdAt!.day}/${product.createdAt!.month}/${product.createdAt!.year}',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -276,43 +208,6 @@ class ProductList extends StatelessWidget {
     );
   }
 
-  Widget buildStatusChip(String status) {
-    Color color;
-    switch (status) {
-      case 'active':
-        color = AppColors.success;
-        break;
-      case 'inactive':
-        color = AppColors.textSecondary;
-        break;
-      default:
-        color = AppColors.textSecondary;
-    }
-    IconData icon = status == 'active' ? Icons.check_circle : Icons.remove_circle;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
-          Text(
-            status.toUpperCase(),
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget buildEmptyState() {
     return const Center(
@@ -335,7 +230,7 @@ class ProductList extends StatelessWidget {
           ),
           SizedBox(height: 8),
           Text(
-            'Try adjusting your search or filters',
+            'Try adjusting your search',
             style: TextStyle(
               fontSize: 14,
               color: AppColors.textSecondary,

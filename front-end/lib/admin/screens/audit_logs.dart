@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
 import '../../sales_manager/screens/sales_manager_drawer.dart';
 import '../controllers/audit_logs.dart';
+import '../widgets/audit_log_form.dart';
 import 'admin_drawer.dart';
 
 class AuditLogsScreen extends StatefulWidget {
@@ -49,27 +50,45 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
             ),
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh, color: Colors.white),
+                onPressed: () => controller.fetchAuditLogs(),
+                tooltip: 'Refresh Logs',
+              ),
+               IconButton(
+                icon: const Icon(Icons.add, color: Colors.white),
+                onPressed: () => _showCreateLogDialog(),
+                tooltip: 'Create Log',
+              ),
+            ],
           ),
           drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                buildSearchAndFilter(),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: controller.filteredLogs.isEmpty
-                      ? const Center(child: Text('No logs found.'))
-                      : ListView.builder(
-                          itemCount: controller.filteredLogs.length,
-                          itemBuilder: (context, index) {
-                            final log = controller.filteredLogs[index];
-                            return buildLogCard(log);
-                          },
-                        ),
-                ),
-              ],
-            ),
+          body: Column(
+            children: [
+              if (controller.error != null)
+                _buildBanner(controller.error!, Colors.red.shade100, Colors.red),
+              if (controller.successMessage != null)
+                _buildBanner(controller.successMessage!, Colors.green.shade100, Colors.green),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: buildSearchAndFilter(),
+              ),
+              Expanded(
+                child: controller.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : controller.filteredLogs.isEmpty
+                        ? const Center(child: Text('No logs found.'))
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: controller.filteredLogs.length,
+                            itemBuilder: (context, index) {
+                              final log = controller.filteredLogs[index];
+                              return buildLogCard(log);
+                            },
+                          ),
+              ),
+            ],
           ),
         );
       },
@@ -181,7 +200,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        log.action,
+                        '${log.action}: ${log.resource}',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -189,7 +208,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                         ),
                       ),
                       Text(
-                        log.user,
+                        log.user.name ?? log.user.email,
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.textPrimary,
@@ -201,11 +220,14 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                 buildTimestampChip(log.timestamp),
               ],
             ),
-            const SizedBox(height: 10),
-            Text(
-              log.details,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-            ),
+            if (log.details != null && log.details!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Text(
+                  log.details!,
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                ),
+              ),
           ],
         ),
       ),
@@ -223,6 +245,26 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
       child: Text(
         formatted,
         style: const TextStyle(fontSize: 13, color: Colors.black87),
+      ),
+    );
+  }
+
+  void _showCreateLogDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AuditLogForm(controller: controller),
+    );
+  }
+
+  Widget _buildBanner(String message, Color color, Color textColor) {
+    return Container(
+      width: double.infinity,
+      color: color,
+      padding: const EdgeInsets.all(12),
+      child: Text(
+        message,
+        style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+        textAlign: TextAlign.center,
       ),
     );
   }

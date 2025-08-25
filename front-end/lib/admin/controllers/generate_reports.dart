@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 
 class ReportData {
   final String type;
@@ -25,103 +26,33 @@ class ReportData {
 class AdminGenerateReportsController extends ChangeNotifier {
   bool isLoading = false;
   String? error;
+  String? successMessage;
   List<ReportData> reports = [];
   String selectedType = 'sales';
   String? currentCompanyId;
   final List<String> availableTypes = ['sales', 'inventory', 'performance','individual'];
+  late final Dio _dio;
+  final String baseUrl = 'http://10.0.2.2:5000';
 
   AdminGenerateReportsController({String? companyId}) {
+    _dio = Dio(BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 3),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    ));
+    _dio.interceptors.add(LogInterceptor(
+      requestBody: true,
+      responseBody: true,
+      logPrint: (obj) => print(obj),
+    ));
     currentCompanyId = companyId;
-    // Initialize with dummy report data
-    reports = [
-      ReportData(
-        type: 'individual',
-        title: 'Jane Smith - Performance Report',
-        description: 'Individual performance metrics for Jane Smith',
-        date: DateTime.now().subtract(const Duration(days: 1)),
-        companyId: companyId ?? 'company1',
-        userId: 'user2',
-        userName: 'Jane Smith',
-        details: {
-          'totalSales': 32000.00,
-          'ordersCompleted': 18,
-          'averageOrderValue': 1777.78,
-          'topProduct': 'Laptop',
-          'performance': 92.3,
-        },
-      ),
-      ReportData(
-        type: 'individual',
-        title: 'John Doe - Sales Report',
-        description: 'Individual sales performance for John Doe',
-        date: DateTime.now().subtract(const Duration(days: 2)),
-        companyId: companyId ?? 'company1',
-        userId: 'user1',
-        userName: 'John Doe',
-        details: {
-          'totalSales': 25000.00,
-          'ordersCompleted': 12,
-          'averageOrderValue': 2083.33,
-          'topProduct': 'Smart Watch',
-          'performance': 85.5,
-        },
-      ),
-      ReportData(
-        type: 'individual',
-        title: 'Mike Johnson - Inventory Report',
-        description: 'Individual inventory management for Mike Johnson',
-        date: DateTime.now().subtract(const Duration(days: 3)),
-        companyId: companyId ?? 'company1',
-        userId: 'user3',
-        userName: 'Mike Johnson',
-        details: {
-          'productsManaged': 45,
-          'stockUpdates': 23,
-          'lowStockAlerts': 5,
-          'efficiency': 88.7,
-        },
-      ),
-      ReportData(
-        type: 'sales',
-        title: 'Monthly Sales Report',
-        description: 'Comprehensive sales analysis for the current month',
-        date: DateTime.now().subtract(const Duration(days: 5)),
-        companyId: companyId ?? 'company1',
-        details: {
-          'totalSales': 125000.00,
-          'totalOrders': 45,
-          'averageOrderValue': 2777.78,
-          'topProduct': 'Premium Smartphone',
-        },
-      ),
-      ReportData(
-        type: 'inventory',
-        title: 'Inventory Status Report',
-        description: 'Current inventory levels and stock analysis',
-        date: DateTime.now().subtract(const Duration(days: 3)),
-        companyId: companyId ?? 'company1',
-        details: {
-          'totalProducts': 150,
-          'lowStockItems': 12,
-          'outOfStockItems': 3,
-          'totalValue': 2500000.00,
-        },
-      ),
-      ReportData(
-        type: 'performance',
-        title: 'Performance Metrics Report',
-        description: 'Employee and system performance analysis',
-        date: DateTime.now().subtract(const Duration(days: 1)),
-        companyId: companyId ?? 'company1',
-        details: {
-          'totalRevenue': 350000.00,
-          'activeUsers': 25,
-          'completedTasks': 89,
-          'efficiency': 94.5,
-        },
-      ),
-    ];
+    // Load reports from backend on initialization
+    loadAllReports();
   }
+
 
   void selectType(String type) {
     selectedType = type;
@@ -129,7 +60,7 @@ class AdminGenerateReportsController extends ChangeNotifier {
   }
 
   List<ReportData> get filteredReports => reports
-      .where((r) => r.type == selectedType && (currentCompanyId == null || r.companyId == currentCompanyId))
+      .where((r) => r.type == selectedType && r.companyId == currentCompanyId)
       .toList();
 
   double get totalAmount {
@@ -157,4 +88,157 @@ class AdminGenerateReportsController extends ChangeNotifier {
     error = null;
     notifyListeners();
   }
-} 
+
+  void clearSuccess() {
+    successMessage = null;
+    notifyListeners();
+  }
+
+  // Load all reports based on selected type
+  Future<void> loadAllReports() async {
+    switch (selectedType) {
+      case 'sales':
+        await fetchSalesReport();
+        break;
+      case 'inventory':
+        await fetchInventoryReport();
+        break;
+      case 'performance':
+        await fetchPerformanceReport();
+        break;
+      case 'individual':
+        await fetchIndividualReport();
+        break;
+    }
+  }
+
+  // GET /admin/reports/sales
+  Future<void> fetchSalesReport() async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final response = await _dio.get('/admin/reports/sales');
+      
+      if (response.statusCode == 200) {
+        final data = response.data;
+        reports = [ReportData(
+          type: 'sales',
+          title: 'Sales Report',
+          description: 'Comprehensive sales analysis',
+          date: DateTime.now(),
+          companyId: currentCompanyId ?? 'default',
+          details: data,
+        )];
+        successMessage = 'Sales report loaded successfully';
+      }
+    } on DioException catch (e) {
+      error = 'Failed to load sales report: ${e.message}';
+    } catch (e) {
+      error = 'Unexpected error: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // GET /admin/reports/inventory
+  Future<void> fetchInventoryReport() async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final response = await _dio.get('/admin/reports/inventory');
+      
+      if (response.statusCode == 200) {
+        final data = response.data;
+        reports = [ReportData(
+          type: 'inventory',
+          title: 'Inventory Report',
+          description: 'Current inventory levels and stock analysis',
+          date: DateTime.now(),
+          companyId: currentCompanyId ?? 'default',
+          details: data,
+        )];
+        successMessage = 'Inventory report loaded successfully';
+      }
+    } on DioException catch (e) {
+      error = 'Failed to load inventory report: ${e.message}';
+    } catch (e) {
+      error = 'Unexpected error: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // GET /admin/reports/performance
+  Future<void> fetchPerformanceReport() async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final response = await _dio.get('/admin/reports/performance');
+      
+      if (response.statusCode == 200) {
+        final data = response.data;
+        reports = [ReportData(
+          type: 'performance',
+          title: 'Performance Report',
+          description: 'Employee and system performance analysis',
+          date: DateTime.now(),
+          companyId: currentCompanyId ?? 'default',
+          details: data,
+        )];
+        successMessage = 'Performance report loaded successfully';
+      }
+    } on DioException catch (e) {
+      error = 'Failed to load performance report: ${e.message}';
+    } catch (e) {
+      error = 'Unexpected error: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // GET /admin/reports/individual
+  Future<void> fetchIndividualReport({String? userId}) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      String url = '/admin/reports/individual';
+      if (userId != null) {
+        url += '?userId=$userId';
+      }
+      
+      final response = await _dio.get(url);
+      
+      if (response.statusCode == 200) {
+        final data = response.data;
+        reports = [ReportData(
+          type: 'individual',
+          title: 'Individual Report',
+          description: 'Individual performance metrics',
+          date: DateTime.now(),
+          companyId: currentCompanyId ?? 'default',
+          userId: userId,
+          details: data,
+        )];
+        successMessage = 'Individual report loaded successfully';
+      }
+    } on DioException catch (e) {
+      error = 'Failed to load individual report: ${e.message}';
+    } catch (e) {
+      error = 'Unexpected error: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+}

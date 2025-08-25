@@ -5,10 +5,12 @@ import '../controllers/manage_users.dart';
 import '../widgets/user_form.dart';
 import '../widgets/user_list.dart';
 import 'admin_drawer.dart';
+import 'company_selection.dart';
 
 class ManageUsersScreen extends StatefulWidget {
+  final Company? company;
   final String role;
-  const ManageUsersScreen({super.key, required this.role});
+  const ManageUsersScreen({super.key, this.company, required this.role});
 
   @override
   State<ManageUsersScreen> createState() => ManageUsersScreenState();
@@ -43,17 +45,34 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
                 onPressed: () => Scaffold.of(context).openDrawer(),
               ),
             ),
-            title: const Text(
-              'Manage Users',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-
+            title: Column(
+              children: [
+                Text(
+                  'Manage Users',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                if (widget.company != null)
+                  Text(
+                    widget.company!.name,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.white70,
+                    ),
+                  ),
+              ],
             ),
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
             actions: [
+              IconButton(
+                onPressed: controller.isLoading ? null : () => controller.fetchUsers(),
+                icon: const Icon(Icons.refresh, color: Colors.white),
+                tooltip: 'Refresh Users',
+              ),
               IconButton(
                 onPressed: () {
                   setState(() {
@@ -71,7 +90,7 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
               ),
             ],
           ),
-          drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
+          drawer: widget.role == "admin" ? AdminDrawer(company: widget.company) : SalesManagerDrawer(company: widget.company),
           body: Column(
             children: [
               // Header with stats
@@ -119,14 +138,14 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
                 Icons.people,
               ),
               buildStatCard(
-                'Active',
-                controller.users.where((u) => u.status == 'active').length.toString(),
-                Icons.check_circle,
+                'Admin',
+                controller.users.where((u) => u.role == 'Admin').length.toString(),
+                Icons.admin_panel_settings,
               ),
               buildStatCard(
-                'Inactive',
-                controller.users.where((u) => u.status == 'inactive').length.toString(),
-                Icons.close,
+                'Workers',
+                controller.users.where((u) => u.role == 'Worker').length.toString(),
+                Icons.work,
               ),
             ],
           ),
@@ -135,19 +154,14 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               buildStatCard(
-                'Suspended',
-                controller.users.where((u) => u.status == 'suspended').length.toString(),
-                Icons.block,
+                'Sales',
+                controller.users.where((u) => u.role == 'SalesManager').length.toString(),
+                Icons.sell,
               ),
               buildStatCard(
-                'Pending',
-                controller.users.where((u) => u.status == 'pending').length.toString(),
-                Icons.schedule,
-              ),
-              buildStatCard(
-                'Filtered',
-                controller.filteredUsers.length.toString(),
-                Icons.filter_list,
+                'Others',
+                controller.users.where((u) => !['Admin', 'Worker', 'SalesManager'].contains(u.role)).length.toString(),
+                Icons.group,
               ),
             ],
           ),

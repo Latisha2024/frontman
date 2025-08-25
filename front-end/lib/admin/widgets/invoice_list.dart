@@ -4,7 +4,8 @@ import '../controllers/invoices.dart';
 
 class InvoiceList extends StatefulWidget {
   final AdminInvoicesController controller;
-  const InvoiceList({super.key, required this.controller});
+  final Future<void> Function()? onRefresh;
+  const InvoiceList({super.key, required this.controller, this.onRefresh});
 
   @override
   State<InvoiceList> createState() => _InvoiceListState();
@@ -28,6 +29,19 @@ class _InvoiceListState extends State<InvoiceList> {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
+        if (controller.isLoading) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Loading invoices...'),
+              ],
+            ),
+          );
+        }
+        
         if (controller.filteredInvoices.isEmpty) {
           return Center(
             child: Column(
@@ -49,7 +63,7 @@ class _InvoiceListState extends State<InvoiceList> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Try adding a new invoice',
+                  'Try adding a new invoice or refresh the list',
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColors.textSecondary,
@@ -59,13 +73,18 @@ class _InvoiceListState extends State<InvoiceList> {
             ),
           );
         }
-        return ListView.builder(
-          padding: const EdgeInsets.all(8),
-          itemCount: controller.filteredInvoices.length,
-          itemBuilder: (context, index) {
-            final invoice = controller.filteredInvoices[index];
-            return buildInvoiceCard(context, invoice);
-          },
+        
+        return RefreshIndicator(
+          onRefresh: widget.onRefresh ?? () async {},
+          child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(8),
+            itemCount: controller.filteredInvoices.length,
+            itemBuilder: (context, index) {
+              final invoice = controller.filteredInvoices[index];
+              return buildInvoiceCard(context, invoice);
+            },
+          ),
         );
       },
     );
@@ -118,7 +137,7 @@ class _InvoiceListState extends State<InvoiceList> {
                   ),
                 ),
                 Text(
-                  '${invoice.totalDue.toStringAsFixed(2)}',
+                  invoice.totalDue.toStringAsFixed(2),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.green,

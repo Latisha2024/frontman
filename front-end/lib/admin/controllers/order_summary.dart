@@ -1,64 +1,279 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 
-class OrderSummary {
+class Order {
   final String id;
-  final String customer;
-  final DateTime date;
-  final double total;
+  final String userId;
+  final DateTime orderDate;
   final String status;
+  final double totalAmount;
+  final Map<String, dynamic>? user;
+  final List<OrderItem> orderItems;
+  final Map<String, dynamic>? invoice;
 
-  OrderSummary({
+  Order({
     required this.id,
-    required this.customer,
-    required this.date,
-    required this.total,
+    required this.userId,
+    required this.orderDate,
     required this.status,
+    required this.totalAmount,
+    this.user,
+    required this.orderItems,
+    this.invoice,
   });
+
+  factory Order.fromJson(Map<String, dynamic> json) {
+    final orderItems = (json['orderItems'] as List<dynamic>? ?? [])
+        .map((item) => OrderItem.fromJson(item))
+        .toList();
+    
+    // Calculate total amount from order items
+    final total = orderItems.fold<double>(0.0, (sum, item) => sum + (item.unitPrice * item.quantity));
+    
+    return Order(
+      id: json['id'].toString(),
+      userId: json['userId'].toString(),
+      orderDate: DateTime.parse(json['orderDate']),
+      status: json['status'] ?? 'Pending',
+      totalAmount: total,
+      user: json['user'],
+      orderItems: orderItems,
+      invoice: json['invoice'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'orderDate': orderDate.toIso8601String(),
+      'status': status,
+      'totalAmount': totalAmount,
+      'user': user,
+      'orderItems': orderItems.map((item) => item.toJson()).toList(),
+      'invoice': invoice,
+    };
+  }
+}
+
+class OrderItem {
+  final String productId;
+  final int quantity;
+  final double unitPrice;
+  final Map<String, dynamic>? product;
+
+  OrderItem({
+    required this.productId,
+    required this.quantity,
+    required this.unitPrice,
+    this.product,
+  });
+
+  factory OrderItem.fromJson(Map<String, dynamic> json) {
+    return OrderItem(
+      productId: json['productId'].toString(),
+      quantity: json['quantity'] ?? 0,
+      unitPrice: (json['unitPrice'] ?? 0).toDouble(),
+      product: json['product'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'productId': productId,
+      'quantity': quantity,
+      'unitPrice': unitPrice,
+      'product': product,
+    };
+  }
 }
 
 class AdminOrderSummaryController extends ChangeNotifier {
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:5000'));
+  
   bool isLoading = false;
   String? error;
   String? successMessage;
-  List<OrderSummary> orders = [];
-  List<OrderSummary> filteredOrders = [];
+  List<Order> orders = [];
+  List<Order> filteredOrders = [];
   String searchQuery = '';
   String selectedStatus = 'All';
-  final List<String> availableStatuses = ['All', 'Completed', 'Pending', 'Cancelled'];
+  final List<String> availableStatuses = ['All', 'Pending', 'Completed', 'Cancelled', 'Processing', 'Shipped', 'Delivered'];
+  String filterUserId = '';
+  final filterUserIdController = TextEditingController();
 
   AdminOrderSummaryController() {
-    // Initialize with dummy order summary data
-    orders = [
-      OrderSummary(
-        id: 'ORD-2024-001',
-        customer: 'John Smith',
-        date: DateTime.now().subtract(const Duration(days: 10)),
-        total: 2359.97,
-        status: 'Completed',
-      ),
-    ];
-    filteredOrders = List.from(orders);
+    fetchAllOrders();
+  }
+
+  // GET /admin/orders - Fetch all orders
+  Future<void> fetchAllOrders() async {
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+
+      final response = await _dio.get('/admin/orders');
+      final List<dynamic> data = response.data;
+      orders = data.map((json) => Order.fromJson(json)).toList();
+      filteredOrders = List.from(orders);
+      
+      successMessage = 'Orders loaded successfully';
+    } on DioException catch (e) {
+      if (e.response != null) {
+        error = 'Failed to fetch orders: ${e.response!.statusCode} - ${e.response!.data}';
+      } else {
+        error = 'Network error: ${e.message}';
+      }
+    } catch (e) {
+      error = 'Unexpected error: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // GET /admin/orders with filters
+  Future<void> fetchOrdersWithFilters({String? status, String? userId}) async {
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+
+      final queryParams = <String, dynamic>{};
+      if (status != null && status != 'All') queryParams['status'] = status;
+      if (userId != null && userId.isNotEmpty) queryParams['userId'] = userId;
+
+      final response = await _dio.get('/admin/orders', queryParameters: queryParams);
+      final List<dynamic> data = response.data;
+      filteredOrders = data.map((json) => Order.fromJson(json)).toList();
+      
+    } on DioException catch (e) {
+      if (e.response != null) {
+        error = 'Failed to filter orders: ${e.response!.statusCode} - ${e.response!.data}';
+      } else {
+        error = 'Network error: ${e.message}';
+      }
+    } catch (e) {
+      error = 'Unexpected error: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // GET /admin/orders/:id - Get specific order
+  Future<Order?> fetchOrderById(String orderId) async {
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+
+      final response = await _dio.get('/admin/orders/$orderId');
+      return Order.fromJson(response.data);
+      
+    } on DioException catch (e) {
+      if (e.response != null) {
+        error = 'Failed to fetch order: ${e.response!.statusCode} - ${e.response!.data}';
+      } else {
+        error = 'Network error: ${e.message}';
+      }
+      return null;
+    } catch (e) {
+      error = 'Unexpected error: $e';
+      return null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   void searchOrders(String query) {
     searchQuery = query;
-    applyFilters();
+    applyLocalFilters();
   }
 
   void filterByStatus(String status) {
     selectedStatus = status;
-    applyFilters();
+    // Use backend filtering for better performance
+    fetchOrdersWithFilters(
+      status: status,
+      userId: filterUserId.isNotEmpty ? filterUserId : null,
+    );
   }
 
-  void applyFilters() {
-    filteredOrders = orders.where((order) {
-      bool matchesSearch = searchQuery.isEmpty ||
-          order.id.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          order.customer.toLowerCase().contains(searchQuery.toLowerCase());
-      bool matchesStatus = selectedStatus == 'All' || order.status == selectedStatus;
-      return matchesSearch && matchesStatus;
-    }).toList();
+  void filterByUserId() {
+    filterUserId = filterUserIdController.text.trim();
+    fetchOrdersWithFilters(
+      status: selectedStatus != 'All' ? selectedStatus : null,
+      userId: filterUserId.isNotEmpty ? filterUserId : null,
+    );
+  }
+
+  void applyLocalFilters() {
+    if (searchQuery.isEmpty) {
+      filteredOrders = List.from(orders);
+    } else {
+      filteredOrders = orders.where((order) {
+        final customerName = order.user?['name']?.toString().toLowerCase() ?? '';
+        final customerEmail = order.user?['email']?.toString().toLowerCase() ?? '';
+        final orderId = order.id.toLowerCase();
+        final searchLower = searchQuery.toLowerCase();
+        
+        return orderId.contains(searchLower) ||
+               customerName.contains(searchLower) ||
+               customerEmail.contains(searchLower);
+      }).toList();
+    }
     notifyListeners();
+  }
+
+  void clearFilters() {
+    searchQuery = '';
+    selectedStatus = 'All';
+    filterUserId = '';
+    filterUserIdController.clear();
+    fetchAllOrders();
+  }
+
+  // GET /admin/search/orders - Search orders with query (API)
+  Future<List<Order>> searchOrdersApi(String query, {String? status, String? userId, String? startDate, String? endDate}) async {
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+
+      final queryParams = <String, dynamic>{
+        'q': query,
+      };
+      if (status != null && status != 'All') queryParams['status'] = status;
+      if (userId != null && userId.isNotEmpty) queryParams['userId'] = userId;
+      if (startDate != null) queryParams['startDate'] = startDate;
+      if (endDate != null) queryParams['endDate'] = endDate;
+
+      final response = await _dio.get(
+        '/admin/search/orders',
+        queryParameters: queryParams,
+      );
+
+      final List<dynamic> data = response.data;
+      final searchResults = data.map((json) => Order.fromJson(json)).toList();
+      successMessage = 'Order search completed successfully';
+      return searchResults;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        error = 'Failed to search orders: ${e.response!.statusCode} - ${e.response!.data}';
+      } else {
+        error = 'Network error: ${e.message}';
+      }
+      return [];
+    } catch (e) {
+      error = 'Unexpected error: $e';
+      return [];
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   void clearMessages() {
@@ -66,4 +281,24 @@ class AdminOrderSummaryController extends ChangeNotifier {
     successMessage = null;
     notifyListeners();
   }
-} 
+
+  double get totalRevenue {
+    return filteredOrders.fold(0.0, (sum, order) => sum + order.totalAmount);
+  }
+
+  int get totalOrders => filteredOrders.length;
+
+  Map<String, int> get ordersByStatus {
+    final statusCount = <String, int>{};
+    for (final order in filteredOrders) {
+      statusCount[order.status] = (statusCount[order.status] ?? 0) + 1;
+    }
+    return statusCount;
+  }
+
+  @override
+  void dispose() {
+    filterUserIdController.dispose();
+    super.dispose();
+  }
+}

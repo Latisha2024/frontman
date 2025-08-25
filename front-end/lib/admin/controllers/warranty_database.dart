@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 
 class Warranty {
   final String id;
@@ -7,6 +8,7 @@ class Warranty {
   final String serialNumber;
   final DateTime purchaseDate;
   final DateTime expiryDate;
+  final String companyId;
 
   Warranty({
     required this.id,
@@ -15,6 +17,7 @@ class Warranty {
     required this.serialNumber,
     required this.purchaseDate,
     required this.expiryDate,
+    required this.companyId,
   });
 
   Warranty copyWith({
@@ -24,6 +27,7 @@ class Warranty {
     String? serialNumber,
     DateTime? purchaseDate,
     DateTime? expiryDate,
+    String? companyId,
   }) {
     return Warranty(
       id: id ?? this.id,
@@ -32,6 +36,7 @@ class Warranty {
       serialNumber: serialNumber ?? this.serialNumber,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       expiryDate: expiryDate ?? this.expiryDate,
+      companyId: companyId ?? this.companyId,
     );
   }
 }
@@ -44,20 +49,41 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
   List<Warranty> filteredWarranties = [];
   String searchQuery = '';
   final productController = TextEditingController();
+  String? currentCompanyId;
+  String? get companyId => currentCompanyId;
 
-  AdminWarrantyDatabaseController() {
-    // Initialize with dummy warranty data
-    warranties = [
-      Warranty(
-        id: '1',
-        product: 'Premium Smartphone',
-        customer: 'John Smith',
-        serialNumber: 'SN-2024-001',
-        purchaseDate: DateTime.now().subtract(const Duration(days: 60)),
-        expiryDate: DateTime.now().add(const Duration(days: 300)),
-      ),
-    ];
-    filteredWarranties = List.from(warranties);
+  // Base URL for API calls - update this to match your backend
+  static const String baseUrl = 'http://10.0.2.2:5000'; // Update with your actual backend URL
+  
+  // Dio instance for HTTP requests
+  late final Dio _dio;
+  
+  void _initializeDio() {
+    _dio = Dio(BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 3),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    ));
+    
+    // Add interceptors for logging and error handling
+    _dio.interceptors.add(LogInterceptor(
+      requestBody: true,
+      responseBody: true,
+      logPrint: (obj) => print(obj),
+    ));
+  }
+
+  AdminWarrantyDatabaseController({String? companyId}) {
+    // Initialize Dio
+    _initializeDio();
+    
+    // Initialize with empty warranty data - will be loaded from API
+    currentCompanyId = companyId;
+    warranties = [];
+    filteredWarranties = [];
     notifyListeners();
   }
   final customerController = TextEditingController();
@@ -73,7 +99,12 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
   }
 
   void applyFilters() {
-    filteredWarranties = warranties.where((w) {
+    List<Warranty> companyFiltered = warranties;
+    if (currentCompanyId != null) {
+      companyFiltered = warranties.where((warranty) => warranty.companyId == currentCompanyId).toList();
+
+    }
+    filteredWarranties = companyFiltered.where((w) {
       final q = searchQuery.toLowerCase();
       return q.isEmpty ||
         w.product.toLowerCase().contains(q) ||
@@ -96,6 +127,7 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
       serialNumber: serialController.text.trim(),
       purchaseDate: DateTime.parse(purchaseDateController.text.trim()),
       expiryDate: DateTime.parse(expiryDateController.text.trim()),
+      companyId: currentCompanyId ?? 'company1',
     );
     warranties.add(newWarranty);
     applyFilters();
@@ -159,6 +191,124 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // GET /admin/warranty-cards - Fetch all warranty cards
+  Future<List<Warranty>> fetchWarrantyCards() async {
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+      
+      final response = await _dio.get('/admin/warranty-cards');
+      
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        final List<Warranty> fetchedWarranties = data.map((item) => Warranty(
+          id: item['id'].toString(),
+          product: item['product'] ?? '',
+          customer: item['customer'] ?? '',
+          serialNumber: item['serialNumber'] ?? '',
+          purchaseDate: DateTime.parse(item['purchaseDate']),
+          expiryDate: DateTime.parse(item['expiryDate']),
+          companyId: item['companyId'] ?? '',
+        )).toList();
+        
+        warranties = fetchedWarranties;
+        applyFilters();
+        successMessage = 'Warranty cards loaded successfully';
+        return fetchedWarranties;
+      } else {
+        error = 'Failed to fetch warranty cards: ${response.statusCode}';
+        notifyListeners();
+        return [];
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        error = 'Connection timeout. Please check your internet connection.';
+      } else if (e.type == DioExceptionType.receiveTimeout) {
+        error = 'Server response timeout. Please try again.';
+      } else if (e.response?.statusCode == 401) {
+        error = 'Unauthorized access. Please login again.';
+      } else if (e.response?.statusCode == 403) {
+        error = 'Access forbidden. You do not have permission.';
+      } else if (e.response?.statusCode == 500) {
+        error = 'Server error. Please try again later.';
+      } else {
+        error = 'Network error: ${e.message}';
+      }
+      notifyListeners();
+      return [];
+    } catch (e) {
+      error = 'Unexpected error: $e';
+      notifyListeners();
+      return [];
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+  
+  // GET /admin/warranty-cards/{id} - Fetch specific warranty card by ID
+  Future<Warranty?> fetchWarrantyCardById(String id) async {
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+      
+      final response = await _dio.get('/admin/warranty-cards/$id');
+      
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = response.data;
+        final warranty = Warranty(
+          id: data['id'].toString(),
+          product: data['product'] ?? '',
+          customer: data['customer'] ?? '',
+          serialNumber: data['serialNumber'] ?? '',
+          purchaseDate: DateTime.parse(data['purchaseDate']),
+          expiryDate: DateTime.parse(data['expiryDate']),
+          companyId: data['companyId'] ?? '',
+        );
+        
+        successMessage = 'Warranty card loaded successfully';
+        notifyListeners();
+        return warranty;
+      } else {
+        error = 'Failed to fetch warranty card: ${response.statusCode}';
+        notifyListeners();
+        return null;
+      }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        error = 'Warranty card not found';
+      } else if (e.type == DioExceptionType.connectionTimeout) {
+        error = 'Connection timeout. Please check your internet connection.';
+      } else if (e.type == DioExceptionType.receiveTimeout) {
+        error = 'Server response timeout. Please try again.';
+      } else if (e.response?.statusCode == 401) {
+        error = 'Unauthorized access. Please login again.';
+      } else if (e.response?.statusCode == 403) {
+        error = 'Access forbidden. You do not have permission.';
+      } else if (e.response?.statusCode == 500) {
+        error = 'Server error. Please try again later.';
+      } else {
+        error = 'Network error: ${e.message}';
+      }
+      notifyListeners();
+      return null;
+    } catch (e) {
+      error = 'Unexpected error: $e';
+      notifyListeners();
+      return null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+  
+  // Helper method to refresh warranty cards from API
+  Future<void> refreshWarrantyCards() async {
+    await fetchWarrantyCards();
+  }
+  
   @override
   void dispose() {
     productController.dispose();
@@ -168,4 +318,4 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
     expiryDateController.dispose();
     super.dispose();
   }
-} 
+}

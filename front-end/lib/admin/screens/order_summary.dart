@@ -3,10 +3,12 @@ import '../../constants/colors.dart';
 import '../../sales_manager/screens/sales_manager_drawer.dart';
 import '../controllers/order_summary.dart';
 import 'admin_drawer.dart';
+import 'company_selection.dart';
 
 class OrderSummaryScreen extends StatefulWidget {
+  final Company? company;
   final String role;
-  const OrderSummaryScreen({super.key, required this.role});
+  const OrderSummaryScreen({super.key, this.company, required this.role});
 
   @override
   State<OrderSummaryScreen> createState() => _OrderSummaryScreenState();
@@ -40,33 +42,107 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                 onPressed: () => Scaffold.of(context).openDrawer(),
               ),
             ),
-            title: const Text(
-              'Order Summary',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            title: Column(
+              children: [
+                const Text(
+                  'Orders',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                if (widget.company != null)
+                  Text(
+                    widget.company!.name,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.white70,
+                    ),
+                  ),
+              ],
             ),
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
+            actions: [
+              IconButton(
+                onPressed: controller.isLoading ? null : () => controller.fetchAllOrders(),
+                icon: const Icon(Icons.refresh, color: Colors.white),
+                tooltip: 'Refresh Orders',
+              ),
+            ],
           ),
-          drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
+          drawer: widget.role == "admin" ? AdminDrawer(company: widget.company) : SalesManagerDrawer(company: widget.company),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                // Error/Success Messages
+                if (controller.error != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error, color: Colors.red.shade600, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            controller.error!,
+                            style: TextStyle(color: Colors.red.shade700),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                if (controller.successMessage != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            controller.successMessage!,
+                            style: TextStyle(color: Colors.green.shade700),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                
+                // Stats Header
+                buildStatsHeader(),
+                const SizedBox(height: 20),
+                
                 buildSearchAndFilter(),
                 const SizedBox(height: 20),
                 Expanded(
-                  child: controller.filteredOrders.isEmpty
-                      ? const Center(child: Text('No orders found.'))
-                      : ListView.builder(
-                          itemCount: controller.filteredOrders.length,
-                          itemBuilder: (context, index) {
-                            final order = controller.filteredOrders[index];
-                            return buildOrderCard(order);
-                          },
-                        ),
+                  child: controller.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : controller.filteredOrders.isEmpty
+                          ? buildEmptyState()
+                          : ListView.builder(
+                              itemCount: controller.filteredOrders.length,
+                              itemBuilder: (context, index) {
+                                final order = controller.filteredOrders[index];
+                                return buildOrderCard(order);
+                              },
+                            ),
                 ),
               ],
             ),
@@ -127,7 +203,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                       return DropdownMenuItem(
                         value: status,
                         child: Text(
-                          status == 'All' ? 'All' : status,
+                          status == 'All' ? 'All Status' : status,
                           style: const TextStyle(fontSize: 14),
                         ),
                       );
@@ -148,12 +224,51 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller.filterUserIdController,
+                  decoration: InputDecoration(
+                    hintText: 'Filter by User ID',
+                    prefixIcon: const Icon(Icons.person),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton(
+                onPressed: controller.filterByUserId,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryBlue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                child: const Text('Filter'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: controller.clearFilters,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                child: const Text('Clear'),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget buildOrderCard(OrderSummary order) {
+  Widget buildOrderCard(Order order) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -189,10 +304,18 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         ),
                       ),
                       Text(
-                        order.customer,
+                        order.user?['name'] ?? 'Unknown Customer',
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        order.user?['email'] ?? '',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.primaryBlue,
                         ),
                       ),
                     ],
@@ -204,9 +327,11 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             const SizedBox(height: 10),
             Row(
               children: [
-                buildInfoChip(Icons.calendar_today, 'Date', '${order.date.year}-${order.date.month.toString().padLeft(2, '0')}-${order.date.day.toString().padLeft(2, '0')}'),
+                buildInfoChip(Icons.calendar_today, 'Date', '${order.orderDate.year}-${order.orderDate.month.toString().padLeft(2, '0')}-${order.orderDate.day.toString().padLeft(2, '0')}'),
                 const SizedBox(width: 8),
-                buildInfoChip(Icons.attach_money, 'Total', order.total.toStringAsFixed(2)),
+                buildInfoChip(Icons.attach_money, 'Total', '₹${order.totalAmount.toStringAsFixed(2)}'),
+                const SizedBox(width: 8),
+                buildInfoChip(Icons.shopping_cart, 'Items', '${order.orderItems.length}'),
               ],
             ),
           ],
@@ -237,13 +362,18 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     Color color;
     switch (status) {
       case 'Completed':
-        color = AppColors.success;
+      case 'Delivered':
+        color = Colors.green;
         break;
       case 'Pending':
-        color = AppColors.warning;
+      case 'Processing':
+        color = Colors.orange;
+        break;
+      case 'Shipped':
+        color = Colors.blue;
         break;
       case 'Cancelled':
-        color = AppColors.error;
+        color = Colors.red;
         break;
       default:
         color = AppColors.textSecondary;
@@ -257,6 +387,124 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
       child: Text(
         status,
         style: TextStyle(fontSize: 13, color: color, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget buildStatsHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundGray,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryBlue.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              buildStatCard(
+                'Total Orders',
+                controller.totalOrders.toString(),
+                Icons.receipt_long,
+              ),
+              buildStatCard(
+                'Total Revenue',
+                '₹${controller.totalRevenue.toStringAsFixed(2)}',
+                Icons.attach_money,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              buildStatCard(
+                'Pending',
+                controller.ordersByStatus['Pending']?.toString() ?? '0',
+                Icons.pending,
+              ),
+              buildStatCard(
+                'Completed',
+                ((controller.ordersByStatus['Completed'] ?? 0) + (controller.ordersByStatus['Delivered'] ?? 0)).toString(),
+                Icons.check_circle,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildStatCard(String title, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      width: 120,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: AppColors.secondaryBlue.withOpacity(0.15),
+        border: Border.all(color: AppColors.secondaryBlue.withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: AppColors.textSecondary, size: 20),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 10,
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.receipt_long_outlined,
+            size: 64,
+            color: AppColors.textSecondary.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No orders found',
+            style: TextStyle(
+              fontSize: 18,
+              color: AppColors.textSecondary.withOpacity(0.7),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Orders will appear here when available',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondary.withOpacity(0.5),
+            ),
+          ),
+        ],
       ),
     );
   }

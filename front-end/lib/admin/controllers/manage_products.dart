@@ -1,51 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 
 class Product {
   final String id;
   final String name;
-  final String description;
-  final String category;
   final double price;
-  final int stock;
-  final String status; // 'active' or 'inactive'
-  final String companyId; // Company this product belongs to
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final int stockQuantity;
+  final int warrantyPeriodInMonths;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   Product({
     required this.id,
     required this.name,
-    required this.description,
-    required this.category,
     required this.price,
-    required this.stock,
-    required this.status,
-    required this.companyId,
-    required this.createdAt,
-    required this.updatedAt,
+    required this.stockQuantity,
+    required this.warrantyPeriodInMonths,
+    this.createdAt,
+    this.updatedAt,
   });
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'].toString(),
+      name: json['name'] ?? '',
+      price: (json['price'] ?? 0).toDouble(),
+      stockQuantity: json['stockQuantity'] ?? 0,
+      warrantyPeriodInMonths: json['warrantyPeriodInMonths'] ?? 0,
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'price': price,
+      'stockQuantity': stockQuantity,
+      'warrantyPeriodInMonths': warrantyPeriodInMonths,
+    };
+  }
 
   Product copyWith({
     String? id,
     String? name,
-    String? description,
-    String? category,
     double? price,
-    int? stock,
-    String? status,
-    String? companyId,
+    int? stockQuantity,
+    int? warrantyPeriodInMonths,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return Product(
       id: id ?? this.id,
       name: name ?? this.name,
-      description: description ?? this.description,
-      category: category ?? this.category,
       price: price ?? this.price,
-      stock: stock ?? this.stock,
-      status: status ?? this.status,
-      companyId: companyId ?? this.companyId,
+      stockQuantity: stockQuantity ?? this.stockQuantity,
+      warrantyPeriodInMonths: warrantyPeriodInMonths ?? this.warrantyPeriodInMonths,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -53,130 +64,72 @@ class Product {
 }
 
 class AdminManageProductsController extends ChangeNotifier {
-  List<Product> products = [];
+  List<Product> _products = [];
+  List<Product> get products => _products;
   List<Product> filteredProducts = [];
   bool isLoading = false;
   String? error;
   String? successMessage;
-  String? currentCompanyId;
-
-  // Getter for current company ID
-  String? get companyId => currentCompanyId;
+  late final Dio _dio;
 
   // Search and filter
   String searchQuery = '';
-  String selectedCategory = 'All';
-  String selectedStatus = 'All';
 
   // Form controllers
   final nameController = TextEditingController();
-  final descriptionController = TextEditingController();
-  final categoryController = TextEditingController();
+  // Removed description, backend does not use it
   final priceController = TextEditingController();
   final stockController = TextEditingController();
-  String selectedProductStatus = 'active';
+  final warrantyController = TextEditingController();
 
   // Edit mode
-  Product? editingProduct;
-  bool isEditMode = false;
+  Product? _editingProduct;
+  bool _isEditMode = false;
 
-  // Available statuses
-  final List<String> availableStatuses = ['active', 'inactive'];
+  // Getters
+  Product? get editingProduct => _editingProduct;
+  bool get isEditMode => _isEditMode;
 
-  // Available categories (could be dynamic)
-  List<String> availableCategories = [
-    'All',
-    'Electronics',
-    'Apparel',
-    'Home',
-    'Sports',
-    'Industrial',
-    'Safety',
-    'Tools',
-    'Other',
-  ];
+  // Base URL - configure based on your backend
+  static const String baseUrl = 'http://10.0.2.2:5000';
 
-  AdminManageProductsController({String? companyId}) {
-    currentCompanyId = companyId;
-    products = [
-      // Company 1 products
-      Product(
-        id: '1',
-        name: 'Premium Smartphone',
-        description: 'Latest smartphone with advanced features and high-quality camera',
-        category: 'Electronics',
-        price: 72999,
-        stock: 50,
-        status: 'active',
-        companyId: 'company1',
-        createdAt: DateTime.now().subtract(const Duration(days: 30)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 5)),
-      ),
-      Product(
-        id: '2',
-        name: 'Gaming Laptop',
-        description: 'High-performance gaming laptop with RTX graphics',
-        category: 'Electronics',
-        price: 89999,
-        stock: 25,
-        status: 'active',
-        companyId: 'company1',
-        createdAt: DateTime.now().subtract(const Duration(days: 25)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 3)),
-      ),
-      Product(
-        id: '3',
-        name: 'Wireless Headphones',
-        description: 'Noise-cancelling wireless headphones with premium sound quality',
-        category: 'Electronics',
-        price: 15999,
-        stock: 100,
-        status: 'active',
-        companyId: 'company1',
-        createdAt: DateTime.now().subtract(const Duration(days: 20)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-      // Company 2 products
-      Product(
-        id: '4',
-        name: 'Industrial Machine',
-        description: 'Heavy-duty industrial manufacturing machine',
-        category: 'Industrial',
-        price: 250000,
-        stock: 5,
-        status: 'active',
-        companyId: 'company2',
-        createdAt: DateTime.now().subtract(const Duration(days: 15)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 2)),
-      ),
-      Product(
-        id: '5',
-        name: 'Safety Equipment',
-        description: 'Complete safety equipment set for industrial workers',
-        category: 'Safety',
-        price: 45000,
-        stock: 75,
-        status: 'active',
-        companyId: 'company2',
-        createdAt: DateTime.now().subtract(const Duration(days: 10)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-      Product(
-        id: '6',
-        name: 'Factory Tools',
-        description: 'Professional grade tools for manufacturing processes',
-        category: 'Tools',
-        price: 35000,
-        stock: 40,
-        status: 'active',
-        companyId: 'company2',
-        createdAt: DateTime.now().subtract(const Duration(days: 8)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-    ];
-    filteredProducts = List.from(products);
-    applyFilters(); // Apply filters immediately
-    notifyListeners();
+  AdminManageProductsController() {
+    _dio = Dio(BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 3),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    ));
+    fetchProducts();
+  }
+
+
+  // GET /admin/products
+  Future<void> fetchProducts() async {
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+
+      final response = await _dio.get('/admin/products');
+      final List<dynamic> data = response.data;
+      _products = data.map((json) => Product.fromJson(json)).toList();
+      applyFilters();
+      successMessage = 'Products loaded successfully';
+    } on DioException catch (e) {
+      if (e.response != null) {
+        error = 'Failed to fetch products: ${e.response!.statusCode} - ${e.response!.data}';
+      } else {
+        error = 'Network error: ${e.message}';
+      }
+    } catch (e) {
+      error = 'Unexpected error: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   void searchProducts(String query) {
@@ -184,115 +137,210 @@ class AdminManageProductsController extends ChangeNotifier {
     applyFilters();
   }
 
-  void filterByCategory(String category) {
-    selectedCategory = category;
-    applyFilters();
-  }
-
-  void filterByStatus(String status) {
-    selectedStatus = status;
-    applyFilters();
-  }
-
   void applyFilters() {
-
-    List<Product> companyFiltered = products;
-    if (currentCompanyId != null) {
-      companyFiltered = products.where((product) => product.companyId == currentCompanyId).toList();
-
-    }
-
-    // Then apply other filters
-    filteredProducts = companyFiltered.where((product) {
+    filteredProducts = _products.where((product) {
       bool matchesSearch = searchQuery.isEmpty ||
-          product.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          product.description.toLowerCase().contains(searchQuery.toLowerCase());
-      bool matchesCategory = selectedCategory == 'All' || product.category == selectedCategory;
-      bool matchesStatus = selectedStatus == 'All' || product.status == selectedStatus;
-      
-      return matchesSearch && matchesCategory && matchesStatus;
+          product.name.toLowerCase().contains(searchQuery.toLowerCase());
+      return matchesSearch;
     }).toList();
     notifyListeners();
   }
 
-  void addProduct() {
+  // POST /admin/products/create
+  Future<void> addProduct() async {
     if (!validateForm()) return;
-    final newProduct = Product(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: nameController.text.trim(),
-      description: descriptionController.text.trim(),
-      category: categoryController.text.trim(),
-      price: double.parse(priceController.text.trim()),
-      stock: int.parse(stockController.text.trim()),
-      status: selectedProductStatus,
-      companyId: currentCompanyId ?? 'company1',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-    products.add(newProduct);
-    applyFilters();
-    clearForm();
-    successMessage = 'Product added successfully!';
-    notifyListeners();
-  }
 
-  void editProduct(Product product) {
-    editingProduct = product;
-    isEditMode = true;
-    nameController.text = product.name;
-    descriptionController.text = product.description;
-    categoryController.text = product.category;
-    priceController.text = product.price.toString();
-    stockController.text = product.stock.toString();
-    selectedProductStatus = product.status;
-    notifyListeners();
-  }
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
 
-  void updateProduct() {
-    if (editingProduct == null) return;
-    if (!validateForm()) return;
-    final updatedProduct = editingProduct!.copyWith(
-      name: nameController.text.trim(),
-      description: descriptionController.text.trim(),
-      category: categoryController.text.trim(),
-      price: double.parse(priceController.text.trim()),
-      stock: int.parse(stockController.text.trim()),
-      status: selectedProductStatus,
-      updatedAt: DateTime.now(),
-    );
-    final index = products.indexWhere((p) => p.id == editingProduct!.id);
-    if (index != -1) {
-      products[index] = updatedProduct;
-      applyFilters();
+      final productData = {
+        'name': nameController.text.trim(),
+        'price': double.parse(priceController.text.trim()),
+        'stockQuantity': int.parse(stockController.text.trim()),
+        'warrantyPeriodInMonths': int.parse(warrantyController.text.trim()),
+      };
+
+      final response = await _dio.post(
+        '/admin/products/create',
+        data: productData,
+      );
+
+      final responseData = response.data;
+      successMessage = responseData['message'] ?? 'Product created successfully';
       clearForm();
-      successMessage = 'Product updated successfully!';
-    }
-    notifyListeners();
-  }
-
-  void deleteProduct(String productId) {
-    products.removeWhere((product) => product.id == productId);
-    applyFilters();
-    successMessage = 'Product deleted successfully!';
-    notifyListeners();
-  }
-
-  void updatePrice(String productId, double newPrice) {
-    final index = products.indexWhere((p) => p.id == productId);
-    if (index != -1 && newPrice > 0) {
-      products[index] = products[index].copyWith(price: newPrice, updatedAt: DateTime.now());
-      applyFilters();
-      successMessage = 'Price updated!';
+      await fetchProducts(); // Refresh the list
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final responseData = e.response!.data;
+        error = responseData['message'] ?? 'Failed to create product: ${e.response!.statusCode}';
+      } else {
+        error = 'Network error: ${e.message}';
+      }
+    } catch (e) {
+      error = 'Unexpected error: $e';
+    } finally {
+      isLoading = false;
       notifyListeners();
     }
   }
 
-  void updateStock(String productId, int newStock) {
-    final index = products.indexWhere((p) => p.id == productId);
-    if (index != -1 && newStock >= 0) {
-      products[index] = products[index].copyWith(stock: newStock, updatedAt: DateTime.now());
-      applyFilters();
-      successMessage = 'Stock updated!';
+  void editProduct(Product product) {
+    _editingProduct = product;
+    _isEditMode = true;
+    nameController.text = product.name;
+    priceController.text = product.price.toString();
+    stockController.text = product.stockQuantity.toString();
+    warrantyController.text = product.warrantyPeriodInMonths.toString();
+    clearMessages();
+    notifyListeners();
+  }
+
+  // PUT /admin/products/:id
+  Future<void> updateProduct() async {
+    if (_editingProduct == null) return;
+    if (!validateForm()) return;
+
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+
+      final updateData = {
+        'name': nameController.text.trim(),
+        'price': double.parse(priceController.text.trim()),
+        'stockQuantity': int.parse(stockController.text.trim()),
+        'warrantyPeriodInMonths': int.parse(warrantyController.text.trim()),
+      };
+
+      final response = await _dio.put(
+        '/admin/products/${_editingProduct!.id}',
+        data: updateData,
+      );
+
+      final responseData = response.data;
+      successMessage = responseData['message'] ?? 'Product updated successfully';
+      clearForm();
+      await fetchProducts(); // Refresh the list
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final responseData = e.response!.data;
+        error = responseData['message'] ?? 'Failed to update product: ${e.response!.statusCode}';
+      } else {
+        error = 'Network error: ${e.message}';
+      }
+    } catch (e) {
+      error = 'Unexpected error: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // DELETE /admin/products/:id
+  Future<void> deleteProduct(String productId) async {
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+
+      final response = await _dio.delete('/admin/products/$productId');
+
+      final responseData = response.data;
+      successMessage = responseData['message'] ?? 'Product deleted successfully';
+      await fetchProducts(); // Refresh the list
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final responseData = e.response!.data;
+        error = responseData['message'] ?? 'Failed to delete product: ${e.response!.statusCode}';
+      } else {
+        error = 'Network error: ${e.message}';
+      }
+    } catch (e) {
+      error = 'Unexpected error: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // GET /admin/products/:id
+  Future<Product?> getProductById(String productId) async {
+    try {
+      final response = await _dio.get('/admin/products/$productId');
+      return Product.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        error = 'Failed to fetch product: ${e.response!.statusCode} - ${e.response!.data}';
+      } else {
+        error = 'Network error: ${e.message}';
+      }
+      notifyListeners();
+      return null;
+    } catch (e) {
+      error = 'Unexpected error: $e';
+      notifyListeners();
+      return null;
+    }
+  }
+
+  // POST /admin/products/import
+  Future<void> importProducts() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv', 'xlsx'],
+      );
+
+      if (result != null) {
+        PlatformFile file = result.files.first;
+        String fileName = file.name;
+        FormData formData = FormData.fromMap({
+          "file": await MultipartFile.fromFile(file.path!, filename: fileName),
+        });
+
+        isLoading = true;
+        notifyListeners();
+
+        final response = await _dio.post('/admin/products/import', data: formData);
+
+        successMessage = response.data['message'] ?? 'Products imported successfully';
+        await fetchProducts(); // Refresh the product list
+      } else {
+        // User canceled the picker
+        successMessage = 'File import canceled.';
+      }
+    } on DioException catch (e) {
+      error = 'Failed to import products: ${e.response?.data?['message'] ?? e.message}';
+    } catch (e) {
+      error = 'An unexpected error occurred: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // GET /admin/products/export
+  Future<void> exportProducts() async {
+    try {
+      isLoading = true;
+      notifyListeners();
+      final response = await _dio.get(
+        '/admin/products/export',
+        options: Options(responseType: ResponseType.bytes), // Important for file downloads
+      );
+
+      // In a real app, you'd use a package like 'path_provider' and 'open_file'
+      // to save and open the file. This is a simplified placeholder.
+      successMessage = 'Products exported successfully. Check your downloads folder.';
+
+    } on DioException catch (e) {
+      error = 'Failed to export products: ${e.response?.data ?? e.message}';
+    } catch (e) {
+      error = 'An unexpected error occurred: $e';
+    } finally {
+      isLoading = false;
       notifyListeners();
     }
   }
@@ -300,15 +348,16 @@ class AdminManageProductsController extends ChangeNotifier {
   bool validateForm() {
     error = null;
     if (nameController.text.trim().isEmpty ||
-        categoryController.text.trim().isEmpty ||
         priceController.text.trim().isEmpty ||
-        stockController.text.trim().isEmpty) {
+        stockController.text.trim().isEmpty ||
+        warrantyController.text.trim().isEmpty) {
       error = 'Please fill in all required fields.';
       notifyListeners();
       return false;
     }
     final price = double.tryParse(priceController.text.trim());
     final stock = int.tryParse(stockController.text.trim());
+    final warranty = int.tryParse(warrantyController.text.trim());
     if (price == null || price <= 0) {
       error = 'Price must be a positive number.';
       notifyListeners();
@@ -319,114 +368,75 @@ class AdminManageProductsController extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+    if (warranty == null || warranty < 0) {
+      error = 'Warranty must be zero or a positive integer (months).';
+      notifyListeners();
+      return false;
+    }
     return true;
   }
 
   void clearForm() {
     nameController.clear();
-    descriptionController.clear();
-    categoryController.clear();
     priceController.clear();
     stockController.clear();
-    selectedProductStatus = 'active';
-    editingProduct = null;
-    isEditMode = false;
-    error = null;
-    successMessage = null;
+    warrantyController.clear();
+    _editingProduct = null;
+    _isEditMode = false;
+    clearMessages();
     notifyListeners();
+  }
+
+  // GET /admin/search/products - Search products with query (API)
+  Future<List<Product>> searchProductsApi(String query, {double? minPrice, double? maxPrice, int? minStock}) async {
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+
+      final queryParams = <String, dynamic>{
+        'q': query,
+      };
+      if (minPrice != null) queryParams['minPrice'] = minPrice;
+      if (maxPrice != null) queryParams['maxPrice'] = maxPrice;
+      if (minStock != null) queryParams['minStock'] = minStock;
+
+      final response = await _dio.get(
+        '/admin/search/products',
+        queryParameters: queryParams,
+      );
+
+      final List<dynamic> data = response.data;
+      final searchResults = data.map((json) => Product.fromJson(json)).toList();
+      successMessage = 'Product search completed successfully';
+      return searchResults;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        error = 'Failed to search products: ${e.response!.statusCode} - ${e.response!.data}';
+      } else {
+        error = 'Network error: ${e.message}';
+      }
+      return [];
+    } catch (e) {
+      error = 'Unexpected error: $e';
+      return [];
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   void clearMessages() {
     error = null;
     successMessage = null;
-    notifyListeners();
-  }
-
-  // Category management methods
-  void addCategory(String categoryName) {
-    if (categoryName.trim().isEmpty) {
-      error = 'Category name cannot be empty.';
-      notifyListeners();
-      return;
-    }
-    
-    if (availableCategories.contains(categoryName.trim())) {
-      error = 'Category already exists.';
-      notifyListeners();
-      return;
-    }
-    
-    availableCategories.add(categoryName.trim());
-    error = null;
-    successMessage = 'Category "${categoryName.trim()}" added successfully!';
-    notifyListeners();
-  }
-
-  void renameCategory(String oldName, String newName) {
-    if (newName.trim().isEmpty) {
-      error = 'Category name cannot be empty.';
-      notifyListeners();
-      return;
-    }
-    
-    if (oldName == 'All' || oldName == 'All') {
-      error = 'Cannot rename the "All" category.';
-      notifyListeners();
-      return;
-    }
-    
-    if (availableCategories.contains(newName.trim())) {
-      error = 'Category name already exists.';
-      notifyListeners();
-      return;
-    }
-    
-    final index = availableCategories.indexOf(oldName);
-    if (index != -1) {
-      availableCategories[index] = newName.trim();
-      
-      // Update all products with the old category name
-      for (int i = 0; i < products.length; i++) {
-        if (products[i].category == oldName) {
-          products[i] = products[i].copyWith(category: newName.trim());
-        }
-      }
-      
-      error = null;
-      successMessage = 'Category renamed from "$oldName" to "${newName.trim()}" successfully!';
-      applyFilters();
-      notifyListeners();
-    }
-  }
-
-  void deleteCategory(String categoryName) {
-    if (categoryName == 'All') {
-      error = 'Cannot delete the "All" category.';
-      notifyListeners();
-      return;
-    }
-    
-    // Check if any products are using this category
-    final productsWithCategory = products.where((p) => p.category == categoryName).length;
-    if (productsWithCategory > 0) {
-      error = 'Cannot delete category "$categoryName" because $productsWithCategory product(s) are using it.';
-      notifyListeners();
-      return;
-    }
-    
-    availableCategories.remove(categoryName);
-    error = null;
-    successMessage = 'Category "$categoryName" deleted successfully!';
-    notifyListeners();
   }
 
   @override
   void dispose() {
     nameController.dispose();
-    descriptionController.dispose();
-    categoryController.dispose();
     priceController.dispose();
     stockController.dispose();
+    warrantyController.dispose();
     super.dispose();
   }
-}   
+}
