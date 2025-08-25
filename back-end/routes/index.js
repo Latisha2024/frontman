@@ -1,0 +1,41 @@
+const express = require('express');
+const router = express.Router();
+
+router.use('/auth', require('./auth'));
+
+router.use('/admin/products', require('./admin/product'));
+router.use('/admin/stock', require('./admin/stock'));
+router.use('/admin/users', require('./admin/user'));
+router.use('/admin/orders', require('./admin/order'));
+router.use('/admin/warranty-cards', require('./admin/warrantyCard'));
+router.use('/admin/reports', require('./admin/report'));
+router.use('/admin/invoices', require('./admin/invoice'));
+router.use('/admin/search', require('./admin/search'));
+router.use('/admin/notifications', require('./admin/notification'));
+router.use('/admin/audit-logs', require('./admin/audit'));
+router.use('/admin/dashboard', require('./admin/dashboard'));
+router.use('/admin/incentives', require('./admin/incentive'));
+router.use('/admin/points', require('./admin/points'));
+router.use('/admin/location', require('./admin/location'));
+router.use('/admin/shift-alerts', require('./admin/shiftAlert'));
+
+router.use('/distributor/catalog', require('./distributor/catalog'));
+router.use('/distributor/order', require('./distributor/order'));
+router.use('/distributor/stock', require('./distributor/stock'));
+
+router.use('/accountant/invoice', require('./accountant/invoice'));
+
+router.use('/worker/attendance', require('./worker/attendance'));
+router.use('/worker/production', require('./worker/production'));
+router.use('/worker/shift-alerts', require('./worker/shiftAlert'));
+
+router.use('/field-executive/followups', require('./fieldExecutive/followUp'));
+router.use('/fieldExecutive/dvr', require('./fieldExecutive/dvr'));
+router.use('/fieldExecutive/delivery', require('./fieldExecutive/delivery'));
+
+router.use('/user/incentives', require('./externalSeller/incentive'));
+router.use('/user/points', require('./externalSeller/points'));
+
+router.use('/user/location', require('./user/location'));
+
+module.exports = router;
