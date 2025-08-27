@@ -96,6 +96,75 @@ const pointController = {
       console.error('adjustPoints error:', err);
       res.status(500).json({ message: 'Failed to adjust points' });
     }
+  },
+
+  // Admin: POST /admin/points/convert
+  convertPointsToCash: async (req, res) => {
+    try {
+      const { userId, points, conversionRate, reason } = req.body;
+
+      if (!userId || !points || !conversionRate) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+
+      if (points <= 0 || conversionRate <= 0) {
+        return res.status(400).json({ message: 'Points and conversion rate must be positive' });
+      }
+
+      // Check if user has sufficient points
+      const userTransactions = await prisma.pointTransaction.findMany({
+        where: { userId }
+      });
+
+      const totalPoints = userTransactions.reduce((sum, txn) => sum + txn.points, 0);
+      
+      if (totalPoints < points) {
+        return res.status(400).json({ 
+          message: 'Insufficient points', 
+          available: totalPoints, 
+          requested: points 
+        });
+      }
+
+      // Calculate cash amount
+      const cashAmount = points * conversionRate;
+
+      // Create transaction record for points deduction
+      const pointsTransaction = await prisma.pointTransaction.create({
+        data: {
+          userId,
+          points: -points, // Negative to deduct points
+          creditAmount: 0,
+          reason: reason || `Points converted to cash at rate ${conversionRate}`,
+          type: 'Claimed',
+          date: new Date()
+        }
+      });
+
+      // Create transaction record for cash credit
+      const cashTransaction = await prisma.pointTransaction.create({
+        data: {
+          userId,
+          points: 0,
+          creditAmount: cashAmount,
+          reason: reason || `Cash credit from points conversion`,
+          type: 'Earned',
+          date: new Date()
+        }
+      });
+
+      res.status(200).json({ 
+        message: 'Points converted to cash successfully',
+        pointsConverted: points,
+        cashAmount: cashAmount,
+        conversionRate: conversionRate,
+        pointsTransaction: pointsTransaction,
+        cashTransaction: cashTransaction
+      });
+    } catch (err) {
+      console.error('convertPointsToCash error:', err);
+      res.status(500).json({ message: 'Failed to convert points to cash' });
+    }
   }
 };
 
