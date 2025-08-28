@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:dio/dio.dart';
 
 import 'qr_scanner_widget.dart'; // ✅ Updated import for MobileScanner
 
@@ -21,6 +22,7 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
   String? _qrCode;
 
   final ImagePicker _picker = ImagePicker();
+  final Dio _dio = Dio();
 
   // ✅ Pick image from camera
   Future<void> pickImage() async {
@@ -79,24 +81,54 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
     return "✅ QR Code: $code";
   }
 
-// Helper to capitalize first letter
+  // Helper to capitalize first letter
   String _capitalize(String input) {
     if (input.isEmpty) return input;
     return input[0].toUpperCase() + input.substring(1);
   }
 
-  // ✅ Submit button logic
-  void submitToAdmin() {
+  // ✅ Submit button logic (with Dio)
+  Future<void> submitToAdmin() async {
     if (_image != null && _location != null && _qrCode != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Submitted to Admin")),
-      );
+      try {
+        final lat = double.parse(_location!.split(",").first.trim());
+        final lng = double.parse(_location!.split(",").last.trim());
 
-      setState(() {
-        _image = null;
-        _location = null;
-        _qrCode = null;
-      });
+        final formData = FormData.fromMap({
+          "latitude": lat,
+          "longitude": lng,
+          "qrCode": _qrCode,
+          "qrImage": await MultipartFile.fromFile(_image!.path,
+              filename: "qr_selfie.jpg"),
+        });
+
+        // ✅ Assumption: Backend endpoint exists at /commissionedWork
+        final response = await _dio.post(
+          "https://your-backend.com/api/commissionedWork",
+          data: formData,
+          options: Options(headers: {"Content-Type": "multipart/form-data"}),
+        );
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("✅ Submitted to Admin")),
+          );
+
+          setState(() {
+            _image = null;
+            _location = null;
+            _qrCode = null;
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("❌ Failed: ${response.data}")),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("❌ Error submitting: $e")),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

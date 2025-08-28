@@ -2,7 +2,7 @@ import './seller_drawer.dart';
 import 'package:flutter/material.dart';
 import '../controllers/register_warranty.dart';
 import '../widgets/register_warranty.dart';
-import '../../constants/colors.dart';
+import '../../../constants/colors.dart';
 
 class ExternalSellerRegisterWarrantyScreen extends StatefulWidget {
   const ExternalSellerRegisterWarrantyScreen({super.key});
@@ -88,12 +88,6 @@ class _ExternalSellerRegisterWarrantyScreenState
                   if (controller.qrCodeData != null) ...[
                     const SizedBox(height: 24),
                     QRCodeDisplay(qrCodeData: controller.qrCodeData!),
-                    const SizedBox(height: 16),
-                    Text(
-                      controller.qrCodeData!,
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.black87),
-                    ),
                   ],
                 ],
               ),

@@ -233,6 +233,7 @@
 // }
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import '../../helpers/auth_service.dart';
 import '../../admin/screens/admin_dashboard.dart';
 import '../../external_seller/screens/external_seller_dashboard.dart';
 import '../../worker/screens/worker_dashboard.dart';
@@ -240,7 +241,6 @@ import '../../field_executive/screens/executiveUI.dart';
 import '../../distributor/screens/distributorsUI.dart';
 import '../../accountant_app/screens/acc_home_screen.dart';
 import '../../sales_manager/screens/sales_manager_dashboard.dart';
-import '../auth_services.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/logo_widget.dart';
@@ -280,11 +280,7 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _isLoading = true);
 
-    // Use Android emulator's loopback to host machine. Adjust if targeting other platforms.
-    // Android Emulator: http://10.0.2.2:5000
-    // iOS Simulator/Web: http://localhost:5000
-    // Physical device: http://<your-PC-LAN-IP>:5000
-    final dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:5000'));
+    final dio = Dio(BaseOptions(baseUrl: 'http://localhost:5000'));
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 

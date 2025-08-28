@@ -8,10 +8,12 @@ class ExternalSellerDeliveryReportScreen extends StatefulWidget {
   const ExternalSellerDeliveryReportScreen({super.key});
 
   @override
-  State<ExternalSellerDeliveryReportScreen> createState() => ExternalSellerDeliveryReportScreenState();
+  State<ExternalSellerDeliveryReportScreen> createState() =>
+      ExternalSellerDeliveryReportScreenState();
 }
 
-class ExternalSellerDeliveryReportScreenState extends State<ExternalSellerDeliveryReportScreen> {
+class ExternalSellerDeliveryReportScreenState
+    extends State<ExternalSellerDeliveryReportScreen> {
   final controller = ExternalSellerDeliveryReportController();
 
   @override
@@ -26,36 +28,32 @@ class ExternalSellerDeliveryReportScreenState extends State<ExternalSellerDelive
     });
   }
 
-  void handleSubmit() {
-    setState(() {
-      controller.submitReport();
-    });
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (controller.success == true) {
-        if(controller.qrRequested) {
-          Navigator.pushNamed(
-            context,
-            '/seller/register-warranty',
-            arguments: {
-              'sellerId': controller.sellerIdController.text,
-              'productId': controller.productController.text,
-            },
-          );
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Delivery report submitted successfully!')),
-        );
-        controller.sellerIdController.clear();
-        controller.productController.clear();
-        controller.quantityController.clear();
-        controller.qrRequested = false;
-        setState(() {});
-      } else if (controller.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(controller.error!)),
+  Future<void> handleSubmit() async {
+    await controller.submitReport();
+
+    if (controller.success == true) {
+      if (controller.qrRequested) {
+        Navigator.pushNamed(
+          context,
+          '/seller/register-warranty',
+          arguments: {
+            'product': controller.productController.text,
+          },
         );
       }
-    });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Delivery report submitted successfully!')),
+      );
+      controller.productController.clear();
+      controller.quantityController.clear();
+      controller.qrRequested = false;
+      setState(() {});
+    } else if (controller.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(controller.error!)),
+      );
+    }
   }
 
   @override
@@ -88,4 +86,4 @@ class ExternalSellerDeliveryReportScreenState extends State<ExternalSellerDelive
       ),
     );
   }
-} 
+}

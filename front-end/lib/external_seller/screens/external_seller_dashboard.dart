@@ -9,7 +9,7 @@ class ExternalSellerDashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Seller Dashboard'),
+        title: const Text('Plumber Dashboard'),
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -54,7 +54,7 @@ class ExternalSellerDashboardScreen extends StatelessWidget {
             Icon(Icons.admin_panel_settings, color: Colors.white, size: 48),
             SizedBox(height: 16),
             Text(
-              'Welcome, Seller!',
+              'Welcome, Plumber!',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -119,6 +119,34 @@ class ExternalSellerDashboardScreen extends StatelessWidget {
                   label: 'Track Points',
                   onPressed: () =>
                       Navigator.pushNamed(context, '/seller/points'),
+                ),
+                _buildActionButton(
+                  context,
+                  icon: Icons.local_shipping,
+                  label: 'Post Delivery Report',
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/seller/delivery-report'),
+                ),
+                _buildActionButton(
+                  context,
+                  icon: Icons.inventory,
+                  label: 'Registered Warranty',
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/seller/register-warranty'),
+                ),
+                _buildActionButton(
+                  context,
+                  icon: Icons.people,
+                  label: 'Validate Warranty',
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/seller/validate-warranty'),
+                ),
+                _buildActionButton(
+                  context,
+                  icon: Icons.inventory,
+                  label: 'Commissioned Work',
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/seller/commissioned-work'),
                 ),
               ],
             ),

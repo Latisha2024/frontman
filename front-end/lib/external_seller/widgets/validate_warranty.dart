@@ -30,11 +30,19 @@ class ValidateRegistrationWidget extends StatelessWidget {
           child: const Text("Upload QR Image"),
         ),
         const SizedBox(height: 20),
+
+        // Loader
         if (controller.isLoading)
           const Center(child: CircularProgressIndicator()),
+
+        // Error
         if (controller.error != null)
-          Text(controller.error!,
-              style: const TextStyle(color: AppColors.error)),
+          Text(
+            controller.error!,
+            style: const TextStyle(color: AppColors.error),
+          ),
+
+        // Warranty info
         if (controller.warrantyInfo != null) ...[
           _buildDataRow("Product ID", controller.warrantyInfo!.productId),
           _buildDataRow("Serial Number", controller.warrantyInfo!.serialNumber),
@@ -42,6 +50,22 @@ class ValidateRegistrationWidget extends StatelessWidget {
           _buildDataRow(
               "Warranty Months", controller.warrantyInfo!.warrantyMonths),
           _buildDataRow("Seller ID", controller.warrantyInfo!.sellerId),
+        ],
+
+        // Verification status
+        if (controller.isVerified != null) ...[
+          const SizedBox(height: 20),
+          Text(
+            controller.isVerified == true
+                ? "✅ Warranty Verified"
+                : "❌ Warranty Not Found",
+            style: TextStyle(
+              color: controller.isVerified == true ? Colors.green : Colors.red,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ],
     );
