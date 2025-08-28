@@ -82,4 +82,49 @@ router.get('/', pointController.getAllTransactions);
  */
 router.post('/adjust', pointController.adjustPoints);
 
+<<<<<<< HEAD
+=======
+/**
+ * @swagger
+ * /admin/points/convert:
+ *   post:
+ *     summary: Convert user points to cash
+ *     tags: [Admin Points]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       description: Details for converting points to cash
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - points
+ *               - conversionRate
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: User ID whose points will be converted
+ *               points:
+ *                 type: number
+ *                 description: Number of points to convert
+ *               conversionRate:
+ *                 type: number
+ *                 description: Rate at which points are converted to cash
+ *               reason:
+ *                 type: string
+ *                 description: Reason for conversion
+ *     responses:
+ *       200:
+ *         description: Points converted to cash successfully
+ *       400:
+ *         description: Invalid input or insufficient points
+ *       500:
+ *         description: Failed to convert points
+ */
+router.post('/convert', pointController.convertPointsToCash);
+
+>>>>>>> 04113530de9832f4179ec37bc2135fedf490d6b5
 module.exports = router;

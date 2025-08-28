@@ -76,4 +76,52 @@ router.get('/inventory', reportController.getInventoryReport);
  */
 router.get('/performance', reportController.getPerformanceReport);
 
+<<<<<<< HEAD
+=======
+/**
+ * @swagger
+ * /admin/reports/individual:
+ *   get:
+ *     summary: Get individual user performance report
+ *     tags: [Admin Reports]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID for the report
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter from this date
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter up to this date
+ *       - in: query
+ *         name: reportType
+ *         schema:
+ *           type: string
+ *           enum: [sales, attendance, points, performance]
+ *         description: Type of report to generate
+ *     responses:
+ *       200:
+ *         description: Individual report data
+ *       400:
+ *         description: Missing user ID
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Failed to generate individual report
+ */
+router.get('/individual', reportController.getIndividualReport);
+
+>>>>>>> 04113530de9832f4179ec37bc2135fedf490d6b5
 module.exports = router;
