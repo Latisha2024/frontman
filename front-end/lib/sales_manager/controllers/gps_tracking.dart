@@ -18,14 +18,15 @@ class SalesManagerGpsTrackingController extends ChangeNotifier {
     },
   ));
 
-  List<Map<String, dynamic>> executives = [];
+  // List of location history entries for a selected user
+  List<Map<String, dynamic>> locations = [];
   bool isLoading = false;
   String? error;
 
   Future<void> _attachAuthHeader() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
+      final token = prefs.getString('auth_token');
       if (token != null && token.isNotEmpty) {
         _dio.options.headers['Authorization'] = 'Bearer $token';
       }
@@ -34,8 +35,8 @@ class SalesManagerGpsTrackingController extends ChangeNotifier {
     }
   }
 
-  // GET /admin/location - fetch field executives' latest locations
-  Future<void> fetchLocations() async {
+  // GET /admin/location?userId=... - fetch location history for a specific user
+  Future<void> fetchLocations(String userId) async {
     try {
       isLoading = true;
       error = null;
@@ -43,18 +44,30 @@ class SalesManagerGpsTrackingController extends ChangeNotifier {
 
       await _attachAuthHeader();
 
-      final response = await _dio.get('/admin/location');
+      if (userId.trim().isEmpty) {
+        // No user selected yet; do not treat as an error
+        isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      final response = await _dio.get(
+        '/admin/location',
+        queryParameters: {'userId': userId},
+      );
       final data = response.data;
 
-      // Expecting a list of objects with id, name, location (string or lat/lng), lastUpdated
+      // Backend returns array of { id, userId, latitude, longitude, timeStamp }
       if (data is List) {
-        executives = data.map<Map<String, dynamic>>((item) {
+        locations = data.map<Map<String, dynamic>>((item) {
           final map = item as Map<String, dynamic>;
           return {
             'id': (map['id'] ?? '').toString(),
-            'name': map['name'] ?? 'Unknown',
-            'location': map['location'] ?? _formatLatLng(map),
-            'lastUpdated': _parseDate(map['lastUpdated']) ?? DateTime.now(),
+            'userId': (map['userId'] ?? '').toString(),
+            'latitude': map['latitude'],
+            'longitude': map['longitude'],
+            'timeStamp': _parseDate(map['timeStamp']),
+            'label': _formatLatLng(map),
           };
         }).toList();
       } else {

@@ -22,60 +22,11 @@ class DeliveryReportForm extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 6,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: TextFormField(
-              controller: controller.sellerIdController,
-              decoration: const InputDecoration(labelText: 'Seller ID:', border: InputBorder.none),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 6,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: TextFormField(
-              controller: controller.productController,
-              decoration: const InputDecoration(labelText: 'Product:', border: InputBorder.none),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 6,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: TextFormField(
-              controller: controller.quantityController,
-              decoration: const InputDecoration(labelText: 'Quantity:', border: InputBorder.none),
-              keyboardType: TextInputType.number,
-            ),
+          _buildTextField(controller.productController, 'Product'),
+          _buildTextField(
+            controller.quantityController,
+            'Quantity',
+            keyboardType: TextInputType.number,
           ),
           Row(
             children: [
@@ -109,4 +60,27 @@ class DeliveryReportForm extends StatelessWidget {
       ),
     );
   }
-} 
+
+  Widget _buildTextField(TextEditingController ctrl, String label,
+      {TextInputType keyboardType = TextInputType.text}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: TextFormField(
+        controller: ctrl,
+        decoration: InputDecoration(labelText: label, border: InputBorder.none),
+        keyboardType: keyboardType,
+      ),
+    );
+  }
+}

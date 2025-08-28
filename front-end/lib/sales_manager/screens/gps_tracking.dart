@@ -14,18 +14,23 @@ class SalesManagerGpsTrackingScreen extends StatefulWidget {
 
 class _SalesManagerGpsTrackingScreenState extends State<SalesManagerGpsTrackingScreen> {
   late final SalesManagerGpsTrackingController controller;
+  final TextEditingController userIdController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     controller = SalesManagerGpsTrackingController();
-    // Fetch locations on load
-    controller.fetchLocations();
+    // Do not auto-fetch without userId; let user input a userId and tap search
+    userIdController.addListener(() {
+      // Rebuild to enable/disable actions based on input
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
     controller.dispose();
+    userIdController.dispose();
     super.dispose();
   }
 
@@ -44,7 +49,9 @@ class _SalesManagerGpsTrackingScreenState extends State<SalesManagerGpsTrackingS
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: controller.fetchLocations,
+            onPressed: userIdController.text.trim().isEmpty
+                ? null
+                : () => controller.fetchLocations(userIdController.text.trim()),
             tooltip: 'Refresh',
           )
         ],
@@ -75,36 +82,58 @@ class _SalesManagerGpsTrackingScreenState extends State<SalesManagerGpsTrackingS
             );
           }
 
-          final executives = controller.executives;
-          if (executives.isEmpty) {
-            return const Center(
-              child: Text('No active locations found'),
-            );
-          }
+          final locations = controller.locations;
 
-          return ListView.builder(
+          return ListView(
             padding: const EdgeInsets.all(16),
-            itemCount: executives.length,
-            itemBuilder: (context, index) {
-              final exec = executives[index];
-              final DateTime? ts = exec['lastUpdated'] is DateTime ? exec['lastUpdated'] as DateTime : null;
-              final timeLabel = ts != null
-                  ? 'Updated: ${ts.hour}:${ts.minute.toString().padLeft(2, '0')}'
-                  : '';
-              return Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                child: ListTile(
-                  leading: const Icon(Icons.person_pin_circle, color: AppColors.secondaryBlue),
-                  title: Text(exec['name'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(exec['location'] ?? 'No location'),
-                  trailing: Text(
-                    timeLabel,
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+            children: [
+              // Search bar
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: userIdController,
+                      decoration: const InputDecoration(
+                        labelText: 'User ID',
+                        prefixIcon: Icon(Icons.badge),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
                   ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: userIdController.text.trim().isEmpty
+                        ? null
+                        : () => controller.fetchLocations(userIdController.text.trim()),
+                    icon: const Icon(Icons.search),
+                    label: const Text('Search'),
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.buttonPrimary, foregroundColor: Colors.white),
+                  )
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (userIdController.text.trim().isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12.0),
+                  child: Text('Enter a User ID to view location history', textAlign: TextAlign.center),
                 ),
-              );
-            },
+              if (locations.isEmpty)
+                const Center(child: Text('No location history'))
+              else
+                ...locations.map((loc) {
+                  final DateTime? ts = loc['timeStamp'] as DateTime?;
+                  final timeLabel = ts != null ? '${ts.toLocal()}' : '';
+                  return Card(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: ListTile(
+                      leading: const Icon(Icons.place, color: AppColors.secondaryBlue),
+                      title: Text(loc['label'] ?? 'Location', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text('User: ${loc['userId']}\nTime: $timeLabel'),
+                    ),
+                  );
+                }),
+            ],
           );
         },
       ),

@@ -128,12 +128,17 @@ class ProductList extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                buildInfoChip(Icons.currency_rupee_outlined, 'Price', '₹${product.price.toStringAsFixed(2)}'),
-                const SizedBox(width: 8),
-                buildInfoChip(Icons.storage, 'Stock', product.stockQuantity.toString()),
-                const SizedBox(width: 8),
+                Row(
+                  children: [
+                    buildInfoChip(Icons.currency_rupee_outlined, 'Price', '₹${product.price.toStringAsFixed(2)}'),
+                    const SizedBox(width: 8),
+                    buildInfoChip(Icons.storage, 'Stock', product.stockQuantity.toString()),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 buildInfoChip(Icons.verified_user, 'Warranty', '${product.warrantyPeriodInMonths} mo'),
               ],
             ),

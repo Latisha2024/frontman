@@ -118,18 +118,10 @@ class WarrantyList extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  warranty.customer,
+                                  'ID: ${warranty.id}',
                                   style: const TextStyle(
                                     fontSize: 13,
                                     color: AppColors.textPrimary,
-                                  ),
-                                ),
-                                Text(
-                                  'Company ${warranty.companyId.replaceAll('company', '')}',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.primaryBlue,
                                   ),
                                 ),
                               ],
@@ -150,40 +142,6 @@ class WarrantyList extends StatelessWidget {
                               buildInfoChip(Icons.event, 'Expiry', '${warranty.expiryDate.year}-${warranty.expiryDate.month.toString().padLeft(2, '0')}-${warranty.expiryDate.day.toString().padLeft(2, '0')}'),
                             ],
                           )
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () => controller.editWarranty(warranty),
-                              icon: const Icon(Icons.edit, size: 16),
-                              label: const Text('Edit'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.textPrimary,
-                                side: const BorderSide(color: AppColors.textPrimary),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () => controller.deleteWarranty(warranty.id),
-                              icon: const Icon(Icons.delete, size: 16),
-                              label: const Text('Delete'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.red,
-                                side: const BorderSide(color: Colors.red),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ],

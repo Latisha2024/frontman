@@ -26,12 +26,10 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
   final TextEditingController _locationController = TextEditingController();
 
   final List<String> statusOptions = [
+    // Restricted to backend-supported enum values
     'Available',
-    'Assigned',
-    'Distributed',
-    'Sold',
-    'Damaged',
-    'Returned'
+    'Moved',
+    'Missing'
   ];
 
   @override
@@ -339,13 +337,6 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
                                 return Card(
                                   margin: const EdgeInsets.only(bottom: 8),
                                   child: ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundColor: _getStatusColor(stock['status']),
-                                      child: Text(
-                                        stock['status'][0].toUpperCase(),
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
                                     title: Text(
                                       product != null ? product['name'] : 'Unknown Product',
                                       style: const TextStyle(fontWeight: FontWeight.bold),
@@ -379,16 +370,10 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
     switch (status.toLowerCase()) {
       case 'available':
         return Colors.green;
-      case 'assigned':
+      case 'moved':
         return Colors.blue;
-      case 'distributed':
-        return Colors.orange;
-      case 'sold':
-        return Colors.purple;
-      case 'damaged':
-        return Colors.red;
-      case 'returned':
-        return Colors.grey;
+      case 'missing':
+        return Colors.redAccent;
       default:
         return Colors.grey;
     }

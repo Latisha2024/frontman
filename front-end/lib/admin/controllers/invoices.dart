@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LineItem {
   final String description;
@@ -120,6 +121,17 @@ class AdminInvoicesController extends ChangeNotifier {
       },
     ));
     
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString('auth_token');
+        if (token != null && token.isNotEmpty) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
+        return handler.next(options);
+      },
+    ));
+    
     // Add interceptors for logging and error handling
     _dio.interceptors.add(LogInterceptor(
       requestBody: true,
@@ -208,13 +220,6 @@ class AdminInvoicesController extends ChangeNotifier {
       clearForm();
       successMessage = 'Invoice updated successfully!';
     }
-    notifyListeners();
-  }
-
-  void deleteInvoice(String invoiceId) {
-    invoices.removeWhere((invoice) => invoice.id == invoiceId);
-    filteredInvoices = List.from(invoices);
-    successMessage = 'Invoice deleted successfully!';
     notifyListeners();
   }
 
@@ -334,49 +339,59 @@ class AdminInvoicesController extends ChangeNotifier {
   
   // POST - Create manual invoice (new endpoint for manual creation)
   Future<Invoice?> createManualInvoice() async {
+    // Backend does not support manual creation via POST /admin/invoices
     if (!validateForm()) return null;
-    
+    isLoading = true;
+    error = null;
+    successMessage = null;
+    notifyListeners();
+
+    await Future.delayed(const Duration(milliseconds: 10));
+    error = 'Manual invoice creation is not supported by the current backend API.';
+    isLoading = false;
+    notifyListeners();
+    return null;
+  }
+  
+  // Generate invoice from existing order
+  Future<Invoice?> generateInvoiceFromOrder(String orderId) async {
+    if (orderId.trim().isEmpty) {
+      error = 'Please enter a valid order ID.';
+      notifyListeners();
+      return null;
+    }
     try {
       isLoading = true;
       error = null;
+      successMessage = null;
       notifyListeners();
-      
-      final invoiceData = {
-        'invoiceNumber': invoiceNumberController.text.trim(),
-        'issueDate': DateTime.now().toIso8601String(),
-        'dueDate': DateTime.parse(dueDateController.text.trim()).toIso8601String(),
-        'reference': referenceController.text.trim(),
-        'billTo': billToController.text.trim(),
-        'items': formItems.map((item) => {
-          'description': item.description,
-          'quantity': item.quantity,
-          'unitPrice': item.unitPrice,
-          'amount': item.amount,
-          'gstRate': item.gstRate,
-        }).toList(),
-        'subtotal': calculateSubtotal(),
-        'gstTotal': calculateGstTotal(),
-        'totalAmount': calculateTotalDue(),
-        'signature': signatureController.text.trim(),
-      };
-      
-      final response = await _dio.post('/admin/invoices', data: invoiceData);
-      
+
+      // Admins are authorized to use accountant invoice generation
+      final response = await _dio.post('/accountant/invoice/$orderId');
+
       if (response.statusCode == 201) {
-        final invoice = _mapBackendInvoiceToModel(response.data['invoice']);
-        invoices.add(invoice);
+        final created = _mapBackendInvoiceToModel(response.data['invoice']);
+        final idx = invoices.indexWhere((i) => i.id == created.id);
+        if (idx >= 0) {
+          invoices[idx] = created;
+        } else {
+          invoices.insert(0, created);
+        }
         filteredInvoices = List.from(invoices);
-        clearForm();
-        successMessage = 'Invoice created successfully!';
+        successMessage = 'Invoice generated successfully.';
         notifyListeners();
-        return invoice;
+        return created;
       } else {
-        error = 'Failed to create invoice: ${response.statusCode}';
+        error = 'Failed to generate invoice: ${response.statusCode}';
         notifyListeners();
         return null;
       }
     } on DioException catch (e) {
-      _handleDioError(e);
+      if (e.response != null && e.response?.data is Map && (e.response?.data)['message'] != null) {
+        error = (e.response?.data)['message'];
+      } else {
+        _handleDioError(e);
+      }
       return null;
     } catch (e) {
       error = 'Unexpected error: $e';
@@ -386,21 +401,6 @@ class AdminInvoicesController extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
-  }
-  
-  // Generate invoice from existing order
-  Future<Invoice?> generateInvoiceFromOrder(String orderId) async {
-    // This endpoint does not exist on the backend. Keep the method, but avoid calling a non-existent API.
-    isLoading = true;
-    error = null;
-    successMessage = null;
-    notifyListeners();
-
-    await Future.delayed(const Duration(milliseconds: 10));
-    error = 'Generate from order is not supported by the current backend API.';
-    isLoading = false;
-    notifyListeners();
-    return null;
   }
   
   // Helper method to refresh invoices from API

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 
 class Product {
@@ -102,6 +103,19 @@ class AdminManageProductsController extends ChangeNotifier {
         'Content-Type': 'application/json',
       },
     ));
+    // Attach Authorization header for every request if token exists
+    _dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) async {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString('auth_token');
+        if (token != null && token.isNotEmpty) {
+          options.headers['Authorization'] = 'Bearer ' + token;
+        }
+      } catch (_) {
+        // If SharedPreferences fails, proceed without auth header
+      }
+      return handler.next(options);
+    }));
     fetchProducts();
   }
 

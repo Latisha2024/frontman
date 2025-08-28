@@ -16,7 +16,7 @@ class AdminInvoicesScreen extends StatefulWidget {
 
 class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
   late AdminInvoicesController controller;
-  bool showForm = false;
+  // Read-only screen: no form toggle
 
   @override
   void initState() {
@@ -84,19 +84,24 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
                       ),
               ),
               IconButton(
+                tooltip: 'Generate by Order ID',
                 onPressed: () {
-                  setState(() {
-                    showForm = !showForm;
-                    if (!showForm) {
-                      controller.clearForm();
-                    }
-                  });
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => Scaffold(
+                        appBar: AppBar(
+                          title: const Text('Generate Invoice'),
+                          backgroundColor: AppColors.primaryBlue,
+                        ),
+                        body: SingleChildScrollView(
+                          padding: const EdgeInsets.all(20),
+                          child: InvoiceForm(controller: controller),
+                        ),
+                      ),
+                    ),
+                  );
                 },
-                icon: Icon(
-                  showForm ? Icons.list : Icons.add,
-                  color: Colors.white,
-                ),
-                tooltip: showForm ? 'View Invoices' : 'Add Invoice',
+                icon: const Icon(Icons.add, color: Colors.white),
               ),
             ],
           ),
@@ -174,9 +179,7 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
 
               // Main content
               Expanded(
-                child: (showForm || controller.isEditMode)
-                    ? buildFormView()
-                    : buildListView(),
+                child: buildListView(),
               ),
             ],
           ),
@@ -261,13 +264,6 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget buildFormView() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: InvoiceForm(controller: controller),
     );
   }
 

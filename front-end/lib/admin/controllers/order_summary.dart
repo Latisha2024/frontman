@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Order {
   final String id;
@@ -98,11 +99,21 @@ class AdminOrderSummaryController extends ChangeNotifier {
   List<Order> filteredOrders = [];
   String searchQuery = '';
   String selectedStatus = 'All';
-  final List<String> availableStatuses = ['All', 'Pending', 'Completed', 'Cancelled', 'Processing', 'Shipped', 'Delivered'];
+  final List<String> availableStatuses = ['All', 'Pending', 'Completed', 'Cancelled'];
   String filterUserId = '';
   final filterUserIdController = TextEditingController();
 
   AdminOrderSummaryController() {
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString('auth_token');
+        if (token != null && token.isNotEmpty) {
+          options.headers['Authorization'] = 'Bearer ' + token;
+        }
+        return handler.next(options);
+      },
+    ));
     fetchAllOrders();
   }
 

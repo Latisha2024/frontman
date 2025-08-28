@@ -119,9 +119,9 @@ class _InvoiceListState extends State<InvoiceList> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Invoice #${invoice.invoiceNumber}',
+                        '${invoice.invoiceNumber}',
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
@@ -151,39 +151,7 @@ class _InvoiceListState extends State<InvoiceList> {
             buildDetailRow(Icons.calendar_today, 'Issued', '${invoice.issueDate.day}/${invoice.issueDate.month}/${invoice.issueDate.year}'),
             buildDetailRow(Icons.receipt, 'Reference', invoice.reference),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => controller.editInvoice(invoice),
-                    icon: const Icon(Icons.edit, size: 16),
-                    label: const Text('Edit'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.blueGrey.shade800,
-                      side: BorderSide(color: Colors.blueGrey.shade800),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => showDeleteDialog(context, invoice),
-                    icon: const Icon(Icons.delete, size: 16),
-                    label: const Text('Delete'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            // Read-only: no actions
           ],
         ),
       ),
@@ -213,30 +181,6 @@ class _InvoiceListState extends State<InvoiceList> {
                 color: Colors.black87,
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void showDeleteDialog(BuildContext context, Invoice invoice) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Invoice'),
-        content: Text('Are you sure you want to delete Invoice #${invoice.invoiceNumber}? This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              controller.deleteInvoice(invoice.id);
-              Navigator.of(context).pop();
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
           ),
         ],
       ),

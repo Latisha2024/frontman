@@ -79,14 +79,18 @@ const productController = {
 
   // DELETE
   deleteProduct: async (req, res) => {
-    const { id } = req.params;
-
     try {
-      await prisma.product.delete({ where: { id } });
-      res.json({ message: 'Product deleted' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Error deleting product' });
+      const productId = req.params.id;
+      // Delete related warranty cards first
+      await prisma.warrantyCard.deleteMany({ where: { productId } });
+      // Delete related order items next
+      await prisma.orderItem.deleteMany({ where: { productId } });
+      // Now delete the product
+      const result = await prisma.product.delete({ where: { id: productId } });
+      res.json({ message: 'Product deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   },
 

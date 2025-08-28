@@ -262,8 +262,8 @@ class MyApp extends StatelessWidget {
               const ExternalSellerRegisterWarrantyScreen(),
           '/seller/validate-warranty': (context) =>
               const ExternalSellerValidateRegistrationScreen(),
-          '/seller/commissioned-work' : (context) =>
-            const CommissionedWorkScreen(),
+          '/seller/commissioned-work': (context) =>
+              const CommissionedWorkScreen(),
           // Worker
           '/worker/dashboard': (context) => const WorkerDashboardScreen(),
           '/worker/production': (context) => const WorkerProductionScreen(),

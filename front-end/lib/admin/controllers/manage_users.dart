@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
   final String id;
@@ -152,6 +153,16 @@ class AdminManageUsersController extends ChangeNotifier {
       receiveTimeout: const Duration(seconds: 3),
       headers: {
         'Content-Type': 'application/json',
+      },
+    ));
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString('auth_token');
+        if (token != null && token.isNotEmpty) {
+          options.headers['Authorization'] = 'Bearer ' + token;
+        }
+        return handler.next(options);
       },
     ));
     fetchUsers();

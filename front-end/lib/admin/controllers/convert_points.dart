@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PointTransaction {
   final String id;
@@ -63,9 +64,18 @@ class AdminConvertPointsController extends ChangeNotifier {
         'Content-Type': 'application/json',
       },
     ));
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString('auth_token');
+        if (token != null && token.isNotEmpty) {
+          options.headers['Authorization'] = 'Bearer ' + token;
+        }
+        return handler.next(options);
+      },
+    ));
     fetchAllTransactions();
   }
-
 
   // GET /admin/points - Fetch all point transactions
   Future<void> fetchAllTransactions({String? userId, String? type}) async {

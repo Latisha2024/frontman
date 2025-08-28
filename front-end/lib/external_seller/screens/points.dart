@@ -1,38 +1,38 @@
-import './seller_drawer.dart';
 import 'package:flutter/material.dart';
 import '../controllers/points.dart';
 import '../widgets/points.dart';
 import '../../constants/colors.dart';
+import './seller_drawer.dart';
 
 class ExternalSellerPointsScreen extends StatefulWidget {
   const ExternalSellerPointsScreen({super.key});
 
   @override
-  State<ExternalSellerPointsScreen> createState() => ExternalSellerPointsScreenState();
+  State<ExternalSellerPointsScreen> createState() =>
+      _ExternalSellerPointsScreenState();
 }
 
-class ExternalSellerPointsScreenState extends State<ExternalSellerPointsScreen> {
+class _ExternalSellerPointsScreenState
+    extends State<ExternalSellerPointsScreen> {
   final controller = ExternalSellerPointsController();
-  final sellerIdController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchPoints(); // automatically fetch on screen open
+  }
 
   @override
   void dispose() {
     controller.dispose();
-    sellerIdController.dispose();
     super.dispose();
-  }
-
-  void handleFetch() {
-    setState(() {
-      controller.fetchPoints(sellerIdController.text);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Check Points'),
+        title: const Text('My Points'),
         backgroundColor: AppColors.primaryBlue,
         leading: Builder(
           builder: (context) => IconButton(
@@ -47,56 +47,19 @@ class ExternalSellerPointsScreenState extends State<ExternalSellerPointsScreen> 
         child: AnimatedBuilder(
           animation: controller,
           builder: (context, _) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.shade300,
-                        blurRadius: 6,
-                        offset: const Offset(0, 4),
-                      )
-                    ],
-                  ),
-                  child: TextField(
-                    controller: sellerIdController,
-                    decoration: const InputDecoration(
-                      labelText: 'Seller ID:',
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonPrimary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: controller.isLoading ? null : handleFetch,
-                  child: controller.isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('Fetch Points'),
-                ),
-                const SizedBox(height: 24),
-                if (controller.error != null)
-                  Text(controller.error!, style: const TextStyle(color: Colors.red)),
-                Expanded(
-                  child: PointsDisplay(points: controller.points),
-                ),
-              ],
-            );
+            if (controller.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (controller.error != null) {
+              return Center(
+                child: Text(controller.error!,
+                    style: const TextStyle(color: Colors.red)),
+              );
+            }
+            return PointsDisplay(points: controller.points);
           },
         ),
       ),
     );
   }
-} 
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminShiftAlertsController extends ChangeNotifier {
   bool isLoading = false;
@@ -8,11 +9,8 @@ class AdminShiftAlertsController extends ChangeNotifier {
   late final Dio _dio;
 
   // Form controllers
-  final workerIdController = TextEditingController();
-  final titleController = TextEditingController();
+  final userIdController = TextEditingController();
   final messageController = TextEditingController();
-  final shiftDateController = TextEditingController();
-  final shiftTimeController = TextEditingController();
 
   // Base URL - configure based on your backend
   static const String baseUrl = 'http://10.0.2.2:5000';
@@ -24,6 +22,16 @@ class AdminShiftAlertsController extends ChangeNotifier {
       receiveTimeout: const Duration(seconds: 3),
       headers: {
         'Content-Type': 'application/json',
+      },
+    ));
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString('auth_token');
+        if (token != null && token.isNotEmpty) {
+          options.headers['Authorization'] = 'Bearer ' + token;
+        }
+        return handler.next(options);
       },
     ));
   }
@@ -38,11 +46,8 @@ class AdminShiftAlertsController extends ChangeNotifier {
       notifyListeners();
 
       final alertData = {
-        'workerId': workerIdController.text.trim(),
-        'title': titleController.text.trim(),
+        'userId': userIdController.text.trim(),
         'message': messageController.text.trim(),
-        'shiftDate': shiftDateController.text.trim(),
-        'shiftTime': shiftTimeController.text.trim(),
       };
 
       final response = await _dio.post(
@@ -70,11 +75,8 @@ class AdminShiftAlertsController extends ChangeNotifier {
 
   bool validateForm() {
     error = null;
-    if (workerIdController.text.trim().isEmpty ||
-        titleController.text.trim().isEmpty ||
-        messageController.text.trim().isEmpty ||
-        shiftDateController.text.trim().isEmpty ||
-        shiftTimeController.text.trim().isEmpty) {
+    if (userIdController.text.trim().isEmpty ||
+        messageController.text.trim().isEmpty) {
       error = 'Please fill in all required fields.';
       notifyListeners();
       return false;
@@ -83,11 +85,8 @@ class AdminShiftAlertsController extends ChangeNotifier {
   }
 
   void clearForm() {
-    workerIdController.clear();
-    titleController.clear();
+    userIdController.clear();
     messageController.clear();
-    shiftDateController.clear();
-    shiftTimeController.clear();
     clearMessages();
     notifyListeners();
   }
@@ -99,11 +98,8 @@ class AdminShiftAlertsController extends ChangeNotifier {
 
   @override
   void dispose() {
-    workerIdController.dispose();
-    titleController.dispose();
+    userIdController.dispose();
     messageController.dispose();
-    shiftDateController.dispose();
-    shiftTimeController.dispose();
     super.dispose();
   }
 }

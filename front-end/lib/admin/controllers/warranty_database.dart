@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Warranty {
   final String id;
@@ -58,6 +59,36 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
   // Dio instance for HTTP requests
   late final Dio _dio;
   
+  // Safely convert dynamic to String
+  String _asString(dynamic v) {
+    if (v == null) return '';
+    if (v is String) return v;
+    if (v is num || v is bool) return v.toString();
+    if (v is Map) {
+      // Try common string fields
+      for (final key in const ['name', 'title', 'label', 'value', 'id', '_id']) {
+        if (v[key] is String) return v[key] as String;
+      }
+    }
+    return v.toString();
+  }
+
+  // Safely parse date from various formats
+  DateTime _asDate(dynamic v) {
+    if (v is DateTime) return v;
+    if (v is String) return DateTime.parse(v);
+    if (v is Map) {
+      // Try common date keys
+      for (final key in const ['date', 'iso', '\$date']) {
+        final val = v[key];
+        if (val is String) return DateTime.parse(val);
+        if (val is int) return DateTime.fromMillisecondsSinceEpoch(val);
+      }
+    }
+    // Fallback to toString parse
+    return DateTime.parse(v.toString());
+  }
+  
   void _initializeDio() {
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
@@ -65,6 +96,17 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
       receiveTimeout: const Duration(seconds: 3),
       headers: {
         'Content-Type': 'application/json',
+      },
+    ));
+    
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString('auth_token');
+        if (token != null && token.isNotEmpty) {
+          options.headers['Authorization'] = 'Bearer ' + token;
+        }
+        return handler.next(options);
       },
     ));
     
@@ -201,16 +243,20 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
       final response = await _dio.get('/admin/warranty-cards');
       
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-        final List<Warranty> fetchedWarranties = data.map((item) => Warranty(
-          id: item['id'].toString(),
-          product: item['product'] ?? '',
-          customer: item['customer'] ?? '',
-          serialNumber: item['serialNumber'] ?? '',
-          purchaseDate: DateTime.parse(item['purchaseDate']),
-          expiryDate: DateTime.parse(item['expiryDate']),
-          companyId: item['companyId'] ?? '',
-        )).toList();
+        final dynamic body = response.data;
+        final List<dynamic> data = body is List ? body : (body['data'] as List? ?? []);
+        final List<Warranty> fetchedWarranties = data.map((item) {
+          final map = item as Map<String, dynamic>;
+          return Warranty(
+            id: _asString(map['id']).isNotEmpty ? _asString(map['id']) : _asString(map['_id']),
+            product: _asString(map['product']),
+            customer: _asString(map['customer']),
+            serialNumber: _asString(map['serialNumber']),
+            purchaseDate: _asDate(map['purchaseDate']),
+            expiryDate: _asDate(map['expiryDate']),
+            companyId: _asString(map['companyId']),
+          );
+        }).toList();
         
         warranties = fetchedWarranties;
         applyFilters();
@@ -257,15 +303,18 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
       final response = await _dio.get('/admin/warranty-cards/$id');
       
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = response.data;
+        final dynamic body = response.data;
+        final Map<String, dynamic> data = body is Map<String, dynamic> && body.containsKey('data')
+            ? (body['data'] as Map<String, dynamic>)
+            : (body as Map<String, dynamic>);
         final warranty = Warranty(
-          id: data['id'].toString(),
-          product: data['product'] ?? '',
-          customer: data['customer'] ?? '',
-          serialNumber: data['serialNumber'] ?? '',
-          purchaseDate: DateTime.parse(data['purchaseDate']),
-          expiryDate: DateTime.parse(data['expiryDate']),
-          companyId: data['companyId'] ?? '',
+          id: _asString(data['id']).isNotEmpty ? _asString(data['id']) : _asString(data['_id']),
+          product: _asString(data['product']),
+          customer: _asString(data['customer']),
+          serialNumber: _asString(data['serialNumber']),
+          purchaseDate: _asDate(data['purchaseDate']),
+          expiryDate: _asDate(data['expiryDate']),
+          companyId: _asString(data['companyId']),
         );
         
         successMessage = 'Warranty card loaded successfully';

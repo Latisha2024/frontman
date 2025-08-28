@@ -12,8 +12,7 @@ class AuthService {
   Future<void> setToken(String token, Map<String, dynamic> user) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString(_tokenKey, token);
-  // Backend returns Prisma id as 'id'. Fallback to Mongo-style '_id' if present.
-  await prefs.setString(_userIdKey, (user['id'] ?? user['_id'] ?? '').toString());
+  await prefs.setString(_userIdKey, user['_id'] ?? '');
   await prefs.setString(_userRoleKey, user['role'] ?? '');
   await prefs.setString(_userNameKey, user['name'] ?? '');
   await prefs.setString(_userEmailKey, user['email'] ?? '');

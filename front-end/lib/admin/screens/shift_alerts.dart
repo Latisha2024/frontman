@@ -29,27 +29,7 @@ class _ShiftAlertsScreenState extends State<ShiftAlertsScreen> {
     super.dispose();
   }
 
-  Future<void> _selectDate() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    if (picked != null) {
-      controller.shiftDateController.text = "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-    }
-  }
-
-  Future<void> _selectTime() async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (picked != null) {
-      controller.shiftTimeController.text = "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
-    }
-  }
+  // Date/Time pickers removed – backend expects only userId and message
 
   @override
   Widget build(BuildContext context) {
@@ -165,27 +145,16 @@ class _ShiftAlertsScreenState extends State<ShiftAlertsScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        // Worker ID field
+                        // User ID field
                         TextFormField(
-                          controller: controller.workerIdController,
+                          controller: controller.userIdController,
                           decoration: InputDecoration(
-                            labelText: 'Worker ID *',
-                            hintText: 'Enter worker ID',
+                            labelText: 'User ID *',
+                            hintText: 'Enter user ID',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             prefixIcon: const Icon(Icons.person),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Title field
-                        TextFormField(
-                          controller: controller.titleController,
-                          decoration: const InputDecoration(
-                            labelText: 'Alert Title *',
-                            hintText: 'Enter alert title',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.title),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -200,34 +169,6 @@ class _ShiftAlertsScreenState extends State<ShiftAlertsScreen> {
                             prefixIcon: Icon(Icons.message),
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        // Date field
-                        TextFormField(
-                          controller: controller.shiftDateController,
-                          readOnly: true,
-                          onTap: _selectDate,
-                          decoration: const InputDecoration(
-                            labelText: 'Shift Date *',
-                            hintText: 'Select shift date',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.calendar_today),
-                            suffixIcon: Icon(Icons.arrow_drop_down),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Time field
-                        TextFormField(
-                          controller: controller.shiftTimeController,
-                          readOnly: true,
-                          onTap: _selectTime,
-                          decoration: const InputDecoration(
-                            labelText: 'Shift Time *',
-                            hintText: 'Select shift time',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.access_time),
-                            suffixIcon: Icon(Icons.arrow_drop_down),
-                          ),
-                        ),
                         const SizedBox(height: 24),
                         // Action buttons
                         Row(
@@ -236,7 +177,19 @@ class _ShiftAlertsScreenState extends State<ShiftAlertsScreen> {
                               child: ElevatedButton(
                                 onPressed: controller.isLoading
                                     ? null
-                                    : controller.createShiftAlert,
+                                    : () async {
+                                        await controller.createShiftAlert();
+                                        if (!mounted) return;
+                                        final msg = controller.error ?? controller.successMessage;
+                                        if (msg != null) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(msg),
+                                              backgroundColor: controller.error != null ? Colors.red : Colors.green,
+                                            ),
+                                          );
+                                        }
+                                      },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primaryBlue,
                                   foregroundColor: Colors.white,
@@ -251,7 +204,7 @@ class _ShiftAlertsScreenState extends State<ShiftAlertsScreen> {
                                           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                         ),
                                       )
-                                    : const Text('Create Alert'),
+                                    : const Text('Send Alert'),
                               ),
                             ),
                             const SizedBox(width: 16),

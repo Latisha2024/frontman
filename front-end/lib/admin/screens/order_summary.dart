@@ -298,7 +298,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                       Text(
                         order.id,
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
@@ -325,12 +325,17 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
               ],
             ),
             const SizedBox(height: 10),
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                buildInfoChip(Icons.calendar_today, 'Date', '${order.orderDate.year}-${order.orderDate.month.toString().padLeft(2, '0')}-${order.orderDate.day.toString().padLeft(2, '0')}'),
-                const SizedBox(width: 8),
-                buildInfoChip(Icons.attach_money, 'Total', '₹${order.totalAmount.toStringAsFixed(2)}'),
-                const SizedBox(width: 8),
+                Row(
+                  children: [
+                    buildInfoChip(Icons.calendar_today, 'Date', '${order.orderDate.year}-${order.orderDate.month.toString().padLeft(2, '0')}-${order.orderDate.day.toString().padLeft(2, '0')}'),
+                    const SizedBox(width: 8),
+                    buildInfoChip(Icons.attach_money, 'Total', '₹${order.totalAmount.toStringAsFixed(2)}'),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 buildInfoChip(Icons.shopping_cart, 'Items', '${order.orderItems.length}'),
               ],
             ),
@@ -362,15 +367,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     Color color;
     switch (status) {
       case 'Completed':
-      case 'Delivered':
         color = Colors.green;
         break;
       case 'Pending':
-      case 'Processing':
         color = Colors.orange;
-        break;
-      case 'Shipped':
-        color = Colors.blue;
         break;
       case 'Cancelled':
         color = Colors.red;
@@ -434,7 +434,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
               ),
               buildStatCard(
                 'Completed',
-                ((controller.ordersByStatus['Completed'] ?? 0) + (controller.ordersByStatus['Delivered'] ?? 0)).toString(),
+                (controller.ordersByStatus['Completed'] ?? 0).toString(),
                 Icons.check_circle,
               ),
             ],
