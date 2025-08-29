@@ -15,7 +15,7 @@ datasource db {
 enum UserRole {
   Admin
   SalesManager
-  ExternalSeller
+  Plumber
   Accountant
   Distributor
   FieldExecutive
@@ -56,7 +56,7 @@ model User {
 
   admin           Admin?
   salesManager    SalesManager?
-  externalSeller  ExternalSeller?
+  plumber        Plumber?
   accountant      Accountant?
   distributor     Distributor?
   fieldExecutive  FieldExecutive?
@@ -69,6 +69,9 @@ model User {
   orders          Order[]
   liveLocations   LiveLocation[]
   ShiftAlert      ShiftAlert[]
+  registeredWarranties RegisterWarranty[]
+  postDeliveryReports PostDeliveryReport[]
+  commissionedWorks   CommissionedWork[]
 }
 
 model Admin {
@@ -83,7 +86,7 @@ model SalesManager {
   user    User   @relation(fields: [userId], references: [id])
 }
 
-model ExternalSeller {
+model Plumber {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
   userId  String @unique @db.ObjectId
   user    User   @relation(fields: [userId], references: [id])
@@ -125,6 +128,7 @@ model Product {
   stocks           Stock[]
   warrantyCards    WarrantyCard[]
   orderItems       OrderItem[]
+  registeredWarranties RegisterWarranty[]
 }
 
 model Stock {
@@ -263,3 +267,40 @@ model ShiftAlert {
 
   user      User     @relation(fields: [userId], references: [id])
 }
+<<<<<<< Updated upstream
+=======
+
+model RegisterWarranty {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId      String   @db.ObjectId
+  serialNumber   String   @unique
+  purchaseDate   DateTime
+  warrantyMonths Int
+  sellerId       String   @db.ObjectId
+  registeredAt   DateTime @default(now())
+  
+  product        Product  @relation(fields: [productId], references: [id])
+  seller         User     @relation(fields: [sellerId], references: [id])
+}
+
+model PostDeliveryReport {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  product      String
+  quantity     Int
+  submittedAt  DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model CommissionedWork {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  latitude    Float
+  longitude   Float
+  qrImage     Bytes    // BSON Binary for storing QR code image
+  appliedAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+

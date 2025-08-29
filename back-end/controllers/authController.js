@@ -55,7 +55,7 @@
 //       const roleModel = {
 //         Admin: () => prisma.admin.create({ data: { userId: user.id } }),
 //         SalesManager: () => prisma.salesManager.create({ data: { userId: user.id } }),
-//         ExternalSeller: () => prisma.externalSeller.create({ data: { userId: user.id } }),
+//         Plumber: () => prisma.plumber.create({ data: { userId: user.id } }),
 //         Accountant: () => prisma.accountant.create({ data: { userId: user.id } }),
 //         Distributor: () => prisma.distributor.create({ data: { userId: user.id } }),
 //         FieldExecutive: () => prisma.fieldExecutive.create({ data: { userId: user.id } }),
@@ -131,7 +131,7 @@ const authController = {
       const roleModel = {
         Admin: () => prisma.admin.create({ data: { userId: user.id } }),
         SalesManager: () => prisma.salesManager.create({ data: { userId: user.id } }),
-        ExternalSeller: () => prisma.externalSeller.create({ data: { userId: user.id } }),
+        Plumber: () => prisma.plumber.create({ data: { userId: user.id } }),
         Accountant: () => prisma.accountant.create({ data: { userId: user.id } }),
         Distributor: () => prisma.distributor.create({ data: { userId: user.id } }),
         FieldExecutive: () => prisma.fieldExecutive.create({ data: { userId: user.id } }),

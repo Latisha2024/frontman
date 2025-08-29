@@ -196,3 +196,7 @@ These APIs work with the existing Prisma schema and create the necessary relatio
 - Individual reports support date filtering and multiple report types
 - All APIs include comprehensive Swagger documentation
 - Error messages are user-friendly and descriptive
+
+## Role Update
+
+**Note**: The role "ExternalSeller" has been renamed to "Plumber" throughout the system. All references, routes, and database models have been updated accordingly.

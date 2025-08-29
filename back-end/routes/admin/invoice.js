@@ -73,4 +73,60 @@ router.get('/', invoiceController.getAllInvoices);
  */
 router.get('/:id', invoiceController.getInvoiceById);
 
+
+/**
+ * @swagger
+ * /admin/invoices:
+ *   post:
+ *     summary: Create a new invoice manually
+ *     tags: [Admin Invoices]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       description: Invoice details
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - totalAmount
+ *               - items
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: User ID for the invoice
+ *               totalAmount:
+ *                 type: number
+ *                 description: Total invoice amount
+ *               items:
+ *                 type: array
+ *                 description: Array of invoice items
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     productName:
+ *                       type: string
+ *                     quantity:
+ *                       type: number
+ *                     unitPrice:
+ *                       type: number
+ *               description:
+ *                 type: string
+ *                 description: Optional invoice description
+ *               dueDate:
+ *                 type: string
+ *                 format: date
+ *                 description: Optional due date
+ *     responses:
+ *       201:
+ *         description: Invoice created successfully
+ *       400:
+ *         description: Invalid input
+ *       500:
+ *         description: Failed to create invoice
+ */
+router.post('/', invoiceController.createInvoice);
+
 module.exports = router;

@@ -7,7 +7,7 @@ const loginAs = async (role = 'Admin') => {
     Worker: { email: 'worker@demo.com', password: 'worker123' },
     Distributor: { email: 'distributor@demo.com', password: 'distributor123' },
     FieldExecutive: { email: 'field@demo.com', password: 'field123' },
-    ExternalSeller: { email: 'seller@demo.com', password: 'seller123' },
+    Plumber: { email: 'plumber@demo.com', password: 'plumber123' },
   };
 
   const res = await request(app)
