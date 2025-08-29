@@ -211,6 +211,7 @@ model DeliveryReport {
   product      String
   quantity     Int
   isForecasted Boolean
+  qrRequested  Boolean  @default(false)
   submittedAt  DateTime
 
   user         User     @relation(fields: [userId], references: [id])
@@ -267,8 +268,6 @@ model ShiftAlert {
 
   user      User     @relation(fields: [userId], references: [id])
 }
-<<<<<<< Updated upstream
-=======
 
 model RegisterWarranty {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -278,7 +277,7 @@ model RegisterWarranty {
   warrantyMonths Int
   sellerId       String   @db.ObjectId
   registeredAt   DateTime @default(now())
-  
+  qrImage        String?
   product        Product  @relation(fields: [productId], references: [id])
   seller         User     @relation(fields: [sellerId], references: [id])
 }
@@ -298,6 +297,7 @@ model CommissionedWork {
   userId      String   @db.ObjectId
   latitude    Float
   longitude   Float
+  qrCode      String   // JSON string or QR code data
   qrImage     Bytes    // BSON Binary for storing QR code image
   appliedAt   DateTime @default(now())
 
