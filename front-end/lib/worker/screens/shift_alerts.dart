@@ -35,7 +35,7 @@ class _WorkerShiftAlertsScreenState extends State<WorkerShiftAlertsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shift Alerts'),
-        backgroundColor: AppColors.primaryBlue,
+        backgroundColor: AppColors.primary,
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),

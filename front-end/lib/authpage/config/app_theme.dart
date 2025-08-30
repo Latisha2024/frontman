@@ -1,46 +1,50 @@
 import 'package:flutter/material.dart';
-import '../../constants/colors.dart';
+import '../../authpage/config/app_colors.dart';
 
 class AuthTheme {
   static ThemeData get lightTheme {
     return ThemeData(
-      primarySwatch: _createMaterialColor(AppColors.primary),
-      primaryColor: AppColors.primary,
-      scaffoldBackgroundColor: AppColors.background,
+      primarySwatch: _createMaterialColor(AuthColors.primary),
+      primaryColor: AuthColors.primary,
+      scaffoldBackgroundColor: AuthColors.background,
+
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.textLight,
+        backgroundColor: AuthColors.primary,
+        foregroundColor: AuthColors.textLight,
         elevation: 0,
       ),
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.buttonPrimary,
-          foregroundColor: AppColors.buttonText,
+          backgroundColor: AuthColors.buttonPrimary,
+          foregroundColor: AuthColors.buttonText,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.inputFill,
+        fillColor: AuthColors.inputFill,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.inputBorder),
+          borderSide: const BorderSide(color: AuthColors.inputBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.inputBorder),
+          borderSide: const BorderSide(color: AuthColors.inputBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.inputFocus, width: 2),
+          borderSide: const BorderSide(color: AuthColors.inputFocus, width: 2),
         ),
       ),
+
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: AuthColors.primary,
         ),
       ),
     );
@@ -66,3 +70,4 @@ class AuthTheme {
     return MaterialColor(color.value, swatch);
   }
 }
+

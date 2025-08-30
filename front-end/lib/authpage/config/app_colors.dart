@@ -1,25 +1,53 @@
 import 'package:flutter/material.dart';
+import '../../constants/colors.dart';
 
 class AuthColors {
-  // Primary color palette - #a5c8d0, #c3dce1, #354447, #eff6f8
-  static const Color primaryBlue = Color(0xFFA5C8D0);      // #a5c8d0
-  static const Color secondaryBlue = Color(0xFFC3DCE1);    // #c3dce1
-  static const Color backgroundGray = Color(0xFFEFF6F8);   // #eff6f8
-  static const Color textDark = Color(0xFF354447);         // #354447
-  static const Color textLight = Colors.white;
-  static const Color textSecondary = Color(0xFF6B7280);
-  
-  // Button colors
-  static const Color buttonPrimary = Color(0xFFA5C8D0);
-  static const Color buttonSecondary = Color(0xFFC3DCE1);
-  
-  // Input field colors
-  static const Color inputBorder = Color(0xFFD1D5DB);
-  static const Color inputFocus = Color(0xFFA5C8D0);
-  
+  // Primary colors
+  static const Color primary = AppColors.primary;
+  static const Color secondary = AppColors.secondary;
+  static const Color accent = AppColors.accent;
+  static const Color background = AppColors.background;
+
+  // Text colors
+  static const Color textPrimary = AppColors.textPrimary;
+  static const Color textSecondary = AppColors.textSecondary;
+  static const Color textLight = AppColors.textLight;
+  static const Color textDark = AppColors.textPrimary; // kept from second class
+
   // Status colors
-  static const Color success = Color(0xFF10B981);
-  static const Color error = Color(0xFFEF4444);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color info = Color(0xFF3B82F6);
+  static const Color success = AppColors.success;
+  static const Color warning = AppColors.warning;
+  static const Color error = AppColors.error;
+  static const Color info = AppColors.info;
+
+  // Surface colors
+  static const Color surface = AppColors.surface;
+  static const Color surfaceVariant = AppColors.surfaceVariant;
+
+  // Border colors
+  static const Color border = AppColors.border;
+  static const Color borderLight = AppColors.borderLight;
+
+  // Aliases
+  static const Color primaryBlue = AppColors.primary;
+  static const Color secondaryBlue = AppColors.secondary;
+  static const Color accentBlue = AppColors.accent;
+  static const Color backgroundBlue = AppColors.background;
+
+  // Auth specific
+  static const Color backgroundGray = AppColors.backgroundGray;
+  static const Color buttonPrimary = AppColors.secondary; // uses from second class
+  static const Color buttonSecondary = AppColors.accent;  // uses from second class
+  static const Color buttonText = AppColors.textLight;
+  static const Color inputBorder = AppColors.inputBorder;
+  static const Color inputFocus = AppColors.inputFocus;
+  static const Color inputFill = AppColors.surface;
+
+  // Theme shortcuts
+  static const Color primaryColor = AppColors.primary;
+  static const Color secondaryColor = AppColors.secondary;
+  static const Color backgroundColor = AppColors.background;
+  static const Color textColor = AppColors.textPrimary;
 }
+
+

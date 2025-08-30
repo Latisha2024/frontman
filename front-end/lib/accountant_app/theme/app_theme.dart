@@ -1,29 +1,34 @@
 import 'package:flutter/material.dart';
-//Color(0xFFA5C8D0);
+import '../../constants/colors.dart';
 
 class AppTheme {
-  // Primary color palette - ONLY these 4 colors should be used
-  static const Color primaryColor = Color(0xFF354447); // #a5c8d0
-  static const Color secondaryColor = Color(0xFFC3DCE1); // #c3dce1
-  static const Color accentColor =
-      Color(0xFF354447); // #354447 (dark blue-gray)
-  static const Color backgroundColor = Color(0xFFEFF6F8); // #eff6f8
-  static const Color textColor = Color(0xFF354447);
+  // Primary color palette (declared explicitly, but sourced from AppColors)
+  static const Color primaryColor = AppColors.primary;
+  static const Color secondaryColor = AppColors.secondary;
+  static const Color accentColor = AppColors.accent;
+  static const Color backgroundColor = AppColors.background;
+  static const Color textColor = AppColors.textPrimary;
 
-  // Variations for different states using opacity
-  static Color get primaryLight => primaryColor.withOpacity(0.3);
-  static Color get primaryDark => const Color(0xFF8BB5C0);
-  static Color get accentLight => accentColor.withOpacity(0.1);
-  static Color get successColor =>
-      accentColor; // Use accent color instead of green
-  static Color get warningColor =>
-      primaryColor; // Use primary color instead of orange
-  static Color get errorColor =>
-      accentColor.withOpacity(0.8); // Use accent color instead of red
+  // Variations for different states
+  static Color get primaryLight => AppColors.primary.withOpacity(0.3);
+  static Color get primaryDark => AppColors.primary.withOpacity(0.8);
+  static Color get accentLight => AppColors.accent.withOpacity(0.1);
+
+  // Status colors
+  static Color get successColor => AppColors.success;
+  static Color get warningColor => AppColors.warning;
+  static Color get errorColor => AppColors.error;
+
+  // Extra aliases for clarity (matching colors.dart naming)
+  static const Color surfaceColor = AppColors.surface;
+  static const Color surfaceVariantColor = AppColors.surfaceVariant;
+  static const Color borderColor = AppColors.border;
+  static const Color borderLightColor = AppColors.borderLight;
+  static const Color textSecondaryColor = AppColors.textSecondary;
+  static const Color textLightColor = AppColors.textLight;
 
   static ThemeData get themeData {
     return ThemeData(
-      primarySwatch: Colors.blue,
       primaryColor: primaryColor,
       scaffoldBackgroundColor: backgroundColor,
       appBarTheme: const AppBarTheme(
@@ -33,7 +38,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: accentColor, // Darker blue-gray for buttons
+          backgroundColor: accentColor,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -41,12 +46,15 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
+        color: surfaceColor,
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
+        fillColor: AppColors.inputFill,
+        filled: true,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: secondaryColor),
@@ -59,11 +67,12 @@ class AppTheme {
       ),
       textTheme: const TextTheme(
         bodyLarge: TextStyle(color: textColor),
-        bodyMedium: TextStyle(color: textColor),
-        titleLarge: TextStyle(color: textColor),
+        bodyMedium: TextStyle(color: textSecondaryColor),
+        titleLarge: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         titleMedium: TextStyle(color: textColor),
-        titleSmall: TextStyle(color: textColor),
+        titleSmall: TextStyle(color: textSecondaryColor),
       ),
     );
   }
 }
+
