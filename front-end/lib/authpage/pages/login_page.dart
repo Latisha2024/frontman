@@ -233,6 +233,7 @@
 // }
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../helpers/auth_service.dart';
 import '../../admin/screens/admin_dashboard.dart';
 import '../../external_seller/screens/external_seller_dashboard.dart';
@@ -280,7 +281,7 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _isLoading = true);
 
-    final dio = Dio(BaseOptions(baseUrl: 'http://localhost:5000'));
+    final dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:5000'));
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -314,6 +315,22 @@ class _LoginPageState extends State<LoginPage> {
         final user = response.data['user'];
 
         AuthService().setToken(token, user);
+
+        // Persist token for subsequent requests used by controllers' interceptors
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          if (token is String && token.isNotEmpty) {
+            await prefs.setString('auth_token', token);
+          }
+          // Optional: store basic user info
+          final role = user is Map<String, dynamic> ? user['role']?.toString() : null;
+          if (role != null) {
+            await prefs.setString('user_role', role);
+          }
+        } catch (e) {
+          // Non-fatal: continue even if persistence fails
+          print('Failed to persist auth token: $e');
+        }
 
         Widget homeScreen;
         switch (user['role']) {

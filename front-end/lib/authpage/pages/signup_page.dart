@@ -47,7 +47,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
     setState(() => _isLoading = true);
 
-    final dio = Dio(BaseOptions(baseUrl: "http://127.0.0.1:5000"));
+    final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5000"));
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
