@@ -163,13 +163,13 @@ import 'authpage/pages/login_page.dart';
 import 'authpage/pages/signup_page.dart';
 import 'accountant_app/providers/accountant_provider.dart';
 import 'constants/colors.dart';
-import './external_seller/screens/incentives.dart';
-import './external_seller/screens/points.dart';
-import './external_seller/screens/delivery_report.dart';
-import './external_seller/screens/register_warranty.dart';
-import './external_seller/screens/external_seller_dashboard.dart';
-import './external_seller/screens/validate_warranty.dart';
-import './external_seller/screens/commissioned_work.dart';
+import './plumber/screens/incentives.dart';
+import './plumber/screens/points.dart';
+import './plumber/screens/delivery_report.dart';
+import './plumber/screens/register_warranty.dart';
+import './plumber/screens/plumber_dashboard.dart';
+import './plumber/screens/validate_warranty.dart';
+import './plumber/screens/commissioned_work.dart';
 import './worker/screens/worker_dashboard.dart';
 import './worker/screens/production.dart';
 import './worker/screens/manage_stock.dart';
@@ -250,18 +250,16 @@ class MyApp extends StatelessWidget {
         routes: {
           '/login': (context) => const LoginPage(),
           '/signup': (context) => const SignUpPage(),
-          // External Seller
-          '/seller/dashboard': (context) =>
-              const ExternalSellerDashboardScreen(),
-          '/seller/incentives': (context) =>
-              const ExternalSellerIncentivesScreen(),
-          '/seller/points': (context) => const ExternalSellerPointsScreen(),
+          // Plumber
+          '/seller/dashboard': (context) => const PlumberDashboardScreen(),
+          '/seller/incentives': (context) => const PlumberIncentivesScreen(),
+          '/seller/points': (context) => const PlumberPointsScreen(),
           '/seller/delivery-report': (context) =>
-              const ExternalSellerDeliveryReportScreen(),
+              const PlumberDeliveryReportScreen(),
           '/seller/register-warranty': (context) =>
-              const ExternalSellerRegisterWarrantyScreen(),
+              const PlumberRegisterWarrantyScreen(),
           '/seller/validate-warranty': (context) =>
-              const ExternalSellerValidateRegistrationScreen(),
+              const PlumberValidateRegistrationScreen(),
           '/seller/commissioned-work': (context) =>
               const CommissionedWorkScreen(),
           // Worker

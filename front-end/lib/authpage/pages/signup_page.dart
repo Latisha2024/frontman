@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../../authpage/auth_services.dart';
 import '../../admin/screens/admin_dashboard.dart';
-import '../../external_seller/screens/external_seller_dashboard.dart';
+import '../../plumber/screens/plumber_dashboard.dart';
 import '../../worker/screens/worker_dashboard.dart';
 import '../../field_executive/screens/executiveUI.dart';
 import '../../distributor/screens/distributorsUI.dart';
@@ -92,8 +92,8 @@ class _SignUpPageState extends State<SignUpPage> {
           case 'Admin':
             homeScreen = const AdminDashboardScreen();
             break;
-          case 'ExternalSeller':
-            homeScreen = const ExternalSellerDashboardScreen();
+          case 'Plumber':
+            homeScreen = const PlumberDashboardScreen();
             break;
           case 'Worker':
             homeScreen = const WorkerDashboardScreen();

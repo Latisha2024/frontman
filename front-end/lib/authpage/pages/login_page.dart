@@ -236,7 +236,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../helpers/auth_service.dart';
 import '../../admin/screens/admin_dashboard.dart';
-import '../../external_seller/screens/external_seller_dashboard.dart';
+import '../../plumber/screens/plumber_dashboard.dart';
 import '../../worker/screens/worker_dashboard.dart';
 import '../../field_executive/screens/executiveUI.dart';
 import '../../distributor/screens/distributorsUI.dart';
@@ -323,7 +323,8 @@ class _LoginPageState extends State<LoginPage> {
             await prefs.setString('auth_token', token);
           }
           // Optional: store basic user info
-          final role = user is Map<String, dynamic> ? user['role']?.toString() : null;
+          final role =
+              user is Map<String, dynamic> ? user['role']?.toString() : null;
           if (role != null) {
             await prefs.setString('user_role', role);
           }
@@ -337,8 +338,8 @@ class _LoginPageState extends State<LoginPage> {
           case 'Admin':
             homeScreen = const AdminDashboardScreen();
             break;
-          case 'ExternalSeller':
-            homeScreen = const ExternalSellerDashboardScreen();
+          case 'Plumber':
+            homeScreen = const PlumberDashboardScreen();
             break;
           case 'Worker':
             homeScreen = const WorkerDashboardScreen();
