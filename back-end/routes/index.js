@@ -33,8 +33,11 @@ router.use('/field-executive/followups', require('./fieldExecutive/followUp'));
 router.use('/fieldExecutive/dvr', require('./fieldExecutive/dvr'));
 router.use('/fieldExecutive/delivery', require('./fieldExecutive/delivery'));
 
-router.use('/user/incentives', require('./externalSeller/incentive'));
-router.use('/user/points', require('./externalSeller/points'));
+router.use('/user/incentives', require('./plumber/incentive'));
+router.use('/user/points', require('./plumber/points'));
+router.use('/user/delivery-report', require('./plumber/deliveryReport'));
+router.use('/user/warranty', require('./plumber/warranty'));
+router.use('/user/commissioned-work', require('./plumber/commissionedWork'));
 
 router.use('/user/location', require('./user/location'));
 

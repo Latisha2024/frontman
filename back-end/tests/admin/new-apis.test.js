@@ -2,6 +2,8 @@ const request = require('supertest');
 const app = require('../../app');
 const { loginAs } = require('../testUtils');
 
+// Note: User ID '6890ae807022ccdc50802f07' is now a Plumber user (formerly ExternalSeller)
+
 describe('New Admin APIs', () => {
   let adminToken;
 

@@ -196,3 +196,135 @@ These APIs work with the existing Prisma schema and create the necessary relatio
 - Individual reports support date filtering and multiple report types
 - All APIs include comprehensive Swagger documentation
 - Error messages are user-friendly and descriptive
+
+## Role Update
+
+**Note**: The role "ExternalSeller" has been renamed to "Plumber" throughout the system. All references, routes, and database models have been updated accordingly.
+
+## New Plumber APIs
+
+### 4. Delivery Report API
+
+**Endpoint:** `POST /user/delivery-report`
+
+**Description:** Allows plumbers to submit delivery reports with product details and QR code requests.
+
+**Request Body:**
+```json
+{
+  "product": "string",
+  "quantity": 5,
+  "qrRequested": true
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Delivery report submitted",
+  "report": {
+    "id": "...",
+    "userId": "...",
+    "product": "...",
+    "quantity": 5,
+    "qrRequested": true,
+    "submittedAt": "..."
+  }
+}
+```
+
+### 5. Warranty Registration API
+
+**Endpoint:** `POST /user/warranty/register`
+
+**Description:** Allows plumbers to register product warranties with QR code generation.
+
+**Request Body:**
+```json
+{
+  "productId": "string",
+  "serialNumber": "string",
+  "purchaseDate": "YYYY-MM-DD",
+  "warrantyMonths": 12
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "id": "mongo_id",
+  "productId": "string",
+  "serialNumber": "string",
+  "purchaseDate": "2025-01-15T00:00:00.000Z",
+  "warrantyMonths": 12,
+  "sellerId": "string",
+  "registeredAt": "2025-01-15T10:10:00.000Z",
+  "qrImage": "{json-string}"
+}
+```
+
+### 6. Warranty Validation API
+
+**Endpoint:** `POST /user/warranty/validate`
+
+**Description:** Validates warranties by scanning QR codes and returns warranty information.
+
+**Request Body:** JSON data from QR code scan
+```json
+{
+  "serialNumber": "string",
+  "productId": "string"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Warranty validated successfully",
+  "warranty": {
+    "id": "string",
+    "productName": "string",
+    "serialNumber": "string",
+    "purchaseDate": "date",
+    "warrantyMonths": 12,
+    "expiryDate": "date",
+    "isExpired": false,
+    "sellerName": "string"
+  }
+}
+```
+
+### 7. Commissioned Work API
+
+**Endpoint:** `POST /user/commissioned-work`
+
+**Description:** Allows plumbers to submit commissioned work with location and QR data.
+
+**Request Body:** `multipart/form-data`
+- `latitude` (float): Latitude coordinate
+- `longitude` (float): Longitude coordinate  
+- `qrCode` (string): QR code data or JSON string
+- `qrImage` (file): Selfie or QR image file (optional)
+
+**Response:**
+```json
+{
+  "message": "Commissioned work submitted successfully",
+  "work": {
+    "id": "string",
+    "userId": "string",
+    "latitude": 40.7128,
+    "longitude": -74.0060,
+    "qrCode": "string",
+    "hasImage": true,
+    "appliedAt": "date"
+  }
+}
+```
+
+## Authentication & Authorization
+
+All new Plumber APIs require:
+- Valid JWT token in Authorization header: `Bearer <token>`
+- Plumber role permissions
+- Middleware: `authenticate` and `authorizeRoles('Plumber')`
