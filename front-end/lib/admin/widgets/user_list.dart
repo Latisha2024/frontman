@@ -17,6 +17,30 @@ class UserList extends StatelessWidget {
             // Search and Filter Section
             buildSearchAndFilter(),
             const SizedBox(height: 20),
+            if (controller.successMessage != null) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.green.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        controller.successMessage!,
+                        style: TextStyle(color: Colors.green.shade700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             
             // Users List
             Expanded(

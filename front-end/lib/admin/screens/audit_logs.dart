@@ -66,10 +66,74 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
           drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
           body: Column(
             children: [
-              if (controller.error != null)
-                _buildBanner(controller.error!, Colors.red.shade100, Colors.red),
-              if (controller.successMessage != null)
-                _buildBanner(controller.successMessage!, Colors.green.shade100, Colors.green),
+              if (controller.error != null) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red.shade600, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            controller.error!,
+                            style: TextStyle(color: Colors.red.shade700),
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Dismiss',
+                          onPressed: () {
+                            controller.error = null;
+                            controller.notifyListeners();
+                          },
+                          icon: const Icon(Icons.close),
+                          color: Colors.red.shade700,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+              if (controller.successMessage != null) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            controller.successMessage!,
+                            style: TextStyle(color: Colors.green.shade700),
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Dismiss',
+                          onPressed: () {
+                            controller.successMessage = null;
+                            controller.notifyListeners();
+                          },
+                          icon: const Icon(Icons.close),
+                          color: Colors.green.shade700,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: buildSearchAndFilter(),
@@ -256,16 +320,5 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
     );
   }
 
-  Widget _buildBanner(String message, Color color, Color textColor) {
-    return Container(
-      width: double.infinity,
-      color: color,
-      padding: const EdgeInsets.all(12),
-      child: Text(
-        message,
-        style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
+  // Legacy banner removed; using inline dismissible banners aligned with invoice UI
 }

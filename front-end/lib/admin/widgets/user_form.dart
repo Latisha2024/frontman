@@ -57,10 +57,10 @@ class UserForm extends StatelessWidget {
               
               buildTextField(
                 controller: controller.phoneController,
-                label: 'Phone Number (Optional)',
+                label: 'Phone Number',
                 icon: Icons.phone,
                 keyboardType: TextInputType.phone,
-                isRequired: false,
+                isRequired: true,
               ),
               const SizedBox(height: 16),
               
@@ -196,29 +196,6 @@ class UserForm extends StatelessWidget {
                 ),
               ],
               
-              if (controller.successMessage != null) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          controller.successMessage!,
-                          style: TextStyle(color: Colors.green.shade700),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
             ],
           ),
         );
