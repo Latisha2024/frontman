@@ -4,7 +4,7 @@ import 'package:role_based_app/admin/screens/send_notifications.dart';
 import 'package:role_based_app/admin/screens/shift_alerts.dart';
 import 'package:role_based_app/admin/screens/stock_management.dart';
 import 'package:role_based_app/admin/screens/warranty_database.dart';
-import 'package:role_based_app/plumber/screens/incentives.dart';
+import 'package:role_based_app/external_seller/screens/incentives.dart';
 import '../../constants/colors.dart';
 import '../../sales_manager/screens/gps_tracking.dart';
 import 'admin_dashboard.dart';

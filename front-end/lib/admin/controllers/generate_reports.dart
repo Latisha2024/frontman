@@ -35,6 +35,16 @@ class AdminGenerateReportsController extends ChangeNotifier {
   late final Dio _dio;
   final String baseUrl = 'http://10.0.2.2:5000';
 
+  // Individual report inputs
+  final TextEditingController individualUserIdController = TextEditingController();
+  String individualReportType = 'performance'; // sales | attendance | points | performance
+  DateTime? individualStartDate;
+  DateTime? individualEndDate;
+
+  // Sales report filters
+  DateTime? salesStartDate;
+  DateTime? salesEndDate;
+
   AdminGenerateReportsController({String? companyId}) {
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
@@ -130,7 +140,10 @@ class AdminGenerateReportsController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _dio.get('/admin/reports/sales');
+      final params = <String, dynamic>{};
+      if (salesStartDate != null) params['startDate'] = _formatDate(salesStartDate!);
+      if (salesEndDate != null) params['endDate'] = _formatDate(salesEndDate!);
+      final response = await _dio.get('/admin/reports/sales', queryParameters: params);
       
       if (response.statusCode == 200) {
         final data = response.data;
@@ -217,29 +230,78 @@ class AdminGenerateReportsController extends ChangeNotifier {
   }
 
   // GET /admin/reports/individual
-  Future<void> fetchIndividualReport({String? userId}) async {
+  Future<void> fetchIndividualReport({
+    String? userId,
+    String? reportType,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
     isLoading = true;
     error = null;
     notifyListeners();
 
     try {
-      String url = '/admin/reports/individual';
-      if (userId != null) {
-        url += '?userId=$userId';
+      final uid = (userId ?? individualUserIdController.text.trim());
+      if (uid.isEmpty) {
+        error = 'User ID is required for individual reports';
+        isLoading = false;
+        notifyListeners();
+        return;
       }
-      
-      final response = await _dio.get(url);
+
+      final type = (reportType ?? individualReportType);
+
+      final params = <String, dynamic>{
+        'userId': uid,
+        'reportType': type,
+      };
+      if (startDate != null) params['startDate'] = _formatDate(startDate);
+      if (endDate != null) params['endDate'] = _formatDate(endDate);
+      if (individualStartDate != null && startDate == null) params['startDate'] = _formatDate(individualStartDate!);
+      if (individualEndDate != null && endDate == null) params['endDate'] = _formatDate(individualEndDate!);
+
+      const path = '/admin/reports/individual';
+      final response = await _dio.get(path, queryParameters: params);
       
       if (response.statusCode == 200) {
         final data = response.data;
+        // Pick the relevant details block based on reportType for a cleaner UI
+        Map<String, dynamic> detailsBlock;
+        String title;
+        String description;
+        switch (type) {
+          case 'sales':
+            detailsBlock = Map<String, dynamic>.from(data['salesData'] ?? {});
+            title = 'Individual Sales Report';
+            description = 'Sales metrics for the selected user';
+            break;
+          case 'attendance':
+            detailsBlock = Map<String, dynamic>.from(data['attendanceData'] ?? {});
+            title = 'Individual Attendance Report';
+            description = 'Attendance metrics for the selected user';
+            break;
+          case 'points':
+            detailsBlock = Map<String, dynamic>.from(data['pointsData'] ?? {});
+            title = 'Individual Points Report';
+            description = 'Points and cash earnings for the selected user';
+            break;
+          case 'performance':
+          default:
+            detailsBlock = Map<String, dynamic>.from(data['performanceData'] ?? {});
+            title = 'Individual Performance Report';
+            description = 'Overview performance metrics for the selected user';
+            break;
+        }
+
         reports = [ReportData(
           type: 'individual',
-          title: 'Individual Report',
-          description: 'Individual performance metrics',
+          title: title,
+          description: description,
           date: DateTime.now(),
           companyId: currentCompanyId ?? 'default',
-          userId: userId,
-          details: data,
+          userId: data['userId']?.toString(),
+          userName: data['userName']?.toString(),
+          details: detailsBlock,
         )];
         successMessage = 'Individual report loaded successfully';
       }
@@ -251,5 +313,15 @@ class AdminGenerateReportsController extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  String _formatDate(DateTime d) {
+    return '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  void dispose() {
+    individualUserIdController.dispose();
+    super.dispose();
   }
 }

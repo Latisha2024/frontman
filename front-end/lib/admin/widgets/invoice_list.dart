@@ -42,51 +42,184 @@ class _InvoiceListState extends State<InvoiceList> {
           );
         }
         
-        if (controller.filteredInvoices.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.receipt_long,
-                  size: 64,
-                  color: AppColors.textSecondary,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No invoices found',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Try adding a new invoice or refresh the list',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              child: buildFilters(context),
             ),
-          );
-        }
-        
-        return RefreshIndicator(
-          onRefresh: widget.onRefresh ?? () async {},
-          child: ListView.builder(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(8),
-            itemCount: controller.filteredInvoices.length,
-            itemBuilder: (context, index) {
-              final invoice = controller.filteredInvoices[index];
-              return buildInvoiceCard(context, invoice);
-            },
-          ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: widget.onRefresh ?? () async {},
+                child: controller.filteredInvoices.isEmpty
+                    ? ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          const SizedBox(height: 60),
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.receipt_long,
+                                  size: 64,
+                                  color: AppColors.textSecondary,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No invoices found',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Try adjusting filters or refresh the list',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    : ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(8),
+                        itemCount: controller.filteredInvoices.length,
+                        itemBuilder: (context, index) {
+                          final invoice = controller.filteredInvoices[index];
+                          return buildInvoiceCard(context, invoice);
+                        },
+                      ),
+              ),
+            ),
+          ],
         );
       },
+    );
+  }
+
+  Widget buildFilters(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueGrey.withOpacity(0.12),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Filters',
+            style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _buildFilterField(
+                  controller: controller.orderIdFilterController,
+                  hint: 'Order ID',
+                  icon: Icons.tag,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildFilterField(
+                  controller: controller.userIdFilterController,
+                  hint: 'User ID',
+                  icon: Icons.person,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) {
+                      final y = picked.year.toString().padLeft(4, '0');
+                      final m = picked.month.toString().padLeft(2, '0');
+                      final d = picked.day.toString().padLeft(2, '0');
+                      controller.dateFilterController.text = '$y-$m-$d';
+                      controller.notifyListeners();
+                    }
+                  },
+                  child: AbsorbPointer(
+                    child: _buildFilterField(
+                      controller: controller.dateFilterController,
+                      hint: 'Date (YYYY-MM-DD)',
+                      icon: Icons.calendar_today,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: controller.isLoading ? null : () => controller.applyFilters(),
+                icon: const Icon(Icons.search),
+                label: const Text('Apply'),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: controller.isLoading
+                    ? null
+                    : () async {
+                        controller.orderIdFilterController.clear();
+                        controller.userIdFilterController.clear();
+                        controller.dateFilterController.clear();
+                        await controller.fetchInvoices();
+                      },
+                icon: const Icon(Icons.clear),
+                label: const Text('Clear'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.secondaryBlue.withOpacity(0.3)),
+      ),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: AppColors.secondaryBlue),
+          hintText: hint,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        ),
+      ),
     );
   }
 

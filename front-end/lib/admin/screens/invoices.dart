@@ -188,6 +188,7 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
     );
   }
 
+
   Widget buildStatsHeader() {
     double totalDue = controller.invoices.fold(0, (sum, inv) => sum + inv.totalDue);
     return Container(

@@ -325,7 +325,7 @@ class UserList extends StatelessWidget {
         color = Colors.teal;
         icon = Icons.person_pin_circle;
         break;
-      case 'ExternalSeller':
+      case 'Plumber':
         color = Colors.indigo;
         icon = Icons.storefront;
         break;

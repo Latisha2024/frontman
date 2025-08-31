@@ -40,6 +40,7 @@ class PointTransaction {
 class AdminConvertPointsController extends ChangeNotifier {
   final userIdController = TextEditingController();
   final pointsController = TextEditingController();
+  final conversionRateController = TextEditingController();
   final reasonController = TextEditingController();
 
   bool isLoading = false;
@@ -179,18 +180,24 @@ class AdminConvertPointsController extends ChangeNotifier {
       convertedAmount = null;
       notifyListeners();
 
-      final payload = {
+      final parsedPoints = int.parse(pointsController.text.trim());
+      final parsedRate = double.parse(conversionRateController.text.trim());
+      final reason = reasonController.text.trim();
+
+      final payload = <String, dynamic>{
         'userId': userIdController.text.trim(),
-        'points': double.parse(pointsController.text.trim()),
+        'points': parsedPoints,
+        'conversionRate': parsedRate,
       };
+      if (reason.isNotEmpty) payload['reason'] = reason;
 
       // Expected backend route
       final response = await _dio.post('/admin/points/convert', data: payload);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data is Map<String, dynamic> ? response.data as Map<String, dynamic> : <String, dynamic>{};
-        // Try common keys
-        final amt = data['convertedAmount'] ?? data['amount'] ?? data['creditAmount'];
+        // Backend returns cashAmount
+        final amt = data['cashAmount'] ?? data['convertedAmount'] ?? data['amount'] ?? data['creditAmount'];
         convertedAmount = (amt is num) ? amt.toDouble() : null;
         successMessage = data['message'] ?? 'Points converted successfully!';
         // Refresh transactions to reflect the conversion entry
@@ -237,14 +244,20 @@ class AdminConvertPointsController extends ChangeNotifier {
 
   bool validateConvertForm() {
     error = null;
-    if (userIdController.text.trim().isEmpty || pointsController.text.trim().isEmpty) {
-      error = 'Please enter both User ID and Points.';
+    if (userIdController.text.trim().isEmpty || pointsController.text.trim().isEmpty || conversionRateController.text.trim().isEmpty) {
+      error = 'Please enter User ID, Points, and Conversion Rate.';
       notifyListeners();
       return false;
     }
-    final points = double.tryParse(pointsController.text.trim());
+    final points = int.tryParse(pointsController.text.trim());
     if (points == null || points <= 0) {
-      error = 'Points must be a positive number.';
+      error = 'Points must be a positive integer.';
+      notifyListeners();
+      return false;
+    }
+    final rate = double.tryParse(conversionRateController.text.trim());
+    if (rate == null || rate <= 0) {
+      error = 'Conversion rate must be a positive number.';
       notifyListeners();
       return false;
     }
@@ -254,6 +267,7 @@ class AdminConvertPointsController extends ChangeNotifier {
   void clearForm() {
     userIdController.clear();
     pointsController.clear();
+    conversionRateController.clear();
     reasonController.clear();
     error = null;
     successMessage = null;
@@ -271,6 +285,7 @@ class AdminConvertPointsController extends ChangeNotifier {
   void dispose() {
     userIdController.dispose();
     pointsController.dispose();
+    conversionRateController.dispose();
     reasonController.dispose();
     super.dispose();
   }

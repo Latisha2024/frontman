@@ -132,14 +132,14 @@ class AdminManageUsersController extends ChangeNotifier {
   }
 
   List<String> get availableRoles => [
-        'Admin',
-        'SalesManager',
-        'Worker',
-        'Accountant',
-        'Distributor',
-        'FieldExecutive',
-        'Plumber'
-      ];
+    'Admin',
+    'SalesManager', 
+    'Worker',
+    'Accountant',
+    'Distributor',
+    'FieldExecutive',
+    'Plumber'
+  ];
 
   List<String> get availableStatuses => ['active', 'inactive', 'suspended', 'pending'];
 
@@ -191,8 +191,7 @@ class AdminManageUsersController extends ChangeNotifier {
       successMessage = 'Users loaded successfully';
     } on DioException catch (e) {
       if (e.response != null) {
-        error =
-            'Failed to fetch users: ${e.response!.statusCode} - ${e.response!.data}';
+        error = 'Failed to fetch users: ${e.response!.statusCode} - ${e.response!.data}';
       } else {
         error = 'Network error: ${e.message}';
       }
@@ -221,9 +220,7 @@ class AdminManageUsersController extends ChangeNotifier {
 
   // POST /admin/users
   Future<void> addUser() async {
-    if (nameController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        passwordController.text.isEmpty) {
+    if (nameController.text.isEmpty || emailController.text.isEmpty || passwordController.text.isEmpty) {
       error = 'Name, email, and password are required';
       notifyListeners();
       return;
@@ -237,12 +234,8 @@ class AdminManageUsersController extends ChangeNotifier {
       final userData = {
         'name': nameController.text.trim(),
         'email': emailController.text.trim(),
-        'phone': phoneController.text.trim().isNotEmpty
-            ? phoneController.text.trim()
-            : null,
-        'address': addressController.text.trim().isNotEmpty
-            ? addressController.text.trim()
-            : null,
+        'phone': phoneController.text.trim().isNotEmpty ? phoneController.text.trim() : null,
+        'address': addressController.text.trim().isNotEmpty ? addressController.text.trim() : null,
         'role': selectedUserRole,
         'companyId': 'company1',
         'status': selectedUserStatus,
@@ -261,8 +254,7 @@ class AdminManageUsersController extends ChangeNotifier {
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
-        error = responseData['message'] ??
-            'Failed to create user: ${e.response!.statusCode}';
+        error = responseData['message'] ?? 'Failed to create user: ${e.response!.statusCode}';
       } else {
         error = 'Network error: ${e.message}';
       }
@@ -291,7 +283,7 @@ class AdminManageUsersController extends ChangeNotifier {
   // PUT /admin/users/:id
   Future<void> updateUser() async {
     if (_editingUser == null) return;
-
+    
     if (nameController.text.isEmpty || emailController.text.isEmpty) {
       error = 'Name and email are required';
       notifyListeners();
@@ -305,17 +297,13 @@ class AdminManageUsersController extends ChangeNotifier {
       final updateData = {
         'name': nameController.text.trim(),
         'email': emailController.text.trim(),
-        'phone': phoneController.text.trim().isNotEmpty
-            ? phoneController.text.trim()
-            : null,
-        'address': addressController.text.trim().isNotEmpty
-            ? addressController.text.trim()
-            : null,
+        'phone': phoneController.text.trim().isNotEmpty ? phoneController.text.trim() : null,
+        'address': addressController.text.trim().isNotEmpty ? addressController.text.trim() : null,
         'role': selectedUserRole,
         'companyId': 'company1',
         'status': selectedUserStatus,
       };
-
+      
       // Only include password if it's provided
       if (passwordController.text.trim().isNotEmpty) {
         updateData['password'] = passwordController.text.trim();
@@ -333,8 +321,7 @@ class AdminManageUsersController extends ChangeNotifier {
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
-        error = responseData['message'] ??
-            'Failed to update user: ${e.response!.statusCode}';
+        error = responseData['message'] ?? 'Failed to update user: ${e.response!.statusCode}';
       } else {
         error = 'Network error: ${e.message}';
       }
@@ -362,8 +349,7 @@ class AdminManageUsersController extends ChangeNotifier {
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
-        error = responseData['message'] ??
-            'Failed to delete user: ${e.response!.statusCode}';
+        error = responseData['message'] ?? 'Failed to delete user: ${e.response!.statusCode}';
       } else {
         error = 'Network error: ${e.message}';
       }
@@ -390,8 +376,7 @@ class AdminManageUsersController extends ChangeNotifier {
   }
 
   // GET /admin/search/users - Search users with query
-  Future<List<User>> searchUsersApi(String query,
-      {String? role, String? status}) async {
+  Future<List<User>> searchUsersApi(String query, {String? role, String? status}) async {
     try {
       isLoading = true;
       error = null;
@@ -414,8 +399,7 @@ class AdminManageUsersController extends ChangeNotifier {
       return searchResults;
     } on DioException catch (e) {
       if (e.response != null) {
-        error =
-            'Failed to search users: ${e.response!.statusCode} - ${e.response!.data}';
+        error = 'Failed to search users: ${e.response!.statusCode} - ${e.response!.data}';
       } else {
         error = 'Network error: ${e.message}';
       }

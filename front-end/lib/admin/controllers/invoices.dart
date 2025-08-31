@@ -164,6 +164,23 @@ class AdminInvoicesController extends ChangeNotifier {
   Invoice? editingInvoice;
   bool isEditMode = false;
 
+  // Filters (for GET /admin/invoices)
+  final orderIdFilterController = TextEditingController();
+  final userIdFilterController = TextEditingController();
+  final dateFilterController = TextEditingController(); // YYYY-MM-DD
+
+  // Apply filters from controllers
+  Future<void> applyFilters() async {
+    final orderId = orderIdFilterController.text.trim();
+    final userId = userIdFilterController.text.trim();
+    final date = dateFilterController.text.trim();
+    await fetchInvoices(
+      orderId: orderId.isEmpty ? null : orderId,
+      userId: userId.isEmpty ? null : userId,
+      date: date.isEmpty ? null : date,
+    );
+  }
+
   void addInvoice() {
     if (!validateForm()) return;
     final newInvoice = Invoice(
@@ -264,18 +281,17 @@ class AdminInvoicesController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // GET /admin/invoices - Fetch all invoices
-  Future<List<Invoice>> fetchInvoices({String? orderId, String? userId, String? startDate, String? endDate}) async {
+  // GET /admin/invoices - Fetch all invoices (supports orderId, userId, date)
+  Future<List<Invoice>> fetchInvoices({String? orderId, String? userId, String? date}) async {
     try {
       isLoading = true;
       error = null;
       notifyListeners();
       
       final queryParams = <String, dynamic>{};
-      if (orderId != null) queryParams['orderId'] = orderId;
-      if (userId != null) queryParams['userId'] = userId;
-      if (startDate != null) queryParams['startDate'] = startDate;
-      if (endDate != null) queryParams['endDate'] = endDate;
+      if (orderId != null && orderId.isNotEmpty) queryParams['orderId'] = orderId;
+      if (userId != null && userId.isNotEmpty) queryParams['userId'] = userId;
+      if (date != null && date.isNotEmpty) queryParams['date'] = date;
       
       final response = await _dio.get('/admin/invoices', queryParameters: queryParams);
       
@@ -338,19 +354,72 @@ class AdminInvoicesController extends ChangeNotifier {
   }
   
   // POST - Create manual invoice (new endpoint for manual creation)
-  Future<Invoice?> createManualInvoice() async {
-    // Backend does not support manual creation via POST /admin/invoices
-    if (!validateForm()) return null;
-    isLoading = true;
-    error = null;
-    successMessage = null;
-    notifyListeners();
+  Future<Invoice?> createManualInvoice({
+    required String userId,
+    required List<LineItem> items,
+    String? description,
+    DateTime? dueDate,
+  }) async {
+    try {
+      isLoading = true;
+      error = null;
+      successMessage = null;
+      notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 10));
-    error = 'Manual invoice creation is not supported by the current backend API.';
-    isLoading = false;
-    notifyListeners();
-    return null;
+      if (userId.trim().isEmpty) {
+        error = 'User ID is required';
+        notifyListeners();
+        return null;
+      }
+      if (items.isEmpty) {
+        error = 'At least one item is required';
+        notifyListeners();
+        return null;
+      }
+
+      final totalAmount = items.fold<double>(0.0, (sum, it) => sum + (it.quantity * it.unitPrice));
+      final body = {
+        'userId': userId,
+        'totalAmount': totalAmount,
+        'items': items
+            .map((it) => {
+                  'productName': it.description,
+                  'quantity': it.quantity,
+                  'unitPrice': it.unitPrice,
+                })
+            .toList(),
+        if (description != null && description.isNotEmpty) 'description': description,
+        if (dueDate != null) 'dueDate': dueDate.toIso8601String().split('T').first,
+      };
+
+      final response = await _dio.post('/admin/invoices', data: body);
+      if (response.statusCode == 201) {
+        final created = _mapBackendInvoiceToModel(response.data['invoice'] ?? response.data);
+        invoices.insert(0, created);
+        filteredInvoices = List.from(invoices);
+        successMessage = 'Invoice created successfully';
+        notifyListeners();
+        return created;
+      } else {
+        error = 'Failed to create invoice: ${response.statusCode}';
+        notifyListeners();
+        return null;
+      }
+    } on DioException catch (e) {
+      if (e.response != null && e.response?.data is Map && (e.response?.data)['message'] != null) {
+        error = (e.response?.data)['message'];
+      } else {
+        _handleDioError(e);
+      }
+      return null;
+    } catch (e) {
+      error = 'Unexpected error: $e';
+      notifyListeners();
+      return null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
   
   // Generate invoice from existing order
@@ -464,6 +533,9 @@ class AdminInvoicesController extends ChangeNotifier {
     referenceController.dispose();
     billToController.dispose();
     signatureController.dispose();
+    orderIdFilterController.dispose();
+    userIdFilterController.dispose();
+    dateFilterController.dispose();
     super.dispose();
   }
 }

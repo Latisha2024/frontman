@@ -183,6 +183,23 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
             icon: Icons.currency_exchange,
             keyboardType: TextInputType.number,
           ),
+          const SizedBox(height: 16),
+          // Conversion rate
+          _buildTextField(
+            controller: widget.controller.conversionRateController,
+            label: 'Conversion Rate (e.g., 0.01)',
+            icon: Icons.percent,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            hintText: 'Enter positive decimal rate',
+          ),
+          const SizedBox(height: 16),
+          // Reason (optional)
+          _buildTextField(
+            controller: widget.controller.reasonController,
+            label: 'Reason (optional)',
+            icon: Icons.note,
+            maxLines: 2,
+          ),
           const SizedBox(height: 24),
           // Convert Button
           ElevatedButton(
