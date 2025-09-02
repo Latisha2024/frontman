@@ -112,7 +112,7 @@ class OrderHistoryPage extends StatefulWidget {
 }
 
 class _OrderHistoryPageState extends State<OrderHistoryPage> {
-  final dio = Dio(BaseOptions(baseUrl: "http://localhost:5000"));
+  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5000"));
 
   bool loading = false;
   String? message;

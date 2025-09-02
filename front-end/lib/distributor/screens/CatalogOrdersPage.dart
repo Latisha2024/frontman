@@ -59,7 +59,7 @@ class CatalogOrdersPage extends StatelessWidget {
             buildOptionCard(
               icon: Icons.view_list,
               title: "Browse Product Catalog",
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BrowseCatalogPage())),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoryPage())),
             ),
             buildOptionCard(
               icon: Icons.list_alt,
@@ -69,23 +69,23 @@ class CatalogOrdersPage extends StatelessWidget {
             buildOptionCard(
               icon: Icons.add_shopping_cart,
               title: "Add Products to Cart",
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddToCartPage())),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartPage())),
             ),
             buildOptionCard(
               icon: Icons.discount,
               title: "Apply Promo Code",
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ApplyPromoPage())),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PromoCodePage())),
             ),
             buildOptionCard(
               icon: Icons.shopping_cart_checkout,
               title: "Place Order",
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceOrderPage())),
             ),
-            buildOptionCard(
-              icon: Icons.playlist_add,
-              title: "Create Order",
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateOrderPage())),
-            ),
+            // buildOptionCard(
+            //   icon: Icons.playlist_add,
+            //   title: "Create Order",
+            //   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateOrderPage())),
+            // ),
             buildOptionCard(
               icon: Icons.track_changes,
               title: "Track Order Status",

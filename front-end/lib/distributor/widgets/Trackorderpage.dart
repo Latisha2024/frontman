@@ -1,5 +1,7 @@
 // track_order_page.dart
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import '../../authpage/pages/auth_services.dart';
 import 'package:role_based_app/constants/colors.dart';
 
 class TrackOrderPage extends StatefulWidget {
@@ -10,85 +12,125 @@ class TrackOrderPage extends StatefulWidget {
 }
 
 class _TrackOrderPageState extends State<TrackOrderPage> {
-  final orderIdController = TextEditingController();
-  String statusMessage = '';
-  bool isError = false;
+  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5000"));
 
-  void trackOrder() {
-    final orderId = orderIdController.text.trim();
+  bool loading = false;
+  String? message;
+  Map<String, dynamic>? orderDetails;
+  final TextEditingController orderIdController = TextEditingController();
 
-    if (orderId.isEmpty) {
-      setState(() {
-        statusMessage = '⚠️ Please enter a valid Order ID';
-        isError = true;
-      });
-      return;
-    }
-
-    // Simulated status response
+  Future<void> fetchOrderDetails(String orderId) async {
     setState(() {
-      statusMessage = '📦 Order #$orderId is currently: In Transit';
-      isError = false;
+      loading = true;
+      message = null;
+      orderDetails = null;
     });
+
+    try {
+      final authService = AuthService();
+      final token = await authService.getToken();
+
+      if (token == null) {
+        setState(() => message = "⚠️ No token found. Please login again.");
+        return;
+      }
+
+      final response = await dio.get(
+        "/distributor/order/$orderId",
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+
+      setState(() {
+        orderDetails = response.data as Map<String, dynamic>;
+      });
+    } catch (e) {
+      setState(() {
+        message = "❌ Error fetching order details: $e";
+      });
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
-  @override
-  void dispose() {
-    orderIdController.dispose();
-    super.dispose();
+  Widget _buildOrderDetails() {
+    if (orderDetails == null) return const SizedBox.shrink();
+
+    final items = orderDetails!['items'] as List<dynamic>;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("🆔 Order ID: ${orderDetails!['id']}",
+            style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text("📌 Status: ${orderDetails!['status']}"),
+        Text("📅 Date: ${orderDetails!['orderDate']}"),
+        Text("💰 Subtotal: ₹${orderDetails!['subtotal']}"),
+        Text("🎟️ Discount: ₹${orderDetails!['discountAmount']}"),
+        Text("✅ Total: ₹${orderDetails!['total']}"),
+        const SizedBox(height: 10),
+        const Text("📦 Items:", style: TextStyle(fontWeight: FontWeight.bold)),
+        ...items.map((item) => ListTile(
+              leading: const Icon(Icons.shopping_bag_outlined),
+              title: Text("${item['productName']} (x${item['quantity']})"),
+              subtitle: Text("Unit Price: ₹${item['unitPrice']}"),
+              trailing: Text("₹${item['total']}"),
+            )),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: const Text("Track Order Status"),
+        title: const Text("Track Order"),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
               controller: orderIdController,
-              keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                labelText: "Order ID",
+                labelText: "Enter Order ID",
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: trackOrder,
-                icon: const Icon(Icons.search),
-                label: const Text("Track Order"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
+            const SizedBox(height: 10),
+            ElevatedButton.icon(
+              onPressed: loading
+                  ? null
+                  : () {
+                      if (orderIdController.text.isNotEmpty) {
+                        fetchOrderDetails(orderIdController.text.trim());
+                      }
+                    },
+              icon: const Icon(Icons.search),
+              label: loading
+                  ? const Text("Tracking...")
+                  : const Text("Track Order"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                minimumSize: const Size(double.infinity, 50),
               ),
             ),
             const SizedBox(height: 20),
-            if (statusMessage.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.all(12),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: isError ? Colors.red[100] : Colors.blue[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  statusMessage,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: isError ? Colors.red[900] : Colors.blue[900],
-                  ),
-                ),
-              ),
+            if (message != null) Text(message!),
+            Expanded(
+              child: orderDetails == null
+                  ? const Center(
+                      child: Text(
+                        "Enter an Order ID to track",
+                        style: TextStyle(fontSize: 16, color: Colors.black54),
+                      ),
+                    )
+                  : SingleChildScrollView(child: _buildOrderDetails()),
+            ),
           ],
         ),
       ),

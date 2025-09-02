@@ -4,8 +4,8 @@ class AppColors {
   // Primary brand colors
   static const Color primary = Color(0xFF0161C1); // Bright Blue
   static const Color secondary = Color(0xFF0341A6); // Dark Blue
-  static const Color accent = Color(0xFFFFC20F); // Bright Yellow
-  static const Color background = Color(0xFFFFC20F); // Yellow background as in branding
+  static const Color accent =Color(0xFFF5E6C8); // Bright Yellow
+  static const Color background = Color(0xFFF3EDE3); // Yellow background as in branding
 
   // Text colors
   static const Color textPrimary = Color(0xFF0341A6); // Dark Blue

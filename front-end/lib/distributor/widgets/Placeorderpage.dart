@@ -125,7 +125,7 @@ class PlaceOrderPage extends StatefulWidget {
 class _PlaceOrderPageState extends State<PlaceOrderPage> {
   final TextEditingController productIdController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
-  final dio = Dio(BaseOptions(baseUrl: "http://localhost:5000"));
+  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5000"));
 
   bool loading = false;
   String? message;

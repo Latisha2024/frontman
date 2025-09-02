@@ -73,36 +73,77 @@ const stockController = {
     }
   },
 
+  // // GET /distributor/stock
+  // getAssignedStock: async (req, res) => {
+  //   try {
+  //     const userId = req.user.id;
+  //     // Get distributor's assigned stock (filter by location or distributor assignment)
+  //     const stocks = await prisma.stock.findMany({
+  //       where: {
+  //         OR: [
+  //           { location: { contains: 'Distributor', mode: 'insensitive' } },
+  //           { status: { in: ['Assigned', 'Distributed'] } }
+  //         ]
+  //       },
+  //       include: {
+  //         product: {
+  //           select: {
+  //             id: true,
+  //             name: true,
+  //             price: true,
+  //             warrantyPeriodInMonths: true
+  //           }
+  //         }
+  //       },
+  //       orderBy: { id: 'desc' }
+  //     });
+  //     res.json(stocks);
+  //   } catch (err) {
+  //     console.error(err);
+  //     res.status(500).json({ message: 'Failed to fetch assigned stock' });
+  //   }
+  // },
   // GET /distributor/stock
-  getAssignedStock: async (req, res) => {
-    try {
-      const userId = req.user.id;
-      // Get distributor's assigned stock (filter by location or distributor assignment)
-      const stocks = await prisma.stock.findMany({
-        where: {
-          OR: [
-            { location: { contains: 'Distributor', mode: 'insensitive' } },
-            { status: { in: ['Assigned', 'Distributed'] } }
-          ]
-        },
-        include: {
-          product: {
-            select: {
-              id: true,
-              name: true,
-              price: true,
-              warrantyPeriodInMonths: true
+getAssignedStock: async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const stocks = await prisma.stock.findMany({
+      where: {
+        OR: [
+          {
+            location: {
+              contains: "Distributor",
+              mode: "insensitive"
+            }
+          },
+          {
+            status: {
+              in: ["Available", "Moved"] // ✅ must match enum values
             }
           }
-        },
-        orderBy: { id: 'desc' }
-      });
-      res.json(stocks);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Failed to fetch assigned stock' });
-    }
-  },
+        ]
+      },
+      include: {
+        product: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            warrantyPeriodInMonths: true
+          }
+        }
+      },
+      orderBy: { id: "desc" }
+    });
+
+    res.json(stocks);
+  } catch (err) {
+    console.error("Error in getAssignedStock:", err);
+    res.status(500).json({ message: "Failed to fetch assigned stock" });
+  }
+},
+
 
   // PUT /distributor/stock/:id
   updateStockStatus: async (req, res) => {
@@ -158,15 +199,188 @@ try {
         deletedCount++;
       }
     }
-
     res.json({ message: `Deleted ${deletedCount} orphaned stock entries` });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Cleanup failed' });
   }
   },
+
+  // POST /distributor/stock/items - Add new stock item
+  addStockItem: async (req, res) => {
+    const userId = req.user.id;
+    const { name, price, stockQuantity, warrantyPeriodInMonths, categoryId, location } = req.body;
+
+    try {
+      if (!name || !price || !stockQuantity || !warrantyPeriodInMonths) {
+        return res.status(400).json({ 
+          message: 'Name, price, stock quantity, and warranty period are required' 
+        });
+      }
+
+      if (price <= 0 || stockQuantity <= 0 || warrantyPeriodInMonths <= 0) {
+        return res.status(400).json({ 
+          message: 'Price, stock quantity, and warranty period must be positive numbers' 
+        });
+      }
+
+      // Create product first
+      const product = await prisma.product.create({
+        data: {
+          name: name.trim(),
+          price: parseFloat(price),
+          stockQuantity: parseInt(stockQuantity),
+          warrantyPeriodInMonths: parseInt(warrantyPeriodInMonths),
+          categoryId: categoryId || null
+        }
+      });
+
+      // Create stock entry
+      const stock = await prisma.stock.create({
+        data: {
+          productId: product.id,
+          status: 'Available',
+          location: location || 'Distributor Warehouse'
+        }
+      });
+
+      const result = {
+        product: {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          stockQuantity: product.stockQuantity,
+          warrantyPeriodInMonths: product.warrantyPeriodInMonths,
+          categoryId: product.categoryId
+        },
+        stock: {
+          id: stock.id,
+          status: stock.status,
+          location: stock.location
+        }
+      };
+
+      res.status(201).json({ 
+        message: 'Stock item added successfully', 
+        data: result 
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Failed to add stock item' });
+    }
+  },
+
+  // DELETE /distributor/stock/items/:id - Delete stock item
+  deleteStockItem: async (req, res) => {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    try {
+      // Find the stock item
+      const stock = await prisma.stock.findUnique({
+        where: { id },
+        include: { product: true }
+      });
+
+      if (!stock) {
+        return res.status(404).json({ message: 'Stock item not found' });
+      }
+
+      // Check if stock is available for deletion
+      if (stock.status !== 'Available') {
+        return res.status(400).json({ 
+          message: 'Cannot delete stock item that is not available' 
+        });
+      }
+
+      // Delete stock and product in transaction
+      await prisma.$transaction(async (tx) => {
+        // Delete stock first
+        await tx.stock.delete({
+          where: { id }
+        });
+
+        // Delete product
+        await tx.product.delete({
+          where: { id: stock.productId }
+        });
+      });
+
+      res.json({ message: 'Stock item deleted successfully' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Failed to delete stock item' });
+    }
+  },
+
+  // PUT /distributor/stock/items/:id - Update stock item
+  updateStockItem: async (req, res) => {
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { name, price, stockQuantity, warrantyPeriodInMonths, categoryId, location } = req.body;
+
+    try {
+      // Find the stock item
+      const stock = await prisma.stock.findUnique({
+        where: { id },
+        include: { product: true }
+      });
+
+      if (!stock) {
+        return res.status(404).json({ message: 'Stock item not found' });
+      }
+
+      // Update product and stock in transaction
+      const [updatedProduct, updatedStock] = await prisma.$transaction(async (tx) => {
+        const product = await tx.product.update({
+          where: { id: stock.productId },
+          data: {
+            name: name ? name.trim() : undefined,
+            price: price ? parseFloat(price) : undefined,
+            stockQuantity: stockQuantity ? parseInt(stockQuantity) : undefined,
+            warrantyPeriodInMonths: warrantyPeriodInMonths ? parseInt(warrantyPeriodInMonths) : undefined,
+            categoryId: categoryId !== undefined ? categoryId : undefined
+          }
+        });
+
+        const stockUpdate = await tx.stock.update({
+          where: { id },
+          data: {
+            location: location || undefined
+          }
+        });
+
+        return [product, stockUpdate];
+      });
+
+      const result = {
+        product: {
+          id: updatedProduct.id,
+          name: updatedProduct.name,
+          price: updatedProduct.price,
+          stockQuantity: updatedProduct.stockQuantity,
+          warrantyPeriodInMonths: updatedProduct.warrantyPeriodInMonths,
+          categoryId: updatedProduct.categoryId
+        },
+        stock: {
+          id: updatedStock.id,
+          status: updatedStock.status,
+          location: updatedStock.location
+        }
+      };
+
+      res.json({ 
+        message: 'Stock item updated successfully', 
+        data: result 
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Failed to update stock item' });
+    }
+  }
 };
 
 
 
 module.exports = stockController;
+
