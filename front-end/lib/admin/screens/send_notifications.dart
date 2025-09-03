@@ -195,6 +195,7 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
   Widget _buildManageNotificationsTab() {
     return Column(
       children: [
+        // Fixed filters/search/actions
         Container(
           padding: const EdgeInsets.all(16),
           color: Colors.white,
@@ -260,25 +261,30 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
             ],
           ),
         ),
-        _buildMessageDisplay(),
+        // Scrollable content with banners + list
         Expanded(
           child: controller.isLoading
               ? const Center(child: CircularProgressIndicator())
-              : controller.filteredNotifications.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No notifications found',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: controller.filteredNotifications.length,
-                      itemBuilder: (context, index) {
-                        final notification = controller.filteredNotifications[index];
-                        return _buildNotificationCard(notification);
-                      },
-                    ),
+              : ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    _buildMessageDisplay(),
+                    if (controller.filteredNotifications.isEmpty)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Text(
+                            'No notifications found',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        ),
+                      )
+                    else ...[
+                      for (final notification in controller.filteredNotifications)
+                        _buildNotificationCard(notification),
+                    ],
+                  ],
+                ),
         ),
       ],
     );
@@ -407,11 +413,6 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
                 style: TextStyle(color: Colors.red.shade700),
               ),
             ),
-            IconButton(
-              onPressed: controller.clearMessages,
-              icon: const Icon(Icons.close, size: 16),
-              color: Colors.red.shade600,
-            ),
           ],
         ),
       );
@@ -435,11 +436,6 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
                 controller.successMessage!,
                 style: TextStyle(color: Colors.green.shade700),
               ),
-            ),
-            IconButton(
-              onPressed: controller.clearMessages,
-              icon: const Icon(Icons.close, size: 16),
-              color: Colors.green.shade600,
             ),
           ],
         ),

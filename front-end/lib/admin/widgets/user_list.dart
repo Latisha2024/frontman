@@ -221,14 +221,7 @@ class UserList extends StatelessWidget {
                           color: Colors.grey.shade600,
                         ),
                       ),
-                      Text(
-                        'Company ${user.companyId.replaceAll('company', '')}',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.primaryBlue,
-                        ),
-                      ),
+                      const SizedBox.shrink(),
                     ],
                   ),
                 ),

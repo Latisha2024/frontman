@@ -78,6 +78,16 @@ class AdminConvertPointsController extends ChangeNotifier {
     fetchAllTransactions();
   }
 
+  void _scheduleAutoHideMessages() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (error != null || successMessage != null) {
+        error = null;
+        successMessage = null;
+        notifyListeners();
+      }
+    });
+  }
+
   // GET /admin/points - Fetch all point transactions
   Future<void> fetchAllTransactions({String? userId, String? type}) async {
     try {
@@ -93,14 +103,17 @@ class AdminConvertPointsController extends ChangeNotifier {
       final List<dynamic> data = response.data;
       _transactions = data.map((json) => PointTransaction.fromJson(json)).toList();
       successMessage = 'Transactions loaded successfully';
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         error = 'Failed to fetch transactions: ${e.response!.statusCode} - ${e.response!.data}';
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -121,14 +134,17 @@ class AdminConvertPointsController extends ChangeNotifier {
       // Calculate total points for user
       _userTotalPoints = userTransactions.fold<int>(0, (sum, txn) => sum + txn.points);
       successMessage = 'User points fetched successfully';
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         error = 'Failed to fetch user points: ${e.response!.statusCode} - ${e.response!.data}';
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -155,6 +171,7 @@ class AdminConvertPointsController extends ChangeNotifier {
       successMessage = responseData['message'] ?? 'Points adjusted successfully';
       clearForm();
       await fetchAllTransactions(); // Refresh the list
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
@@ -162,8 +179,10 @@ class AdminConvertPointsController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -202,8 +221,10 @@ class AdminConvertPointsController extends ChangeNotifier {
         successMessage = data['message'] ?? 'Points converted successfully!';
         // Refresh transactions to reflect the conversion entry
         await fetchAllTransactions(userId: userIdController.text.trim());
+        _scheduleAutoHideMessages();
       } else {
         error = 'Failed to convert points: ${response.statusCode}';
+        _scheduleAutoHideMessages();
       }
     } on DioException catch (e) {
       if (e.response != null) {
@@ -216,8 +237,10 @@ class AdminConvertPointsController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -231,12 +254,14 @@ class AdminConvertPointsController extends ChangeNotifier {
         reasonController.text.trim().isEmpty) {
       error = 'Please fill in all required fields.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return false;
     }
     final points = int.tryParse(pointsController.text.trim());
     if (points == null) {
       error = 'Points must be a valid integer.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return false;
     }
     return true;
@@ -247,18 +272,21 @@ class AdminConvertPointsController extends ChangeNotifier {
     if (userIdController.text.trim().isEmpty || pointsController.text.trim().isEmpty || conversionRateController.text.trim().isEmpty) {
       error = 'Please enter User ID, Points, and Conversion Rate.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return false;
     }
     final points = int.tryParse(pointsController.text.trim());
     if (points == null || points <= 0) {
       error = 'Points must be a positive integer.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return false;
     }
     final rate = double.tryParse(conversionRateController.text.trim());
     if (rate == null || rate <= 0) {
       error = 'Conversion rate must be a positive number.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return false;
     }
     return true;

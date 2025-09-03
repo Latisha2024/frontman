@@ -106,82 +106,45 @@ class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
             ],
           ),
           drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
-          body: Column(
-            children: [
-              // Error message display
+          body: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
               if (controller.error != null)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.error_outline, color: Colors.red.shade600),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          controller.error!,
-                          style: TextStyle(color: Colors.red.shade700),
+                SliverToBoxAdapter(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red.shade600),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            controller.error!,
+                            style: TextStyle(color: Colors.red.shade700),
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          controller.error = null;
-                          controller.notifyListeners();
-                        },
-                        color: Colors.red.shade600,
-                        iconSize: 20,
-                      ),
-                    ],
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            controller.error = null;
+                            controller.notifyListeners();
+                          },
+                          color: Colors.red.shade600,
+                          iconSize: 20,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              // Success message display
-              if (controller.successMessage != null)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.check_circle_outline, color: Colors.green.shade600),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          controller.successMessage!,
-                          style: TextStyle(color: Colors.green.shade700),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          controller.successMessage = null;
-                          controller.notifyListeners();
-                        },
-                        color: Colors.green.shade600,
-                        iconSize: 20,
-                      ),
-                    ],
-                  ),
-                ),
-              // Header with stats
-              buildStatsHeader(),
-
-              // Main content
-              Expanded(
-                child: buildListView(),
-              ),
+              SliverToBoxAdapter(child: buildStatsHeader()),
             ],
+            body: buildListView(),
           ),
         );
       },

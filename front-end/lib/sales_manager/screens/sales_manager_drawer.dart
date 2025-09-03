@@ -8,7 +8,7 @@ import '../../admin/screens/manage_products.dart';
 import '../../admin/screens/send_notifications.dart';
 import '../../admin/screens/warranty_database.dart';
 import '../../constants/colors.dart';
-import '../../admin/screens/company_selection.dart';
+ 
 import '../../admin/screens/manage_users.dart';
 import '../../admin/screens/invoices.dart';
 import '../../admin/screens/order_summary.dart';
@@ -17,9 +17,7 @@ import 'assign_tasks.dart';
 import 'gps_tracking.dart';
 
 class SalesManagerDrawer extends StatelessWidget {
-  final Company? company;
-  
-  const SalesManagerDrawer({super.key, this.company});
+  const SalesManagerDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,17 +35,6 @@ class SalesManagerDrawer extends StatelessWidget {
                 const SizedBox(height: 12),
                 const Text('Sales Manager', style: TextStyle(
                     fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
-                if (company != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    company!.name,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
@@ -58,7 +45,7 @@ class SalesManagerDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SalesManagerDashboardScreen(company: company),
+                  builder: (context) => SalesManagerDashboardScreen(),
                 ),
               );
             },
@@ -118,7 +105,7 @@ class SalesManagerDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ManageProductsScreen(company: company, role: "manager"),
+                  builder: (context) => ManageProductsScreen(role: "manager"),
                 ),
               );
             },
@@ -154,7 +141,7 @@ class SalesManagerDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => GenerateReportsScreen(company: company,role: "manager"),
+                  builder: (context) => GenerateReportsScreen(role: "manager"),
                 ),
               );
             },

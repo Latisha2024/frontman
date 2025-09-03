@@ -42,8 +42,6 @@ class _WarrantyListState extends State<WarrantyList> {
               Text('Purchase: ${warranty.purchaseDate.toIso8601String().split('T').first}'),
               const SizedBox(height: 6),
               Text('Expiry: ${warranty.expiryDate.toIso8601String().split('T').first}'),
-              const SizedBox(height: 6),
-              Text('Company: ${warranty.companyId}'),
             ],
           ),
           actions: [

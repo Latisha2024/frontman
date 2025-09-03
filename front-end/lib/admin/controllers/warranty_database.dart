@@ -9,7 +9,6 @@ class Warranty {
   final String serialNumber;
   final DateTime purchaseDate;
   final DateTime expiryDate;
-  final String companyId;
 
   Warranty({
     required this.id,
@@ -18,7 +17,6 @@ class Warranty {
     required this.serialNumber,
     required this.purchaseDate,
     required this.expiryDate,
-    required this.companyId,
   });
 
   Warranty copyWith({
@@ -28,7 +26,6 @@ class Warranty {
     String? serialNumber,
     DateTime? purchaseDate,
     DateTime? expiryDate,
-    String? companyId,
   }) {
     return Warranty(
       id: id ?? this.id,
@@ -37,7 +34,6 @@ class Warranty {
       serialNumber: serialNumber ?? this.serialNumber,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       expiryDate: expiryDate ?? this.expiryDate,
-      companyId: companyId ?? this.companyId,
     );
   }
 }
@@ -50,8 +46,6 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
   List<Warranty> filteredWarranties = [];
   String searchQuery = '';
   final productController = TextEditingController();
-  String? currentCompanyId;
-  String? get companyId => currentCompanyId;
 
   // Base URL for API calls - update this to match your backend
   static const String baseUrl = 'http://10.0.2.2:5000'; // Update with your actual backend URL
@@ -118,15 +112,24 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
     ));
   }
 
-  AdminWarrantyDatabaseController({String? companyId}) {
+  AdminWarrantyDatabaseController() {
     // Initialize Dio
     _initializeDio();
     
     // Initialize with empty warranty data - will be loaded from API
-    currentCompanyId = companyId;
     warranties = [];
     filteredWarranties = [];
     notifyListeners();
+  }
+  
+  void _scheduleAutoHideMessages() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (error != null || successMessage != null) {
+        error = null;
+        successMessage = null;
+        notifyListeners();
+      }
+    });
   }
   final customerController = TextEditingController();
   final serialController = TextEditingController();
@@ -141,12 +144,7 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
   }
 
   void applyFilters() {
-    List<Warranty> companyFiltered = warranties;
-    if (currentCompanyId != null) {
-      companyFiltered = warranties.where((warranty) => warranty.companyId == currentCompanyId).toList();
-
-    }
-    filteredWarranties = companyFiltered.where((w) {
+    filteredWarranties = warranties.where((w) {
       final q = searchQuery.toLowerCase();
       return q.isEmpty ||
         w.product.toLowerCase().contains(q) ||
@@ -160,6 +158,7 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
     if (productController.text.isEmpty || customerController.text.isEmpty || serialController.text.isEmpty || purchaseDateController.text.isEmpty || expiryDateController.text.isEmpty) {
       error = 'All fields are required.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return;
     }
     final newWarranty = Warranty(
@@ -169,13 +168,13 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
       serialNumber: serialController.text.trim(),
       purchaseDate: DateTime.parse(purchaseDateController.text.trim()),
       expiryDate: DateTime.parse(expiryDateController.text.trim()),
-      companyId: currentCompanyId ?? 'company1',
     );
     warranties.add(newWarranty);
     applyFilters();
     clearForm();
     successMessage = 'Warranty added.';
     notifyListeners();
+    _scheduleAutoHideMessages();
   }
 
   void editWarranty(Warranty warranty) {
@@ -194,6 +193,7 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
     if (productController.text.isEmpty || customerController.text.isEmpty || serialController.text.isEmpty || purchaseDateController.text.isEmpty || expiryDateController.text.isEmpty) {
       error = 'All fields are required.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return;
     }
     final updatedWarranty = editingWarranty!.copyWith(
@@ -211,6 +211,7 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
       successMessage = 'Warranty updated.';
     }
     notifyListeners();
+    _scheduleAutoHideMessages();
   }
 
   void deleteWarranty(String id) {
@@ -218,6 +219,7 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
     applyFilters();
     successMessage = 'Warranty deleted.';
     notifyListeners();
+    _scheduleAutoHideMessages();
   }
 
   void clearForm() {
@@ -254,17 +256,18 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
             serialNumber: _asString(map['serialNumber']),
             purchaseDate: _asDate(map['purchaseDate']),
             expiryDate: _asDate(map['expiryDate']),
-            companyId: _asString(map['companyId']),
           );
         }).toList();
         
         warranties = fetchedWarranties;
         applyFilters();
         successMessage = 'Warranty cards loaded successfully';
+        _scheduleAutoHideMessages();
         return fetchedWarranties;
       } else {
         error = 'Failed to fetch warranty cards: ${response.statusCode}';
         notifyListeners();
+        _scheduleAutoHideMessages();
         return [];
       }
     } on DioException catch (e) {
@@ -282,10 +285,12 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
         error = 'Network error: ${e.message}';
       }
       notifyListeners();
+      _scheduleAutoHideMessages();
       return [];
     } catch (e) {
       error = 'Unexpected error: $e';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return [];
     } finally {
       isLoading = false;
@@ -314,15 +319,16 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
           serialNumber: _asString(data['serialNumber']),
           purchaseDate: _asDate(data['purchaseDate']),
           expiryDate: _asDate(data['expiryDate']),
-          companyId: _asString(data['companyId']),
         );
         
         successMessage = 'Warranty card loaded successfully';
         notifyListeners();
+        _scheduleAutoHideMessages();
         return warranty;
       } else {
         error = 'Failed to fetch warranty card: ${response.statusCode}';
         notifyListeners();
+        _scheduleAutoHideMessages();
         return null;
       }
     } on DioException catch (e) {
@@ -342,10 +348,12 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
         error = 'Network error: ${e.message}';
       }
       notifyListeners();
+      _scheduleAutoHideMessages();
       return null;
     } catch (e) {
       error = 'Unexpected error: $e';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return null;
     } finally {
       isLoading = false;

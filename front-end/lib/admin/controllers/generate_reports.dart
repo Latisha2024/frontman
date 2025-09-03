@@ -7,7 +7,6 @@ class ReportData {
   final String title;
   final String description;
   final DateTime date;
-  final String companyId;
   final String? userId; // For individual user reports
   final String? userName; // For individual user reports
   final Map<String, dynamic> details;
@@ -17,7 +16,6 @@ class ReportData {
     required this.title,
     required this.description,
     required this.date,
-    required this.companyId,
     this.userId,
     this.userName,
     required this.details,
@@ -30,7 +28,6 @@ class AdminGenerateReportsController extends ChangeNotifier {
   String? successMessage;
   List<ReportData> reports = [];
   String selectedType = 'sales';
-  String? currentCompanyId;
   final List<String> availableTypes = ['sales', 'inventory', 'performance','individual'];
   late final Dio _dio;
   final String baseUrl = 'http://10.0.2.2:5000';
@@ -45,7 +42,7 @@ class AdminGenerateReportsController extends ChangeNotifier {
   DateTime? salesStartDate;
   DateTime? salesEndDate;
 
-  AdminGenerateReportsController({String? companyId}) {
+  AdminGenerateReportsController() {
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 5),
@@ -69,9 +66,19 @@ class AdminGenerateReportsController extends ChangeNotifier {
       responseBody: true,
       logPrint: (obj) => print(obj),
     ));
-    currentCompanyId = companyId;
     // Load reports from backend on initialization
     loadAllReports();
+  }
+
+  void _scheduleAutoHideMessages() {
+    Future.delayed(const Duration(seconds: 3), () {
+      // Only clear if still set
+      if (error != null || successMessage != null) {
+        error = null;
+        successMessage = null;
+        notifyListeners();
+      }
+    });
   }
 
 
@@ -81,7 +88,7 @@ class AdminGenerateReportsController extends ChangeNotifier {
   }
 
   List<ReportData> get filteredReports => reports
-      .where((r) => r.type == selectedType && r.companyId == currentCompanyId)
+      .where((r) => r.type == selectedType)
       .toList();
 
   double get totalAmount {
@@ -89,17 +96,25 @@ class AdminGenerateReportsController extends ChangeNotifier {
     
     switch (selectedType) {
       case 'sales':
-        return filteredReports.fold(0.0, (sum, report) => 
-          sum + (report.details['totalSales'] as double? ?? 0.0));
+        return filteredReports.fold(0.0, (sum, report) {
+          final v = report.details['totalSales'];
+          return sum + ((v is num) ? v.toDouble() : 0.0);
+        });
       case 'inventory':
-        return filteredReports.fold(0.0, (sum, report) => 
-          sum + (report.details['totalValue'] as double? ?? 0.0));
+        return filteredReports.fold(0.0, (sum, report) {
+          final v = report.details['totalValue'];
+          return sum + ((v is num) ? v.toDouble() : 0.0);
+        });
       case 'performance':
-        return filteredReports.fold(0.0, (sum, report) => 
-          sum + (report.details['totalRevenue'] as double? ?? 0.0));
+        return filteredReports.fold(0.0, (sum, report) {
+          final v = report.details['totalRevenue'];
+          return sum + ((v is num) ? v.toDouble() : 0.0);
+        });
       case 'individual':
-        return filteredReports.fold(0.0, (sum, report) => 
-          sum + (report.details['totalSales'] as double? ?? 0.0));
+        return filteredReports.fold(0.0, (sum, report) {
+          final v = report.details['totalSales'];
+          return sum + ((v is num) ? v.toDouble() : 0.0);
+        });
       default:
         return 0.0;
     }
@@ -152,15 +167,17 @@ class AdminGenerateReportsController extends ChangeNotifier {
           title: 'Sales Report',
           description: 'Comprehensive sales analysis',
           date: DateTime.now(),
-          companyId: currentCompanyId ?? 'default',
           details: data,
         )];
         successMessage = 'Sales report loaded successfully';
+        _scheduleAutoHideMessages();
       }
     } on DioException catch (e) {
       error = 'Failed to load sales report: ${e.message}';
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -183,15 +200,17 @@ class AdminGenerateReportsController extends ChangeNotifier {
           title: 'Inventory Report',
           description: 'Current inventory levels and stock analysis',
           date: DateTime.now(),
-          companyId: currentCompanyId ?? 'default',
           details: data,
         )];
         successMessage = 'Inventory report loaded successfully';
+        _scheduleAutoHideMessages();
       }
     } on DioException catch (e) {
       error = 'Failed to load inventory report: ${e.message}';
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -214,15 +233,17 @@ class AdminGenerateReportsController extends ChangeNotifier {
           title: 'Performance Report',
           description: 'Employee and system performance analysis',
           date: DateTime.now(),
-          companyId: currentCompanyId ?? 'default',
           details: data,
         )];
         successMessage = 'Performance report loaded successfully';
+        _scheduleAutoHideMessages();
       }
     } on DioException catch (e) {
       error = 'Failed to load performance report: ${e.message}';
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -289,7 +310,7 @@ class AdminGenerateReportsController extends ChangeNotifier {
           default:
             detailsBlock = Map<String, dynamic>.from(data['performanceData'] ?? {});
             title = 'Individual Performance Report';
-            description = 'Overview performance metrics for the selected user';
+            description = 'Performance metrics for the selected user';
             break;
         }
 
@@ -298,17 +319,19 @@ class AdminGenerateReportsController extends ChangeNotifier {
           title: title,
           description: description,
           date: DateTime.now(),
-          companyId: currentCompanyId ?? 'default',
           userId: data['userId']?.toString(),
           userName: data['userName']?.toString(),
           details: detailsBlock,
         )];
         successMessage = 'Individual report loaded successfully';
+        _scheduleAutoHideMessages();
       }
     } on DioException catch (e) {
       error = 'Failed to load individual report: ${e.message}';
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();

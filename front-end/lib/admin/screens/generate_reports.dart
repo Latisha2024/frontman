@@ -3,12 +3,10 @@ import './admin_drawer.dart';
 import 'package:flutter/material.dart';
 import '../controllers/generate_reports.dart';
 import '../../constants/colors.dart';
-import 'company_selection.dart';
 
 class GenerateReportsScreen extends StatefulWidget {
-  final Company? company;
   final String role;
-  const GenerateReportsScreen({super.key, this.company, required this.role});
+  const GenerateReportsScreen({super.key, required this.role});
 
   @override
   State<GenerateReportsScreen> createState() => _GenerateReportsScreenState();
@@ -20,8 +18,7 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
   @override
   void initState() {
     super.initState();
-    final company = widget.company ?? CompanySelection.selectedCompany;
-    controller = AdminGenerateReportsController(companyId: company?.id);
+    controller = AdminGenerateReportsController();
   }
 
   @override
@@ -45,8 +42,15 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                 onPressed: () => Scaffold.of(context).openDrawer(),
               ),
             ),
+            actions: [
+              IconButton(
+                tooltip: 'Refresh',
+                icon: const Icon(Icons.refresh),
+                onPressed: controller.isLoading ? null : () => controller.loadAllReports(),
+              ),
+            ],
           ),
-          drawer: widget.role == "admin" ? AdminDrawer(company: widget.company) : SalesManagerDrawer(company: widget.company),
+          drawer: widget.role == "admin" ? const AdminDrawer() : const SalesManagerDrawer(),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -191,10 +195,6 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                     ),
                   ),
                 const SizedBox(height: 16),
-                // Simple Chart
-                if (!controller.isLoading && controller.error == null && controller.filteredReports.isNotEmpty)
-                  _buildSimpleChart(),
-                const SizedBox(height: 16),
                 // Loading/Error
                 if (controller.isLoading)
                   const Center(child: CircularProgressIndicator()),
@@ -274,69 +274,6 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildSimpleChart() {
-    if (controller.filteredReports.isEmpty) return const SizedBox.shrink();
-    
-    final report = controller.filteredReports.first;
-    final details = report.details;
-    
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${controller.selectedType[0].toUpperCase() + controller.selectedType.substring(1)} Overview',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Column(
-              children: details.entries.take(4).map((entry) {
-                return Row(
-                  children: [
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      width: 150,
-                      child: Text(
-                        '${entry.key}:',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 40,
-                      child: Center(
-                        child: Text(
-                          entry.value.toString(),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryBlue,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 10,)
-                  ],
-                );
-              }).toList(),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

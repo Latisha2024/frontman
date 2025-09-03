@@ -3,12 +3,11 @@ import '../../constants/colors.dart';
 import '../../sales_manager/screens/sales_manager_drawer.dart';
 import '../controllers/order_summary.dart';
 import 'admin_drawer.dart';
-import 'company_selection.dart';
+ 
 
 class OrderSummaryScreen extends StatefulWidget {
-  final Company? company;
   final String role;
-  const OrderSummaryScreen({super.key, this.company, required this.role});
+  const OrderSummaryScreen({super.key, required this.role});
 
   @override
   State<OrderSummaryScreen> createState() => _OrderSummaryScreenState();
@@ -51,15 +50,6 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     color: Colors.white,
                   ),
                 ),
-                if (widget.company != null)
-                  Text(
-                    widget.company!.name,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.white70,
-                    ),
-                  ),
               ],
             ),
             backgroundColor: AppColors.primaryBlue,
@@ -72,77 +62,81 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
               ),
             ],
           ),
-          drawer: widget.role == "admin" ? AdminDrawer(company: widget.company) : SalesManagerDrawer(company: widget.company),
+          drawer: widget.role == "admin" ? const AdminDrawer() : const SalesManagerDrawer(),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Error/Success Messages
-                if (controller.error != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red.shade200),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.error, color: Colors.red.shade600, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            controller.error!,
-                            style: TextStyle(color: Colors.red.shade700),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                if (controller.successMessage != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.green.shade200),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            controller.successMessage!,
-                            style: TextStyle(color: Colors.green.shade700),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                
-                // Stats Header
-                buildStatsHeader(),
-                const SizedBox(height: 20),
-                
+                // Keep ONLY search and filter fixed
                 buildSearchAndFilter(),
                 const SizedBox(height: 20),
+                // Everything else scrolls beneath
                 Expanded(
                   child: controller.isLoading
                       ? const Center(child: CircularProgressIndicator())
-                      : controller.filteredOrders.isEmpty
-                          ? buildEmptyState()
-                          : ListView.builder(
-                              itemCount: controller.filteredOrders.length,
-                              itemBuilder: (context, index) {
-                                final order = controller.filteredOrders[index];
-                                return buildOrderCard(order);
-                              },
-                            ),
+                      : ListView(
+                          children: [
+                            if (controller.error != null) ...[
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.red.shade200),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.error, color: Colors.red.shade600, size: 20),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        controller.error!,
+                                        style: TextStyle(color: Colors.red.shade700),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                            if (controller.successMessage != null) ...[
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.green.shade200),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        controller.successMessage!,
+                                        style: TextStyle(color: Colors.green.shade700),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                            // Stats should scroll as content
+                            buildStatsHeader(),
+                            const SizedBox(height: 20),
+                            // Orders list
+                            if (controller.filteredOrders.isEmpty)
+                              SizedBox(
+                                height: 300,
+                                child: buildEmptyState(),
+                              )
+                            else ...[
+                              for (final order in controller.filteredOrders)
+                                buildOrderCard(order),
+                            ],
+                          ],
+                        ),
                 ),
               ],
             ),

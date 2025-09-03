@@ -17,7 +17,7 @@ class SalesManagerDashboardScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      drawer: SalesManagerDrawer(company: company),
+      drawer: SalesManagerDrawer(),
       body: Container(
         color: AppColors.backgroundColor,
         child: SingleChildScrollView(

@@ -6,12 +6,10 @@ import '../controllers/manage_products.dart';
 import '../widgets/product_list.dart';
 import '../widgets/product_form.dart';
 import '../../constants/colors.dart';
-import 'company_selection.dart';
 
 class ManageProductsScreen extends StatefulWidget {
-  final Company? company;
   final String role;
-  const ManageProductsScreen({super.key, this.company, required this.role});
+  const ManageProductsScreen({super.key, required this.role});
 
   @override
   State<ManageProductsScreen> createState() => ManageProductsScreenState();
@@ -46,26 +44,12 @@ class ManageProductsScreenState extends State<ManageProductsScreen> {
                 onPressed: () => Scaffold.of(context).openDrawer(),
               ),
             ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Manage Products',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                if (widget.company != null)
-                  Text(
-                    widget.company!.name,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.white70,
-                    ),
-                  ),
-              ],
+            title: const Text(
+              'Manage Products',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
@@ -121,7 +105,7 @@ class ManageProductsScreenState extends State<ManageProductsScreen> {
               ),
             ],
           ),
-          drawer: widget.role == "admin" ? AdminDrawer(company: widget.company) : SalesManagerDrawer(company: widget.company),
+          drawer: widget.role == "admin" ? const AdminDrawer() : const SalesManagerDrawer(),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

@@ -119,6 +119,16 @@ class AdminManageProductsController extends ChangeNotifier {
     fetchProducts();
   }
 
+  void _scheduleAutoHideMessages() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (error != null || successMessage != null) {
+        error = null;
+        successMessage = null;
+        notifyListeners();
+      }
+    });
+  }
+
 
   // GET /admin/products
   Future<void> fetchProducts() async {
@@ -132,14 +142,17 @@ class AdminManageProductsController extends ChangeNotifier {
       _products = data.map((json) => Product.fromJson(json)).toList();
       applyFilters();
       successMessage = 'Products loaded successfully';
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         error = 'Failed to fetch products: ${e.response!.statusCode} - ${e.response!.data}';
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -185,6 +198,7 @@ class AdminManageProductsController extends ChangeNotifier {
       successMessage = responseData['message'] ?? 'Product created successfully';
       clearForm();
       await fetchProducts(); // Refresh the list
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
@@ -192,8 +206,10 @@ class AdminManageProductsController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -237,6 +253,7 @@ class AdminManageProductsController extends ChangeNotifier {
       successMessage = responseData['message'] ?? 'Product updated successfully';
       clearForm();
       await fetchProducts(); // Refresh the list
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
@@ -244,8 +261,10 @@ class AdminManageProductsController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -264,6 +283,7 @@ class AdminManageProductsController extends ChangeNotifier {
       final responseData = response.data;
       successMessage = responseData['message'] ?? 'Product deleted successfully';
       await fetchProducts(); // Refresh the list
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
@@ -271,8 +291,10 @@ class AdminManageProductsController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -291,10 +313,12 @@ class AdminManageProductsController extends ChangeNotifier {
         error = 'Network error: ${e.message}';
       }
       notifyListeners();
+      _scheduleAutoHideMessages();
       return null;
     } catch (e) {
       error = 'Unexpected error: $e';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return null;
     }
   }
@@ -321,14 +345,18 @@ class AdminManageProductsController extends ChangeNotifier {
 
         successMessage = response.data['message'] ?? 'Products imported successfully';
         await fetchProducts(); // Refresh the product list
+        _scheduleAutoHideMessages();
       } else {
         // User canceled the picker
         successMessage = 'File import canceled.';
+        _scheduleAutoHideMessages();
       }
     } on DioException catch (e) {
       error = 'Failed to import products: ${e.response?.data?['message'] ?? e.message}';
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'An unexpected error occurred: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -348,11 +376,14 @@ class AdminManageProductsController extends ChangeNotifier {
       // In a real app, you'd use a package like 'path_provider' and 'open_file'
       // to save and open the file. This is a simplified placeholder.
       successMessage = 'Products exported successfully. Check your downloads folder.';
+      _scheduleAutoHideMessages();
 
     } on DioException catch (e) {
       error = 'Failed to export products: ${e.response?.data ?? e.message}';
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'An unexpected error occurred: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -367,6 +398,7 @@ class AdminManageProductsController extends ChangeNotifier {
         warrantyController.text.trim().isEmpty) {
       error = 'Please fill in all required fields.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return false;
     }
     final price = double.tryParse(priceController.text.trim());
@@ -375,16 +407,19 @@ class AdminManageProductsController extends ChangeNotifier {
     if (price == null || price <= 0) {
       error = 'Price must be a positive number.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return false;
     }
     if (stock == null || stock < 0) {
       error = 'Stock must be zero or a positive integer.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return false;
     }
     if (warranty == null || warranty < 0) {
       error = 'Warranty must be zero or a positive integer (months).';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return false;
     }
     return true;
@@ -423,6 +458,7 @@ class AdminManageProductsController extends ChangeNotifier {
       final List<dynamic> data = response.data;
       final searchResults = data.map((json) => Product.fromJson(json)).toList();
       successMessage = 'Product search completed successfully';
+      _scheduleAutoHideMessages();
       return searchResults;
     } on DioException catch (e) {
       if (e.response != null) {
@@ -430,9 +466,11 @@ class AdminManageProductsController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
       return [];
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
       return [];
     } finally {
       isLoading = false;

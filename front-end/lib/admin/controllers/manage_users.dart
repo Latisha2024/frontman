@@ -8,7 +8,6 @@ class User {
   final String email;
   final String? phone;
   final String role;
-  final String companyId;
   final String? address;
   final String status;
   final DateTime createdAt;
@@ -19,7 +18,6 @@ class User {
     required this.email,
     this.phone,
     required this.role,
-    required this.companyId,
     this.address,
     required this.status,
     required this.createdAt,
@@ -32,7 +30,6 @@ class User {
       'email': email,
       'phone': phone,
       'role': role,
-      'companyId': companyId,
       'address': address,
       'status': status,
       'createdAt': createdAt.toIso8601String(),
@@ -46,7 +43,6 @@ class User {
       email: json['email'] ?? '',
       phone: json['phone'],
       role: json['role'] ?? '',
-      companyId: json['companyId'] ?? 'company1',
       address: json['address'],
       status: json['status'] ?? 'active',
       createdAt: json['createdAt'] != null 
@@ -61,7 +57,6 @@ class User {
     String? email,
     String? phone,
     String? role,
-    String? companyId,
     String? address,
     String? status,
     DateTime? createdAt,
@@ -72,7 +67,6 @@ class User {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       role: role ?? this.role,
-      companyId: companyId ?? this.companyId,
       address: address ?? this.address,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
@@ -168,6 +162,16 @@ class AdminManageUsersController extends ChangeNotifier {
     fetchUsers();
   }
 
+  void _scheduleAutoHideMessages() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (error != null || successMessage != null) {
+        error = null;
+        successMessage = null;
+        notifyListeners();
+      }
+    });
+  }
+
   // GET /admin/users
   Future<void> fetchUsers({String? role}) async {
     try {
@@ -189,14 +193,17 @@ class AdminManageUsersController extends ChangeNotifier {
       _users = data.map((json) => User.fromJson(json)).toList();
       notifyListeners();
       successMessage = 'Users loaded successfully';
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         error = 'Failed to fetch users: ${e.response!.statusCode} - ${e.response!.data}';
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -223,6 +230,7 @@ class AdminManageUsersController extends ChangeNotifier {
     if (nameController.text.isEmpty || emailController.text.isEmpty || passwordController.text.isEmpty) {
       error = 'Name, email, and password are required';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return;
     }
 
@@ -237,7 +245,6 @@ class AdminManageUsersController extends ChangeNotifier {
         'phone': phoneController.text.trim().isNotEmpty ? phoneController.text.trim() : null,
         'address': addressController.text.trim().isNotEmpty ? addressController.text.trim() : null,
         'role': selectedUserRole,
-        'companyId': 'company1',
         'status': selectedUserStatus,
         'password': passwordController.text.trim(),
       };
@@ -251,6 +258,7 @@ class AdminManageUsersController extends ChangeNotifier {
       successMessage = responseData['message'] ?? 'User created successfully';
       clearForm();
       await fetchUsers(); // Refresh the list
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
@@ -258,8 +266,10 @@ class AdminManageUsersController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -287,6 +297,7 @@ class AdminManageUsersController extends ChangeNotifier {
     if (nameController.text.isEmpty || emailController.text.isEmpty) {
       error = 'Name and email are required';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return;
     }
 
@@ -300,7 +311,6 @@ class AdminManageUsersController extends ChangeNotifier {
         'phone': phoneController.text.trim().isNotEmpty ? phoneController.text.trim() : null,
         'address': addressController.text.trim().isNotEmpty ? addressController.text.trim() : null,
         'role': selectedUserRole,
-        'companyId': 'company1',
         'status': selectedUserStatus,
       };
       
@@ -318,6 +328,7 @@ class AdminManageUsersController extends ChangeNotifier {
       successMessage = responseData['message'] ?? 'User updated successfully';
       clearForm();
       await fetchUsers(); // Refresh the list
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
@@ -325,8 +336,10 @@ class AdminManageUsersController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -346,6 +359,7 @@ class AdminManageUsersController extends ChangeNotifier {
       final responseData = response.data;
       successMessage = responseData['message'] ?? 'User deleted successfully';
       await fetchUsers(); // Refresh the list
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
@@ -353,8 +367,10 @@ class AdminManageUsersController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -396,6 +412,7 @@ class AdminManageUsersController extends ChangeNotifier {
       final List<dynamic> data = response.data;
       final searchResults = data.map((json) => User.fromJson(json)).toList();
       successMessage = 'User search completed successfully';
+      _scheduleAutoHideMessages();
       return searchResults;
     } on DioException catch (e) {
       if (e.response != null) {
@@ -403,9 +420,11 @@ class AdminManageUsersController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
       return [];
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
       return [];
     } finally {
       isLoading = false;

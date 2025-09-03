@@ -48,6 +48,40 @@ class _InvoiceListState extends State<InvoiceList> {
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: buildFilters(context),
             ),
+            if (controller.successMessage != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle_outline, color: Colors.green.shade600),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          controller.successMessage!,
+                          style: TextStyle(color: Colors.green.shade700),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          controller.successMessage = null;
+                          controller.notifyListeners();
+                        },
+                        color: Colors.green.shade600,
+                        iconSize: 20,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: widget.onRefresh ?? () async {},

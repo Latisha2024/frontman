@@ -117,6 +117,16 @@ class AdminOrderSummaryController extends ChangeNotifier {
     fetchAllOrders();
   }
 
+  void _scheduleAutoHideMessages() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (error != null || successMessage != null) {
+        error = null;
+        successMessage = null;
+        notifyListeners();
+      }
+    });
+  }
+
   // GET /admin/orders - Fetch all orders
   Future<void> fetchAllOrders() async {
     try {
@@ -130,14 +140,17 @@ class AdminOrderSummaryController extends ChangeNotifier {
       filteredOrders = List.from(orders);
       
       successMessage = 'Orders loaded successfully';
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         error = 'Failed to fetch orders: ${e.response!.statusCode} - ${e.response!.data}';
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -165,8 +178,10 @@ class AdminOrderSummaryController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -189,9 +204,11 @@ class AdminOrderSummaryController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
       return null;
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
       return null;
     } finally {
       isLoading = false;
@@ -270,6 +287,7 @@ class AdminOrderSummaryController extends ChangeNotifier {
       final List<dynamic> data = response.data;
       final searchResults = data.map((json) => Order.fromJson(json)).toList();
       successMessage = 'Order search completed successfully';
+      _scheduleAutoHideMessages();
       return searchResults;
     } on DioException catch (e) {
       if (e.response != null) {
@@ -277,9 +295,11 @@ class AdminOrderSummaryController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
       return [];
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
       return [];
     } finally {
       isLoading = false;

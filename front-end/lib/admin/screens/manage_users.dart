@@ -5,12 +5,10 @@ import '../controllers/manage_users.dart';
 import '../widgets/user_form.dart';
 import '../widgets/user_list.dart';
 import 'admin_drawer.dart';
-import 'company_selection.dart';
 
 class ManageUsersScreen extends StatefulWidget {
-  final Company? company;
   final String role;
-  const ManageUsersScreen({super.key, this.company, required this.role});
+  const ManageUsersScreen({super.key, required this.role});
 
   @override
   State<ManageUsersScreen> createState() => ManageUsersScreenState();
@@ -45,25 +43,12 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
                 onPressed: () => Scaffold.of(context).openDrawer(),
               ),
             ),
-            title: Column(
-              children: [
-                Text(
-                  'Manage Users',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                if (widget.company != null)
-                  Text(
-                    widget.company!.name,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.white70,
-                    ),
-                  ),
-              ],
+            title: const Text(
+              'Manage Users',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
@@ -90,19 +75,16 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
               ),
             ],
           ),
-          drawer: widget.role == "admin" ? AdminDrawer(company: widget.company) : SalesManagerDrawer(company: widget.company),
-          body: Column(
-            children: [
-              // Header with stats
-              buildStatsHeader(),
-
-              // Main content
-              Expanded(
-                child: (showForm || controller.isEditMode)
-                    ? buildFormView()
-                    : buildListView(),
+          drawer: widget.role == "admin" ? const AdminDrawer() : const SalesManagerDrawer(),
+          body: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              SliverToBoxAdapter(
+                child: buildStatsHeader(),
               ),
             ],
+            body: (showForm || controller.isEditMode)
+                ? buildFormView()
+                : buildListView(),
           ),
         );
       },

@@ -74,6 +74,16 @@ class AdminAuditLogsController extends ChangeNotifier {
     fetchAuditLogs();
   }
 
+  void _scheduleAutoHideMessages() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (error != null || successMessage != null) {
+        error = null;
+        successMessage = null;
+        notifyListeners();
+      }
+    });
+  }
+
   void searchLogs(String query) {
     searchQuery = query;
     applyFilters();
@@ -114,11 +124,15 @@ class AdminAuditLogsController extends ChangeNotifier {
         final List<dynamic> data = response.data;
         logs = data.map((json) => AuditLog.fromJson(json)).toList();
         applyFilters();
+        successMessage = 'Audit logs loaded successfully';
+        _scheduleAutoHideMessages();
       }
     } on DioException catch (e) {
       error = 'Failed to fetch logs: ${e.message}';
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'An unexpected error occurred: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -145,11 +159,14 @@ class AdminAuditLogsController extends ChangeNotifier {
       if (response.statusCode == 201) {
         successMessage = 'Audit log created successfully.';
         fetchAuditLogs(); // Refresh the list
+        _scheduleAutoHideMessages();
       }
     } on DioException catch (e) {
       error = 'Failed to create log: ${e.response?.data?['message'] ?? e.message}';
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'An unexpected error occurred: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();

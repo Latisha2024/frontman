@@ -177,7 +177,7 @@ class _CompanySelectionScreenState extends State<CompanySelectionScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => AdminDashboardScreen(company: company),
+        builder: (context) => AdminDashboardScreen(),
       ),
     );
   }

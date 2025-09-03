@@ -4,12 +4,10 @@ import '../controllers/warranty_database.dart';
 import '../../constants/colors.dart';
 import '../widgets/warranty_list.dart';
 import 'admin_drawer.dart';
-import 'company_selection.dart';
 
 class WarrantyDatabaseScreen extends StatefulWidget {
-  final Company? company;
   final String role;
-  const WarrantyDatabaseScreen({super.key, this.company, required this.role});
+  const WarrantyDatabaseScreen({super.key, required this.role});
 
   @override
   State<WarrantyDatabaseScreen> createState() => _WarrantyDatabaseScreenState();
@@ -21,8 +19,7 @@ class _WarrantyDatabaseScreenState extends State<WarrantyDatabaseScreen> {
   @override
   void initState() {
     super.initState();
-    final company = widget.company ?? CompanySelection.selectedCompany;
-    controller = AdminWarrantyDatabaseController(companyId: company?.id);
+    controller = AdminWarrantyDatabaseController();
     // Load warranty cards from API on initialization
     _loadWarrantyCards();
   }
@@ -54,25 +51,12 @@ class _WarrantyDatabaseScreenState extends State<WarrantyDatabaseScreen> {
                 onPressed: () => Scaffold.of(context).openDrawer(),
               ),
             ),
-            title: Column(
-              children: [
-                const Text(
-                  'Warranty',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                if (widget.company != null)
-                  Text(
-                    widget.company!.name,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.white70,
-                    ),
-                  ),
-              ],
+            title: const Text(
+              'Warranty',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
             actions: [
               Padding(
@@ -99,7 +83,7 @@ class _WarrantyDatabaseScreenState extends State<WarrantyDatabaseScreen> {
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
           ),
-          drawer: widget.role == "admin" ? AdminDrawer(company: widget.company) : SalesManagerDrawer(company: widget.company),
+          drawer: widget.role == "admin" ? const AdminDrawer() : const SalesManagerDrawer(),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

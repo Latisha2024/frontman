@@ -3,12 +3,11 @@ import '../controllers/shift_alerts.dart';
 import '../screens/admin_drawer.dart';
 import '../../constants/colors.dart';
 import '../../sales_manager/screens/sales_manager_drawer.dart';
-import 'company_selection.dart';
+ 
 
 class ShiftAlertsScreen extends StatefulWidget {
-  final Company? company;
   final String role;
-  const ShiftAlertsScreen({super.key, this.company, required this.role});
+  const ShiftAlertsScreen({super.key, required this.role});
 
   @override
   State<ShiftAlertsScreen> createState() => _ShiftAlertsScreenState();
@@ -54,23 +53,14 @@ class _ShiftAlertsScreenState extends State<ShiftAlertsScreen> {
                     color: Colors.white,
                   ),
                 ),
-                if (widget.company != null)
-                  Text(
-                    widget.company!.name,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.white70,
-                    ),
-                  ),
               ],
             ),
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
           ),
           drawer: widget.role == "admin" 
-              ? AdminDrawer(company: widget.company) 
-              : SalesManagerDrawer(company: widget.company),
+              ? const AdminDrawer() 
+              : const SalesManagerDrawer(),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -179,16 +169,6 @@ class _ShiftAlertsScreenState extends State<ShiftAlertsScreen> {
                                     ? null
                                     : () async {
                                         await controller.createShiftAlert();
-                                        if (!mounted) return;
-                                        final msg = controller.error ?? controller.successMessage;
-                                        if (msg != null) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text(msg),
-                                              backgroundColor: controller.error != null ? Colors.red : Colors.green,
-                                            ),
-                                          );
-                                        }
                                       },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primaryBlue,

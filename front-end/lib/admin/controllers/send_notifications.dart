@@ -95,6 +95,16 @@ class AdminSendNotificationsController extends ChangeNotifier {
     fetchNotifications();
   }
 
+  void _scheduleAutoHideMessages() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (error != null || successMessage != null) {
+        error = null;
+        successMessage = null;
+        notifyListeners();
+      }
+    });
+  }
+
   Future<void> fetchNotifications({bool unreadOnly = false}) async {
     try {
       isLoading = true;
@@ -115,14 +125,17 @@ class AdminSendNotificationsController extends ChangeNotifier {
       notifications = data.map((json) => NotificationModel.fromJson(json)).toList();
       applyFilters();
       successMessage = 'Notifications loaded successfully';
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         error = 'Failed to fetch notifications: ${e.response!.statusCode} - ${e.response!.data}';
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -137,6 +150,7 @@ class AdminSendNotificationsController extends ChangeNotifier {
     if (message.isEmpty) {
       error = 'Message is required';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return;
     }
 
@@ -161,6 +175,7 @@ class AdminSendNotificationsController extends ChangeNotifier {
       successMessage = responseData['message'] ?? 'Notification sent successfully!';
       clearForm();
       await fetchNotifications(); // Refresh the list
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
@@ -168,8 +183,10 @@ class AdminSendNotificationsController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -193,6 +210,7 @@ class AdminSendNotificationsController extends ChangeNotifier {
         applyFilters();
       }
       successMessage = 'Notification marked as read';
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
@@ -200,8 +218,10 @@ class AdminSendNotificationsController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -222,6 +242,7 @@ class AdminSendNotificationsController extends ChangeNotifier {
       notifications = notifications.map((n) => n.copyWith(read: true)).toList();
       applyFilters();
       successMessage = 'All notifications marked as read';
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
@@ -229,8 +250,10 @@ class AdminSendNotificationsController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -278,6 +301,7 @@ class AdminSendNotificationsController extends ChangeNotifier {
     error = null;
     successMessage = null;
     notifyListeners();
+    _scheduleAutoHideMessages();
   }
 
   void clearMessages() {

@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:role_based_app/admin/screens/warranty_database.dart';
 import 'admin_drawer.dart';
 import '../../constants/colors.dart';
-import 'company_selection.dart';
 import 'generate_reports.dart';
 import 'manage_products.dart';
 import 'manage_users.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
-  final Company? company;
-
-  const AdminDashboardScreen({Key? key, this.company}) : super(key: key);
+  const AdminDashboardScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +18,7 @@ class AdminDashboardScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      drawer: AdminDrawer(company: company),
+      drawer: const AdminDrawer(),
       body: Container(
         color: AppColors.backgroundColor,
         child: SingleChildScrollView(
@@ -74,25 +71,6 @@ class AdminDashboardScreen extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      if (company != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          company!.name,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          company!.description,
-                          style: const TextStyle(
-                            color: Colors.white60,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),
@@ -151,7 +129,7 @@ class AdminDashboardScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ManageUsersScreen(company: company,role: "admin"),
+                        builder: (context) => const ManageUsersScreen(role: "admin"),
                       ),
                     );
                   },
@@ -163,7 +141,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ManageProductsScreen(company: company,role: "admin"),
+                      builder: (context) => const ManageProductsScreen(role: "admin"),
                     ),
                   ),
                 ),
@@ -175,7 +153,7 @@ class AdminDashboardScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => WarrantyDatabaseScreen(role: "admin"),
+                        builder: (context) => const WarrantyDatabaseScreen(role: "admin"),
                       ),
                     );
                   },
@@ -188,7 +166,7 @@ class AdminDashboardScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => GenerateReportsScreen(company: company,role: "admin"),
+                        builder: (context) => const GenerateReportsScreen(role: "admin"),
                       ),
                     );
                   },

@@ -151,6 +151,16 @@ class AdminInvoicesController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _scheduleAutoHideMessages() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (error != null || successMessage != null) {
+        error = null;
+        successMessage = null;
+        notifyListeners();
+      }
+    });
+  }
+
   // Form controllers
   final invoiceNumberController = TextEditingController();
   final issueDateController = TextEditingController();
@@ -201,6 +211,7 @@ class AdminInvoicesController extends ChangeNotifier {
     clearForm();
     successMessage = 'Invoice added successfully!';
     notifyListeners();
+    _scheduleAutoHideMessages();
   }
 
   void editInvoice(Invoice invoice) {
@@ -238,6 +249,7 @@ class AdminInvoicesController extends ChangeNotifier {
       successMessage = 'Invoice updated successfully!';
     }
     notifyListeners();
+    _scheduleAutoHideMessages();
   }
 
   double calculateSubtotal() {
@@ -261,6 +273,7 @@ class AdminInvoicesController extends ChangeNotifier {
         formItems.isEmpty) {
       error = 'Please fill in all required fields and add at least one line item.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return false;
     }
     return true;
@@ -302,18 +315,22 @@ class AdminInvoicesController extends ChangeNotifier {
         invoices = fetchedInvoices;
         filteredInvoices = List.from(invoices);
         successMessage = 'Invoices loaded successfully';
+        _scheduleAutoHideMessages();
         return fetchedInvoices;
       } else {
         error = 'Failed to fetch invoices: ${response.statusCode}';
         notifyListeners();
+        _scheduleAutoHideMessages();
         return [];
       }
     } on DioException catch (e) {
       _handleDioError(e);
+      _scheduleAutoHideMessages();
       return [];
     } catch (e) {
       error = 'Unexpected error: $e';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return [];
     } finally {
       isLoading = false;
@@ -334,18 +351,22 @@ class AdminInvoicesController extends ChangeNotifier {
         final invoice = _mapBackendInvoiceToModel(response.data);
         successMessage = 'Invoice loaded successfully';
         notifyListeners();
+        _scheduleAutoHideMessages();
         return invoice;
       } else {
         error = 'Failed to fetch invoice: ${response.statusCode}';
         notifyListeners();
+        _scheduleAutoHideMessages();
         return null;
       }
     } on DioException catch (e) {
       _handleDioError(e);
+      _scheduleAutoHideMessages();
       return null;
     } catch (e) {
       error = 'Unexpected error: $e';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return null;
     } finally {
       isLoading = false;
@@ -369,11 +390,13 @@ class AdminInvoicesController extends ChangeNotifier {
       if (userId.trim().isEmpty) {
         error = 'User ID is required';
         notifyListeners();
+        _scheduleAutoHideMessages();
         return null;
       }
       if (items.isEmpty) {
         error = 'At least one item is required';
         notifyListeners();
+        _scheduleAutoHideMessages();
         return null;
       }
 
@@ -399,10 +422,12 @@ class AdminInvoicesController extends ChangeNotifier {
         filteredInvoices = List.from(invoices);
         successMessage = 'Invoice created successfully';
         notifyListeners();
+        _scheduleAutoHideMessages();
         return created;
       } else {
         error = 'Failed to create invoice: ${response.statusCode}';
         notifyListeners();
+        _scheduleAutoHideMessages();
         return null;
       }
     } on DioException catch (e) {
@@ -411,10 +436,12 @@ class AdminInvoicesController extends ChangeNotifier {
       } else {
         _handleDioError(e);
       }
+      _scheduleAutoHideMessages();
       return null;
     } catch (e) {
       error = 'Unexpected error: $e';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return null;
     } finally {
       isLoading = false;
@@ -427,6 +454,7 @@ class AdminInvoicesController extends ChangeNotifier {
     if (orderId.trim().isEmpty) {
       error = 'Please enter a valid order ID.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return null;
     }
     try {
@@ -449,10 +477,12 @@ class AdminInvoicesController extends ChangeNotifier {
         filteredInvoices = List.from(invoices);
         successMessage = 'Invoice generated successfully.';
         notifyListeners();
+        _scheduleAutoHideMessages();
         return created;
       } else {
         error = 'Failed to generate invoice: ${response.statusCode}';
         notifyListeners();
+        _scheduleAutoHideMessages();
         return null;
       }
     } on DioException catch (e) {
@@ -461,10 +491,12 @@ class AdminInvoicesController extends ChangeNotifier {
       } else {
         _handleDioError(e);
       }
+      _scheduleAutoHideMessages();
       return null;
     } catch (e) {
       error = 'Unexpected error: $e';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return null;
     } finally {
       isLoading = false;
@@ -523,6 +555,7 @@ class AdminInvoicesController extends ChangeNotifier {
       error = 'Network error: ${e.message}';
     }
     notifyListeners();
+    _scheduleAutoHideMessages();
   }
 
   @override

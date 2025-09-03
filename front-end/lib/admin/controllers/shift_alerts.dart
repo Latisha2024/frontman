@@ -36,6 +36,16 @@ class AdminShiftAlertsController extends ChangeNotifier {
     ));
   }
 
+  void _scheduleAutoHideMessages() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (error != null || successMessage != null) {
+        error = null;
+        successMessage = null;
+        notifyListeners();
+      }
+    });
+  }
+
   // POST /admin/shift-alerts
   Future<void> createShiftAlert() async {
     if (!validateForm()) return;
@@ -58,6 +68,7 @@ class AdminShiftAlertsController extends ChangeNotifier {
       final responseData = response.data;
       successMessage = responseData['message'] ?? 'Shift alert created successfully';
       clearForm();
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         final responseData = e.response!.data;
@@ -65,8 +76,10 @@ class AdminShiftAlertsController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -79,6 +92,7 @@ class AdminShiftAlertsController extends ChangeNotifier {
         messageController.text.trim().isEmpty) {
       error = 'Please fill in all required fields.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return false;
     }
     return true;
@@ -87,13 +101,13 @@ class AdminShiftAlertsController extends ChangeNotifier {
   void clearForm() {
     userIdController.clear();
     messageController.clear();
-    clearMessages();
     notifyListeners();
   }
 
   void clearMessages() {
     error = null;
     successMessage = null;
+    notifyListeners();
   }
 
   @override

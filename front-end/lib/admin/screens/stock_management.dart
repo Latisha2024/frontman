@@ -3,12 +3,11 @@ import 'package:role_based_app/admin/controllers/stock_controller.dart';
 import '../../constants/colors.dart';
 import '../../sales_manager/screens/sales_manager_drawer.dart';
 import 'admin_drawer.dart';
-import 'company_selection.dart';
+ 
 
 class StockManagementScreen extends StatefulWidget {
   final String role;
-  final Company? company;
-  const StockManagementScreen({super.key, this.company,required this.role});
+  const StockManagementScreen({super.key, required this.role});
 
 
 
@@ -20,6 +19,7 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
   List<Map<String, dynamic>> stockEntries = [];
   bool isLoading = true;
   String? error;
+  String? successMessage;
 
   final TextEditingController _productIdController = TextEditingController();
   final TextEditingController _statusController = TextEditingController();
@@ -36,6 +36,18 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
   void initState() {
     super.initState();
     _loadStockEntries();
+  }
+
+  void _scheduleAutoHideMessages() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      if (error != null || successMessage != null) {
+        setState(() {
+          error = null;
+          successMessage = null;
+        });
+      }
+    });
   }
 
   Future<void> _loadStockEntries() async {
@@ -55,6 +67,7 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
         error = e.toString();
         isLoading = false;
       });
+      _scheduleAutoHideMessages();
     }
   }
 
@@ -62,9 +75,11 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
     if (_productIdController.text.isEmpty ||
         _statusController.text.isEmpty ||
         _locationController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
-      );
+      setState(() {
+        error = 'Please fill all fields';
+        successMessage = null;
+      });
+      _scheduleAutoHideMessages();
       return;
     }
 
@@ -78,16 +93,19 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
       _productIdController.clear();
       _statusController.clear();
       _locationController.clear();
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Stock entry created successfully')),
-      );
+      setState(() {
+        successMessage = 'Stock entry created successfully';
+        error = null;
+      });
+      _scheduleAutoHideMessages();
       
       _loadStockEntries();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error creating stock: $e')),
-      );
+      setState(() {
+        error = 'Error creating stock: $e';
+        successMessage = null;
+      });
+      _scheduleAutoHideMessages();
     }
   }
 
@@ -98,30 +116,37 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
         status: status,
         location: location,
       );
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Stock updated successfully')),
-      );
+      setState(() {
+        successMessage = 'Stock updated successfully';
+        error = null;
+      });
+      _scheduleAutoHideMessages();
       
       _loadStockEntries();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating stock: $e')),
-      );
+      setState(() {
+        error = 'Error updating stock: $e';
+        successMessage = null;
+      });
+      _scheduleAutoHideMessages();
     }
   }
 
   Future<void> _cleanupBrokenStock() async {
     try {
       final result = await StockController.cleanupBrokenStock();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Cleanup completed')),
-      );
+      setState(() {
+        successMessage = (result['message'] ?? 'Cleanup completed').toString();
+        error = null;
+      });
+      _scheduleAutoHideMessages();
       _loadStockEntries();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error during cleanup: $e')),
-      );
+      setState(() {
+        error = 'Error during cleanup: $e';
+        successMessage = null;
+      });
+      _scheduleAutoHideMessages();
     }
   }
 
@@ -268,101 +293,149 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
           ),
         ],
       ),
-      drawer: widget.role == "admin" ? AdminDrawer(company: widget.company) : SalesManagerDrawer(company: widget.company),
+      drawer: widget.role == "admin" ? const AdminDrawer() : const SalesManagerDrawer(),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-                  children: [
-                    // Summary Cards
+          : ListView(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              children: [
+                  if (error != null)
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.shade300),
+                      ),
                       child: Row(
                         children: [
+                          Icon(Icons.error, color: Colors.red.shade700),
+                          const SizedBox(width: 8),
                           Expanded(
-                            child: Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  children: [
-                                    const Icon(Icons.inventory, size: 32, color: AppColors.primaryBlue),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      '${stockEntries.length}',
-                                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                                    ),
-                                    const Text('Total Stock'),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  children: [
-                                    const Icon(Icons.check_circle, size: 32, color: AppColors.primaryBlue),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      '${stockEntries.where((s) => s['status'] == 'Available').length}',
-                                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                                    ),
-                                    const Text('Available'),
-                                  ],
-                                ),
-                              ),
+                            child: Text(
+                              error!,
+                              style: TextStyle(color: Colors.red.shade700),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    // Stock List
-                    Expanded(
-                      child: stockEntries.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'No stock entries found',
-                                style: TextStyle(fontSize: 16, color: Colors.grey),
-                              ),
-                            )
-                          : ListView.builder(
-                              padding: const EdgeInsets.all(16),
-                              itemCount: stockEntries.length,
-                              itemBuilder: (context, index) {
-                                final stock = stockEntries[index];
-                                final product = stock['product'];
-                                
-                                return Card(
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  child: ListTile(
-                                    title: Text(
-                                      product != null ? product['name'] : 'Unknown Product',
-                                      style: const TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Status: ${stock['status']}'),
-                                        Text('Location: ${stock['location']}'),
-                                        if (product != null) ...[
-                                          Text('Price: ₹${product['price']}'),
-                                          Text('Warranty: ${product['warrantyPeriodInMonths']} months'),
-                                        ],
-                                      ],
-                                    ),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      onPressed: () => _showEditDialog(stock),
-                                    ),
-                                  ),
-                                );
-                              },
+                  if (error != null) const SizedBox(height: 16),
+                  if (successMessage != null)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.green.shade700),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              successMessage!,
+                              style: TextStyle(color: Colors.green.shade700),
                             ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  if (successMessage != null) const SizedBox(height: 16),
+                  // Summary Cards
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  const Icon(Icons.inventory, size: 32, color: AppColors.primaryBlue),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${stockEntries.length}',
+                                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                                  ),
+                                  const Text('Total Stock'),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  const Icon(Icons.check_circle, size: 32, color: AppColors.primaryBlue),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${stockEntries.where((s) => s['status'] == 'Available').length}',
+                                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                                  ),
+                                  const Text('Available'),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (stockEntries.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(
+                        child: Text(
+                          'No stock entries found',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      ),
+                    )
+                  else
+                    ...[
+                      for (final stock in stockEntries)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Card(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: ListTile(
+                              title: Text(
+                                stock['product'] != null ? stock['product']['name'] : 'Unknown Product',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Status: ${stock['status']}'),
+                                  Text('Location: ${stock['location']}'),
+                                  if (stock['product'] != null) ...[
+                                    Text('Price: ₹${stock['product']['price']}'),
+                                    Text('Warranty: ${stock['product']['warrantyPeriodInMonths']} months'),
+                                  ],
+                                ],
+                              ),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () => _showEditDialog(stock),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+              ],
+            ),
     );
   }
 

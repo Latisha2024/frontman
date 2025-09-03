@@ -70,6 +70,16 @@ class AdminAssignIncentiveController extends ChangeNotifier {
     fetchAllIncentives();
   }
 
+  void _scheduleAutoHideMessages() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (error != null || successMessage != null) {
+        error = null;
+        successMessage = null;
+        notifyListeners();
+      }
+    });
+  }
+
   // GET /admin/incentives - Fetch all incentives
   Future<void> fetchAllIncentives() async {
     try {
@@ -83,14 +93,17 @@ class AdminAssignIncentiveController extends ChangeNotifier {
       filteredIncentives = List.from(incentives);
       
       successMessage = 'Incentives loaded successfully';
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         error = 'Failed to fetch incentives: ${e.response!.statusCode} - ${e.response!.data}';
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -114,14 +127,18 @@ class AdminAssignIncentiveController extends ChangeNotifier {
       final List<dynamic> data = response.data;
       filteredIncentives = data.map((json) => Incentive.fromJson(json)).toList();
       
+      successMessage = 'Incentives filtered by user';
+      _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
         error = 'Failed to filter incentives: ${e.response!.statusCode} - ${e.response!.data}';
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -137,6 +154,7 @@ class AdminAssignIncentiveController extends ChangeNotifier {
     if (userId.isEmpty || points == null || points <= 0 || description.isEmpty) {
       error = 'Please fill all fields with valid data.';
       notifyListeners();
+      _scheduleAutoHideMessages();
       return;
     }
 
@@ -155,6 +173,7 @@ class AdminAssignIncentiveController extends ChangeNotifier {
         successMessage = 'Incentive assigned successfully!';
         clearForm();
         await fetchAllIncentives(); // Refresh the list
+        _scheduleAutoHideMessages();
       }
     } on DioException catch (e) {
       if (e.response != null) {
@@ -162,8 +181,10 @@ class AdminAssignIncentiveController extends ChangeNotifier {
       } else {
         error = 'Network error: ${e.message}';
       }
+      _scheduleAutoHideMessages();
     } catch (e) {
       error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -174,6 +195,7 @@ class AdminAssignIncentiveController extends ChangeNotifier {
     userIdController.clear();
     pointsController.clear();
     descriptionController.clear();
+    _scheduleAutoHideMessages();
   }
 
   void clearMessages() {

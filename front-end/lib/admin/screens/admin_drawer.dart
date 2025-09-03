@@ -4,23 +4,20 @@ import 'package:role_based_app/admin/screens/send_notifications.dart';
 import 'package:role_based_app/admin/screens/shift_alerts.dart';
 import 'package:role_based_app/admin/screens/stock_management.dart';
 import 'package:role_based_app/admin/screens/warranty_database.dart';
-import 'package:role_based_app/external_seller/screens/incentives.dart';
 import '../../constants/colors.dart';
 import '../../sales_manager/screens/gps_tracking.dart';
 import 'admin_dashboard.dart';
 import 'assign_incentive.dart';
 import 'audit_logs.dart';
-import 'company_selection.dart';
 import 'convert_points.dart';
 import 'manage_products.dart';
 import 'generate_reports.dart';
 import 'manage_users.dart';
 import 'order_summary.dart';
+import 'company_selection.dart';
 
 class AdminDrawer extends StatelessWidget {
-  final Company? company;
-  
-  const AdminDrawer({super.key, this.company});
+  const AdminDrawer({super.key});
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -47,17 +44,6 @@ class AdminDrawer extends StatelessWidget {
                     color: Colors.white
                   )
                 ),
-                if (company != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    company!.name,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
@@ -68,7 +54,7 @@ class AdminDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AdminDashboardScreen(company: company),
+                  builder: (context) => const AdminDashboardScreen(),
                 ),
               );
             },
@@ -80,7 +66,7 @@ class AdminDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ManageUsersScreen(company: company, role: "admin"),
+                  builder: (context) => const ManageUsersScreen(role: "admin"),
                 ),
               );
             },
@@ -92,7 +78,7 @@ class AdminDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ManageProductsScreen(company: company, role: "admin"),
+                  builder: (context) => const ManageProductsScreen(role: "admin"),
                 ),
               );
             },
@@ -128,7 +114,7 @@ class AdminDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => GenerateReportsScreen(company: company,role: "admin"),
+                  builder: (context) => const GenerateReportsScreen(role: "admin"),
                 ),
               );
             },
@@ -233,7 +219,7 @@ class AdminDrawer extends StatelessWidget {
             leading: const Icon(Icons.arrow_back),
             title: const Text('Select Company'),
             onTap: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => CompanySelectionScreen(),

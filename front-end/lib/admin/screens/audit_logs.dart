@@ -66,7 +66,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
           drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
           body: Column(
             children: [
-              if (controller.error != null) ...[
+              if (controller.error != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Container(
@@ -99,8 +99,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                     ),
                   ),
                 ),
-              ],
-              if (controller.successMessage != null) ...[
+              if (controller.successMessage != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Container(
@@ -133,7 +132,6 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                     ),
                   ),
                 ),
-              ],
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: buildSearchAndFilter(),
