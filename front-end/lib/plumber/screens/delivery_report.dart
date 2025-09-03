@@ -22,32 +22,17 @@ class PlumberDeliveryReportScreenState
     super.dispose();
   }
 
-  void handleQrRequestedChanged(bool value) {
-    setState(() {
-      controller.qrRequested = value;
-    });
-  }
-
   Future<void> handleSubmit() async {
     await controller.submitReport();
 
     if (controller.success == true) {
-      if (controller.qrRequested) {
-        Navigator.pushNamed(
-          context,
-          '/seller/register-warranty',
-          arguments: {
-            'product': controller.productController.text,
-          },
-        );
-      }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Delivery report submitted successfully!')),
+          content: Text('✅ Delivery report submitted successfully!'),
+        ),
       );
       controller.productController.clear();
       controller.quantityController.clear();
-      controller.qrRequested = false;
       setState(() {});
     } else if (controller.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -79,7 +64,6 @@ class PlumberDeliveryReportScreenState
               controller: controller,
               onSubmit: handleSubmit,
               isLoading: controller.isLoading,
-              onQrRequestedChanged: handleQrRequestedChanged,
             );
           },
         ),

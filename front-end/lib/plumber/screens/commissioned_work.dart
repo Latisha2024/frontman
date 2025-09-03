@@ -58,7 +58,7 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => QRScannerWidget(onScan: (code) {
+        builder: (context) => QRCodeCommissionedWork(onScan: (code) {
           setState(() => _qrCode = code);
         }),
       ),
@@ -104,7 +104,7 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
 
         // ✅ Assumption: Backend endpoint exists at /commissionedWork
         final response = await _dio.post(
-          "https://your-backend.com/api/commissionedWork",
+          "https://localhost:5000/user/commissioned-work",
           data: formData,
           options: Options(headers: {"Content-Type": "multipart/form-data"}),
         );

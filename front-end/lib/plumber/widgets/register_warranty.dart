@@ -138,37 +138,3 @@ class RegisterWarrantyForm extends StatelessWidget {
     );
   }
 }
-
-class QRCodeDisplay extends StatelessWidget {
-  final String qrCodeData;
-
-  const QRCodeDisplay({super.key, required this.qrCodeData});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Text(
-              'Generated QR Code:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            QrImageView(
-              data: qrCodeData,
-              version: QrVersions.auto,
-              size: 200.0,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'QR Code generated successfully!',
-              style: TextStyle(color: Colors.green),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

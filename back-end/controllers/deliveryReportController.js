@@ -4,7 +4,7 @@ const deliveryReportController = {
   // POST /user/delivery-report
   submitDeliveryReport: async (req, res) => {
     try {
-      const { product, quantity, qrRequested = false } = req.body;
+      const { product, quantity } = req.body;
       const userId = req.user.id; // From auth middleware
 
       if (!product || !quantity) {
@@ -15,14 +15,12 @@ const deliveryReportController = {
         return res.status(400).json({ message: 'Quantity must be positive' });
       }
 
-      // Create delivery report
-      const report = await prisma.deliveryReport.create({
+      // ✅ Create PostDeliveryReport (correct table + schema)
+      const report = await prisma.postDeliveryReport.create({
         data: {
           userId,
           product,
           quantity,
-          isForecasted: false, // This is a post-delivery report
-          qrRequested,
           submittedAt: new Date()
         }
       });
@@ -34,7 +32,6 @@ const deliveryReportController = {
           userId: report.userId,
           product: report.product,
           quantity: report.quantity,
-          qrRequested: report.qrRequested,
           submittedAt: report.submittedAt
         }
       });
