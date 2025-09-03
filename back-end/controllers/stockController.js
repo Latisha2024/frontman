@@ -73,36 +73,6 @@ const stockController = {
     }
   },
 
-  // // GET /distributor/stock
-  // getAssignedStock: async (req, res) => {
-  //   try {
-  //     const userId = req.user.id;
-  //     // Get distributor's assigned stock (filter by location or distributor assignment)
-  //     const stocks = await prisma.stock.findMany({
-  //       where: {
-  //         OR: [
-  //           { location: { contains: 'Distributor', mode: 'insensitive' } },
-  //           { status: { in: ['Assigned', 'Distributed'] } }
-  //         ]
-  //       },
-  //       include: {
-  //         product: {
-  //           select: {
-  //             id: true,
-  //             name: true,
-  //             price: true,
-  //             warrantyPeriodInMonths: true
-  //           }
-  //         }
-  //       },
-  //       orderBy: { id: 'desc' }
-  //     });
-  //     res.json(stocks);
-  //   } catch (err) {
-  //     console.error(err);
-  //     res.status(500).json({ message: 'Failed to fetch assigned stock' });
-  //   }
-  // },
   // GET /distributor/stock
 getAssignedStock: async (req, res) => {
   try {
@@ -151,21 +121,21 @@ getAssignedStock: async (req, res) => {
       const { id } = req.params;
       const { status, location } = req.body;
       const userId = req.user.id;
-
+      
       // Verify stock exists and is assigned to distributor
       const stock = await prisma.stock.findUnique({
         where: { id },
         include: { product: true }
       });
-
+      
       if (!stock) {
         return res.status(404).json({ message: 'Stock not found' });
       }
-
+      
       // Update stock status
       const updatedStock = await prisma.stock.update({
         where: { id },
-        data: {
+        data: { 
           status: status || stock.status,
           location: location || stock.location
         },
@@ -179,7 +149,7 @@ getAssignedStock: async (req, res) => {
           }
         }
       });
-
+      
       res.json({ message: 'Stock status updated', stock: updatedStock });
     } catch (err) {
       console.error(err);
@@ -384,3 +354,4 @@ try {
 
 
 module.exports = stockController;
+

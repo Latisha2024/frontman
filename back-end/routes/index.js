@@ -22,6 +22,9 @@ router.use('/admin/shift-alerts', require('./admin/shiftAlert'));
 router.use('/distributor/catalog', require('./distributor/catalog'));
 router.use('/distributor/order', require('./distributor/order'));
 router.use('/distributor/stock', require('./distributor/stock'));
+router.use('/distributor/cart', require('./distributor/cart'));
+router.use('/distributor/promo', require('./distributor/promo'));
+router.use('/distributor/categories', require('./distributor/category'));
 
 router.use('/accountant/invoice', require('./accountant/invoice'));
 

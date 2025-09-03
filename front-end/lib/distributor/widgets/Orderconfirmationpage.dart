@@ -1,6 +1,7 @@
 // order_confirmation_page.dart
 import 'package:flutter/material.dart';
-import 'package:role_based_app/constants/colors.dart';
+import 'package:dio/dio.dart';
+import '../../authpage/pages/auth_services.dart';
 
 class OrderConfirmationPage extends StatefulWidget {
   const OrderConfirmationPage({super.key});
@@ -10,94 +11,102 @@ class OrderConfirmationPage extends StatefulWidget {
 }
 
 class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
-  final orderIdController = TextEditingController();
-  String confirmationDetails = '';
-  bool isError = false;
+  final TextEditingController orderIdController = TextEditingController();
+  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5000"));
 
-  void getConfirmation() {
-    final orderId = orderIdController.text.trim();
-    if (orderId.isEmpty) {
-      setState(() {
-        confirmationDetails = '⚠️ Please enter a valid Order ID';
-        isError = true;
-      });
-      return;
-    }
+  bool loading = false;
+  String? message;
+  Map<String, dynamic>? confirmationData;
 
-    setState(() {
-      confirmationDetails =
-          '✅ Order #$orderId has been successfully confirmed and will be delivered soon.';
-      isError = false;
-    });
+  Future<String?> _getToken() async {
+    final authService = AuthService();
+    return await authService.getToken();
   }
 
-  @override
-  void dispose() {
-    orderIdController.dispose();
-    super.dispose();
+  Future<void> getOrderConfirmation() async {
+    setState(() {
+      loading = true;
+      message = null;
+      confirmationData = null;
+    });
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        setState(() => message = "⚠️ Please login again.");
+        return;
+      }
+
+      final response = await dio.get(
+        "/distributor/order/${orderIdController.text}/confirmation",
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+
+      setState(() {
+        confirmationData = response.data;
+      });
+    } catch (e) {
+      setState(() => message = "❌ Error: $e");
+    } finally {
+      setState(() => loading = false);
+    }
+  }
+
+  Widget _buildConfirmationDetails() {
+    if (confirmationData == null) return const SizedBox();
+
+    final items = (confirmationData!['items'] as List<dynamic>? ?? []);
+    final pricing = confirmationData!['pricing'] ?? {};
+    final promo = confirmationData!['promoCode'];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("🧾 Order ID: ${confirmationData!['orderId']}"),
+        Text("📅 Date: ${confirmationData!['orderDate']}"),
+        Text("📦 Status: ${confirmationData!['status']}"),
+        const Divider(),
+
+        Text("🛒 Items:", style: const TextStyle(fontWeight: FontWeight.bold)),
+        ...items.map((item) => ListTile(
+              title: Text(item['productName']),
+              subtitle: Text("Qty: ${item['quantity']}  |  Warranty: ${item['warrantyPeriod']} months"),
+              trailing: Text("\$${item['total']}"),
+            )),
+
+        const Divider(),
+        Text("💰 Subtotal: \$${pricing['subtotal']}"),
+        Text("🎟️ Discount: -\$${pricing['discountAmount']}"),
+        Text("✅ Total: \$${pricing['total']}"),
+        if (promo != null) Text("Promo Applied: ${promo['code']}"),
+
+        const Divider(),
+        Text("🚚 Estimated Delivery: ${confirmationData!['estimatedDelivery']}"),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        title: const Text("Order Confirmation"),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
+      appBar: AppBar(title: const Text("Order Confirmation")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
               controller: orderIdController,
-              decoration: const InputDecoration(
-                labelText: "Order ID",
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: "Order ID"),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: loading ? null : getOrderConfirmation,
+              child: const Text("📄 Get Confirmation"),
             ),
             const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: getConfirmation,
-                icon: const Icon(Icons.check_circle_outline),
-                label: const Text("Get Confirmation"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            if (confirmationDetails.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isError ? Colors.red.shade100 : Colors.green.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      isError ? Icons.error_outline : Icons.check_circle_outline,
-                      color: isError ? Colors.red : Colors.green,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        confirmationDetails,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: isError ? Colors.red[900] : Colors.green[900],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+
+            if (loading) const CircularProgressIndicator(),
+            if (message != null) Text(message!, style: const TextStyle(color: Colors.red)),
+            if (confirmationData != null) _buildConfirmationDetails(),
           ],
         ),
       ),

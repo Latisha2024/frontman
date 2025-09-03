@@ -1,103 +1,399 @@
-// apply_promo_page.dart
-import 'package:flutter/material.dart';
-import 'package:role_based_app/constants/colors.dart';
+// // // promo_page.dart
+// import 'package:flutter/material.dart';
+// import 'package:dio/dio.dart';
+// import '../../authpage/pages/auth_services.dart';
 
-class ApplyPromoPage extends StatefulWidget {
-  const ApplyPromoPage({super.key});
+// class PromoPage extends StatefulWidget {
+//   const PromoPage({super.key});
+
+//   @override
+//   State<PromoPage> createState() => _PromoPageState();
+// }
+
+// class _PromoPageState extends State<PromoPage> {
+//   final TextEditingController promoCodeController = TextEditingController();
+//   final TextEditingController orderAmountController = TextEditingController();
+//   final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5000"));
+
+//   bool loading = false;
+//   String? message;
+//   List<dynamic> activePromos = [];
+
+//   Future<String?> _getToken() async {
+//     final authService = AuthService();
+//     return await authService.getToken();
+//   }
+
+//   Future<void> applyPromo() async {
+//     setState(() {
+//       loading = true;
+//       message = null;
+//     });
+//     try {
+//       final token = await _getToken();
+//       if (token == null) {
+//         setState(() => message = "⚠️ Please login again.");
+//         return;
+//       }
+
+//       final response = await dio.post(
+//         "/distributor/promo/apply",
+//         data: {
+//           "promoCode": promoCodeController.text,
+//           "orderAmount": double.tryParse(orderAmountController.text) ?? 0,
+//         },
+//         options: Options(headers: {"Authorization": "Bearer $token"}),
+//       );
+
+//       final promoData = response.data['promoCode'];
+//       setState(() {
+//         message =
+//             "✅ Applied: ${promoData['code']} | Discount: ${promoData['discountAmount']} | Final: ${promoData['finalAmount']}";
+//       });
+//     } catch (e) {
+//       setState(() => message = "❌ Error: $e");
+//     } finally {
+//       setState(() => loading = false);
+//     }
+//   }
+
+//   Future<void> validatePromo() async {
+//     setState(() {
+//       loading = true;
+//       message = null;
+//     });
+//     try {
+//       final token = await _getToken();
+//       if (token == null) {
+//         setState(() => message = "⚠️ Please login again.");
+//         return;
+//       }
+
+//       final response = await dio.post(
+//         "/distributor/promo/validate",
+//         data: {
+//           "promoCode": promoCodeController.text,
+//           "orderAmount": double.tryParse(orderAmountController.text) ?? 0,
+//         },
+//         options: Options(headers: {"Authorization": "Bearer $token"}),
+//       );
+
+//       final promoData = response.data['promoCode'];
+//       setState(() {
+//         message =
+//             "🔍 Valid: ${promoData['code']} | Discount: ${promoData['discountAmount']} | Final: ${promoData['finalAmount']}";
+//       });
+//     } catch (e) {
+//       setState(() => message = "❌ Error: $e");
+//     } finally {
+//       setState(() => loading = false);
+//     }
+//   }
+
+//   Future<void> getActivePromos() async {
+//     setState(() {
+//       loading = true;
+//       message = null;
+//       activePromos.clear();
+//     });
+//     try {
+//       final token = await _getToken();
+//       if (token == null) {
+//         setState(() => message = "⚠️ Please login again.");
+//         return;
+//       }
+
+//       final response = await dio.get(
+//         "/distributor/promo/active",
+//         options: Options(headers: {"Authorization": "Bearer $token"}),
+//       );
+
+//       setState(() {
+//         activePromos = response.data is List ? response.data : [];
+//       });
+//     } catch (e) {
+//       setState(() => message = "❌ Error: $e");
+//     } finally {
+//       setState(() => loading = false);
+//     }
+//   }
+
+//   Widget _buildPromoCard(dynamic promo) {
+//     return Card(
+//       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+//       child: ListTile(
+//         title: Text(
+//           promo['code'] ?? "Unknown Code",
+//           style: const TextStyle(fontWeight: FontWeight.bold),
+//         ),
+//         subtitle: Text(promo['description'] ?? "No description available"),
+//         trailing: Text(
+//           promo['discountType'] == "percentage"
+//               ? "${promo['discountValue']}%"
+//               : "\$${promo['discountValue']}",
+//           style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+//         ),
+//       ),
+//     );
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: const Text("Distributor Promo Codes")),
+//       body: SingleChildScrollView(
+//         padding: const EdgeInsets.all(16),
+//         child: Column(
+//           children: [
+//             TextField(
+//               controller: promoCodeController,
+//               decoration: const InputDecoration(
+//                 labelText: "Enter Promo Code",
+//                 border: OutlineInputBorder(),
+//               ),
+//             ),
+//             const SizedBox(height: 12),
+//             TextField(
+//               controller: orderAmountController,
+//               keyboardType: TextInputType.number,
+//               decoration: const InputDecoration(
+//                 labelText: "Enter Order Amount",
+//                 border: OutlineInputBorder(),
+//               ),
+//             ),
+//             const SizedBox(height: 12),
+
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//               children: [
+//                 ElevatedButton.icon(
+//                   onPressed: loading ? null : applyPromo,
+//                   icon: const Icon(Icons.check_circle),
+//                   label: const Text("Apply"),
+//                 ),
+//                 ElevatedButton.icon(
+//                   onPressed: loading ? null : validatePromo,
+//                   icon: const Icon(Icons.verified),
+//                   label: const Text("Validate"),
+//                 ),
+//                 ElevatedButton.icon(
+//                   onPressed: loading ? null : getActivePromos,
+//                   icon: const Icon(Icons.local_offer),
+//                   label: const Text("Active"),
+//                 ),
+//               ],
+//             ),
+
+//             const SizedBox(height: 20),
+
+//             if (loading) const CircularProgressIndicator(),
+
+//             if (message != null) ...[
+//               const SizedBox(height: 12),
+//               Text(
+//                 message!,
+//                 style: TextStyle(
+//                   color: message!.startsWith("✅") || message!.startsWith("🔍")
+//                       ? Colors.green
+//                       : Colors.red,
+//                   fontWeight: FontWeight.bold,
+//                 ),
+//               ),
+//             ],
+
+//             if (activePromos.isNotEmpty) ...[
+//               const SizedBox(height: 20),
+//               const Text(
+//                 "Active Promo Codes",
+//                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+//               ),
+//               ListView.builder(
+//                 shrinkWrap: true,
+//                 physics: const NeverScrollableScrollPhysics(),
+//                 itemCount: activePromos.length,
+//                 itemBuilder: (context, index) {
+//                   return _buildPromoCard(activePromos[index]);
+//                 },
+//               ),
+//             ],
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+// promo_code_page.dart
+import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import '../../authpage/pages/auth_services.dart';
+
+class PromoCodePage extends StatefulWidget {
+  const PromoCodePage({super.key});
 
   @override
-  State<ApplyPromoPage> createState() => _ApplyPromoPageState();
+  State<PromoCodePage> createState() => _PromoCodePageState();
 }
 
-class _ApplyPromoPageState extends State<ApplyPromoPage> {
-  final promoCodeController = TextEditingController(text: 'DEMO2025'); // Demo placeholder
-  String message = '';
+class _PromoCodePageState extends State<PromoCodePage> {
+  final TextEditingController promoCodeController = TextEditingController();
+  final TextEditingController orderAmountController = TextEditingController();
+  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5000"));
 
-  void applyPromo() {
-    final code = promoCodeController.text.trim();
-    if (code.isEmpty) {
-      setState(() => message = '❗ Please enter a promo code.');
-      return;
-    }
+  bool loading = false;
+  String? message;
+  List<dynamic> activePromoCodes = [];
 
-    // Simulated logic for demo
-    if (code == 'DEMO2025') {
-      setState(() => message = '✅ Promo code "$code" applied successfully! You saved 20%.');
-    } else {
-      setState(() => message = '❌ Invalid promo code "$code". Please try again.');
+  Future<String?> _getToken() async {
+    final authService = AuthService();
+    return await authService.getToken();
+  }
+
+  Future<void> applyPromoCode() async {
+    setState(() {
+      loading = true;
+      message = null;
+    });
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        setState(() => message = "⚠️ Please login again.");
+        return;
+      }
+
+      final response = await dio.post(
+        "/distributor/promo/apply",
+        data: {
+          "promoCode": promoCodeController.text,
+          "orderAmount": double.tryParse(orderAmountController.text) ?? 0,
+        },
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+
+      setState(() {
+        message = "✅ Applied: ${response.data}";
+      });
+    } catch (e) {
+      setState(() => message = "❌ Error: $e");
+    } finally {
+      setState(() => loading = false);
     }
   }
 
-  @override
-  void dispose() {
-    promoCodeController.dispose();
-    super.dispose();
+  Future<void> validatePromoCode() async {
+    setState(() {
+      loading = true;
+      message = null;
+    });
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        setState(() => message = "⚠️ Please login again.");
+        return;
+      }
+
+      final response = await dio.post(
+        "/distributor/promo/validate",
+        data: {
+          "promoCode": promoCodeController.text,
+          "orderAmount": double.tryParse(orderAmountController.text) ?? 0,
+        },
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+
+      setState(() {
+        message = "🔍 Validation: ${response.data}";
+      });
+    } catch (e) {
+      setState(() => message = "❌ Error: $e");
+    } finally {
+      setState(() => loading = false);
+    }
+  }
+
+  Future<void> getActivePromoCodes() async {
+    setState(() {
+      loading = true;
+      message = null;
+    });
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        setState(() => message = "⚠️ Please login again.");
+        return;
+      }
+
+      final response = await dio.get(
+        "/distributor/promo/active",
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+
+      setState(() {
+        activePromoCodes = response.data;
+        message = "📋 Active Promo Codes fetched!";
+      });
+    } catch (e) {
+      setState(() => message = "❌ Error: $e");
+    } finally {
+      setState(() => loading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        title: const Text("Apply Promo Code"),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  "Enter your promo code below to apply discounts",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: promoCodeController,
-                  decoration: InputDecoration(
-                    labelText: "Promo Code",
-                    hintText: "e.g. DEMO2025",
-                    filled: true,
-                    fillColor: AppColors.inputFill,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton.icon(
-                  onPressed: applyPromo,
-                  icon: const Icon(Icons.discount),
-                  label: const Text("Apply Code"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                if (message.isNotEmpty)
-                  Text(
-                    message,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: message.contains("✅")
-                          ? Colors.green
-                          : message.contains("❗")
-                              ? Colors.orange
-                              : Colors.red,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-              ],
+      appBar: AppBar(title: const Text("Distributor Promo Codes")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: promoCodeController,
+              decoration: const InputDecoration(labelText: "Promo Code"),
             ),
-          ),
+            TextField(
+              controller: orderAmountController,
+              decoration: const InputDecoration(labelText: "Order Amount"),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 10),
+
+            ElevatedButton(
+              onPressed: loading ? null : applyPromoCode,
+              child: const Text("🎟️ Apply Promo Code"),
+            ),
+            ElevatedButton(
+              onPressed: loading ? null : validatePromoCode,
+              child: const Text("🔍 Validate Promo Code"),
+            ),
+            ElevatedButton(
+              onPressed: loading ? null : getActivePromoCodes,
+              child: const Text("📋 Get Active Promo Codes"),
+            ),
+            const SizedBox(height: 20),
+
+            if (loading) const CircularProgressIndicator(),
+            if (message != null) Text(message!),
+
+            if (activePromoCodes.isNotEmpty) ...[
+              const Divider(),
+              const Text("Active Promo Codes:", style: TextStyle(fontWeight: FontWeight.bold)),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: activePromoCodes.length,
+                itemBuilder: (context, index) {
+                  final promo = activePromoCodes[index];
+                  return ListTile(
+                    title: Text("${promo['code']} (${promo['discountType']} - ${promo['discountValue']})"),
+                    subtitle: Text(promo['description'] ?? "No description"),
+                  );
+                },
+              ),
+            ],
+          ],
         ),
       ),
     );
   }
 }
+
