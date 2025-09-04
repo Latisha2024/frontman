@@ -55,60 +55,64 @@
 //   }
 // }
 
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-class QRScannerWidget extends StatefulWidget {
-  final Function(String) onScan;
+class QRCodeDisplay extends StatelessWidget {
+  final String qrCodeData;
 
-  const QRScannerWidget({super.key, required this.onScan});
+  const QRCodeDisplay({super.key, required this.qrCodeData});
+
+  bool _isBase64(String str) {
+    try {
+      base64Decode(str);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   @override
-  State<QRScannerWidget> createState() => _QRScannerWidgetState();
+  Widget build(BuildContext context) {
+    if (_isBase64(qrCodeData)) {
+      // Render base64 image from backend
+      Uint8List bytes = base64Decode(qrCodeData);
+      return Image.memory(bytes, height: 200, width: 200);
+    } else {
+      // Render as QR string
+      return QrImageView(
+        data: qrCodeData,
+        version: QrVersions.auto,
+        size: 200.0,
+      );
+    }
+  }
 }
 
-class _QRScannerWidgetState extends State<QRScannerWidget> {
-  bool _scanned = false;
-  final MobileScannerController _controller = MobileScannerController(
-    facing: CameraFacing.back,
-    torchEnabled: false,
-  );
+class QRCodeCommissionedWork extends StatelessWidget {
+  final Function(String) onScan;
+
+  const QRCodeCommissionedWork({super.key, required this.onScan});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan QR Code')),
-      body: Stack(
-        children: [
-          MobileScanner(
-            controller: _controller,
-            onDetect: (capture) {
-              final barcodes = capture.barcodes;
-              if (!_scanned && barcodes.isNotEmpty) {
-                _scanned = true;
-                widget.onScan(barcodes.first.rawValue ?? '');
-                Navigator.pop(context);
-              }
-            },
-          ),
-          Center(
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.green, width: 4),
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ],
+      appBar: AppBar(title: const Text("Scan QR Code")),
+      body: MobileScanner(
+        onDetect: (capture) {
+          final List<Barcode> barcodes = capture.barcodes;
+          if (barcodes.isNotEmpty) {
+            final String? rawValue = barcodes.first.rawValue;
+            if (rawValue != null && rawValue.isNotEmpty) {
+              onScan(rawValue);
+              Navigator.of(context).pop(); // Close scanner after success
+            }
+          }
+        },
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }

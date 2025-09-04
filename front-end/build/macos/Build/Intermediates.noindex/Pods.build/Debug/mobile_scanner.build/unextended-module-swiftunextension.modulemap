@@ -1,4 +1,0 @@
-
-module mobile_scanner.__Swift {
-  exclude header "mobile_scanner-Swift.h"
-}

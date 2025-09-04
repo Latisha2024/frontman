@@ -6,13 +6,11 @@ class DeliveryReportForm extends StatelessWidget {
   final PlumberDeliveryReportController controller;
   final VoidCallback onSubmit;
   final bool isLoading;
-  final ValueChanged<bool> onQrRequestedChanged;
 
   const DeliveryReportForm({
     super.key,
     required this.controller,
     required this.onSubmit,
-    required this.onQrRequestedChanged,
     this.isLoading = false,
   });
 
@@ -27,19 +25,6 @@ class DeliveryReportForm extends StatelessWidget {
             controller.quantityController,
             'Quantity',
             keyboardType: TextInputType.number,
-          ),
-          Row(
-            children: [
-              Checkbox(
-                value: controller.qrRequested,
-                onChanged: isLoading
-                    ? null
-                    : (value) {
-                        if (value != null) onQrRequestedChanged(value);
-                      },
-              ),
-              const Text('QR Requested'),
-            ],
           ),
           const SizedBox(height: 20),
           ElevatedButton(

@@ -1,18 +1,24 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import '../../helpers/auth_service.dart'; // updated path
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PlumberDeliveryReportController extends ChangeNotifier {
   final productController = TextEditingController();
   final quantityController = TextEditingController();
-  bool qrRequested = false;
 
   bool isLoading = false;
   String? error;
   bool? success;
 
-  final Dio _dio = Dio();
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:5000'));
+  // 👆 Use 10.0.2.2 for Android emulator; replace with your LAN IP if testing on real device.
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token') ?? prefs.getString('jwt_token');
+    debugPrint("🔑 Retrieved token: $token");
+    return token;
+  }
 
   Future<void> submitReport() async {
     isLoading = true;
@@ -21,8 +27,8 @@ class PlumberDeliveryReportController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final token = AuthService().token;
-      if (token == null) {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
         error = 'Not authenticated';
         success = false;
         isLoading = false;
@@ -31,11 +37,10 @@ class PlumberDeliveryReportController extends ChangeNotifier {
       }
 
       final response = await _dio.post(
-        'http://localhost:5000/user/delivery-report',
+        '/user/delivery-report',
         data: {
-          'product': productController.text,
+          'product': productController.text.trim(),
           'quantity': int.tryParse(quantityController.text) ?? 0,
-          'qrRequested': qrRequested,
         },
         options: Options(
           headers: {
@@ -51,8 +56,18 @@ class PlumberDeliveryReportController extends ChangeNotifier {
         error = response.data['message'] ?? 'Failed to submit report';
         success = false;
       }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        error = e.response?.data['message'] ?? 'Delivery report failed';
+        debugPrint("❌ Server error: ${e.response?.data}");
+      } else {
+        error = 'Network error: ${e.message}';
+        debugPrint("❌ Network error: ${e.message}");
+      }
+      success = false;
     } catch (e) {
-      error = 'Error: $e';
+      error = 'Unexpected error: $e';
+      debugPrint("❌ Unexpected error: $e");
       success = false;
     }
 

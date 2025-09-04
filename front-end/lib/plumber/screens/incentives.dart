@@ -15,8 +15,10 @@ class PlumberIncentivesScreen extends StatefulWidget {
 class _PlumberIncentivesScreenState extends State<PlumberIncentivesScreen> {
   final controller = PlumberIncentivesController();
 
-  void handleFetch() {
-    controller.fetchIncentives();
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchIncentives(); // ✅ auto-fetch when screen loads
   }
 
   @override
@@ -38,35 +40,25 @@ class _PlumberIncentivesScreenState extends State<PlumberIncentivesScreen> {
         child: AnimatedBuilder(
           animation: controller,
           builder: (context, _) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonPrimary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: controller.isLoading ? null : handleFetch,
-                  child: controller.isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('Fetch Incentives'),
-                ),
-                const SizedBox(height: 24),
-                if (controller.error != null)
-                  Text(controller.error!,
-                      style: const TextStyle(color: Colors.red)),
-                Expanded(
-                  child:
-                      IncentivesList(incentives: controller.incentives ?? []),
-                ),
-              ],
-            );
+            if (controller.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (controller.error != null) {
+              return Center(
+                child: Text(controller.error!,
+                    style: const TextStyle(color: Colors.red)),
+              );
+            }
+
+            return IncentivesList(incentives: controller.incentives ?? []);
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.buttonPrimary,
+        onPressed: controller.fetchIncentives,
+        child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
   }

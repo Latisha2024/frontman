@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import '../../helpers/auth_service.dart'; // the AuthService file
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PlumberIncentivesController extends ChangeNotifier {
   bool isLoading = false;
@@ -9,9 +9,14 @@ class PlumberIncentivesController extends ChangeNotifier {
 
   final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:5000'));
 
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token'); // ✅ use the same key from login
+  }
+
   Future<void> fetchIncentives() async {
-    final token = AuthService().token;
-    if (token == null) {
+    final token = await _getToken();
+    if (token == null || token.isEmpty) {
       error = 'Not logged in';
       incentives = [];
       notifyListeners();
@@ -24,14 +29,21 @@ class PlumberIncentivesController extends ChangeNotifier {
 
     try {
       final response = await _dio.get(
-        '/user/incentives',
+        '/user/incentives', // ✅ matches backend route
         options: Options(
           headers: {'Authorization': 'Bearer $token'},
         ),
       );
 
-      incentives = response.data; // list of incentives
-      error = null;
+      final data = response.data;
+
+      if (data is List && data.isNotEmpty) {
+        incentives = data;
+        error = null;
+      } else {
+        incentives = [];
+        error = 'No incentives assigned';
+      }
     } on DioException catch (e) {
       if (e.response != null) {
         error = e.response?.data['message'] ?? 'Server error';
