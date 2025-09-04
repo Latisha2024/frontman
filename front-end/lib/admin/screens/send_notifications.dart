@@ -45,6 +45,13 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
                     onPressed: () => Scaffold.of(context).openDrawer(),
                   ),
             ),
+            actions: [
+              IconButton(
+                tooltip: 'Refresh Notifications',
+                onPressed: controller.isLoading ? null : () => controller.fetchNotifications(),
+                icon: const Icon(Icons.refresh, color: Colors.white),
+              ),
+            ],
           ),
           drawer: widget.role == "admin" ? AdminDrawer() : SalesManagerDrawer(),
           body: DefaultTabController(
@@ -299,8 +306,8 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: notification.read ? Colors.grey.shade300 : AppColors.primaryBlue,
-            width: notification.read ? 1 : 2,
+            color: (notification.read ?? false) ? Colors.grey.shade300 : AppColors.primaryBlue,
+            width: (notification.read ?? false) ? 1 : 2,
           ),
         ),
         child: Padding(
@@ -326,7 +333,7 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
                     ),
                   ),
                   const Spacer(),
-                  if (!notification.read)
+                  if (!(notification.read ?? false))
                     Container(
                       width: 8,
                       height: 8,
@@ -367,7 +374,7 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  if (!notification.read)
+                  if (!(notification.read ?? false))
                     TextButton.icon(
                       onPressed: () => controller.markAsRead(notification.id),
                       icon: const Icon(Icons.done, size: 16),
@@ -376,7 +383,7 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
                         foregroundColor: AppColors.primaryBlue,
                       ),
                     ),
-                  if (notification.read)
+                  if ((notification.read ?? false))
                     Text(
                       'Read',
                       style: TextStyle(

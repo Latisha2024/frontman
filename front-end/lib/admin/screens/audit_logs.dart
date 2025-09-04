@@ -193,42 +193,6 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
               filled: true,
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: DropdownButtonFormField<String>(
-                    value: controller.selectedAction,
-                    items: controller.availableActions.map((action) {
-                      return DropdownMenuItem(
-                        value: action,
-                        child: Text(
-                          action == 'All' ? 'All' : action,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      if (newValue != null) controller.filterByAction(newValue);
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Action',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      labelStyle: TextStyle(color: AppColors.textPrimary, fontSize: 12),
-                    ),
-                    dropdownColor: Colors.white,
-                    style: const TextStyle(color: Colors.black87, fontSize: 14),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );

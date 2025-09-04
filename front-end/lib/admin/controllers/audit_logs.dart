@@ -56,8 +56,6 @@ class AdminAuditLogsController extends ChangeNotifier {
   List<AuditLog> logs = [];
   List<AuditLog> filteredLogs = [];
   String searchQuery = '';
-  String selectedAction = 'All';
-  final List<String> availableActions = ['All', 'Login', 'Update Product', 'Delete User', 'Create Order'];
 
   final Dio _dio = Dio();
   final String _baseUrl = BaseUrl.b_url;
@@ -91,11 +89,6 @@ class AdminAuditLogsController extends ChangeNotifier {
     applyFilters();
   }
 
-  void filterByAction(String action) {
-    selectedAction = action;
-    applyFilters();
-  }
-
   void applyFilters() {
     filteredLogs = logs.where((log) {
       final userIdentifier = log.user.name ?? log.user.email;
@@ -104,8 +97,7 @@ class AdminAuditLogsController extends ChangeNotifier {
           log.action.toLowerCase().contains(searchQuery.toLowerCase()) ||
           log.resource.toLowerCase().contains(searchQuery.toLowerCase()) ||
           (log.details?.toLowerCase().contains(searchQuery.toLowerCase()) ?? false);
-      bool matchesAction = selectedAction == 'All' || log.action == selectedAction;
-      return matchesSearch && matchesAction;
+      return matchesSearch;
     }).toList();
     notifyListeners();
   }
@@ -121,10 +113,11 @@ class AdminAuditLogsController extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      final response = await _dio.get('$_baseUrl/audit-logs');
+      final response = await _dio.get('$_baseUrl/admin/audits');
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-        logs = data.map((json) => AuditLog.fromJson(json)).toList();
+        final Map<String, dynamic> body = response.data as Map<String, dynamic>;
+        final List<dynamic> data = body['data'] as List<dynamic>;
+        logs = data.map((json) => AuditLog.fromJson(json as Map<String, dynamic>)).toList();
         applyFilters();
         successMessage = 'Audit logs loaded successfully';
         _scheduleAutoHideMessages();
@@ -142,7 +135,6 @@ class AdminAuditLogsController extends ChangeNotifier {
   }
 
   Future<void> createAuditLog({
-    required String userId,
     required String action,
     required String resource,
     String? details,
@@ -152,8 +144,7 @@ class AdminAuditLogsController extends ChangeNotifier {
     successMessage = null;
     notifyListeners();
     try {
-      final response = await _dio.post('$_baseUrl/audit-logs', data: {
-        'userId': userId,
+      final response = await _dio.post('$_baseUrl/admin/audits', data: {
         'action': action,
         'resource': resource,
         'details': details,

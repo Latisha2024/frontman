@@ -12,14 +12,12 @@ class AuditLogForm extends StatefulWidget {
 
 class _AuditLogFormState extends State<AuditLogForm> {
   final _formKey = GlobalKey<FormState>();
-  final _userIdController = TextEditingController();
   final _actionController = TextEditingController();
   final _resourceController = TextEditingController();
   final _detailsController = TextEditingController();
 
   @override
   void dispose() {
-    _userIdController.dispose();
     _actionController.dispose();
     _resourceController.dispose();
     _detailsController.dispose();
@@ -29,7 +27,6 @@ class _AuditLogFormState extends State<AuditLogForm> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       widget.controller.createAuditLog(
-        userId: _userIdController.text,
         action: _actionController.text,
         resource: _resourceController.text,
         details: _detailsController.text.isNotEmpty ? _detailsController.text : null,
@@ -48,11 +45,6 @@ class _AuditLogFormState extends State<AuditLogForm> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextFormField(
-                controller: _userIdController,
-                decoration: const InputDecoration(labelText: 'User ID'),
-                validator: (value) => value!.isEmpty ? 'User ID is required' : null,
-              ),
               TextFormField(
                 controller: _actionController,
                 decoration: const InputDecoration(labelText: 'Action'),

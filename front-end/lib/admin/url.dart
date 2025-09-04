@@ -1,4 +1,4 @@
 
 class BaseUrl {
-  static const String b_url = 'http://10.0.2.2:5000';
+  static const String b_url = 'http://localhost:5000';
 }

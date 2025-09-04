@@ -24,14 +24,33 @@ class NotificationModel {
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    // Support both possible keys from backend: 'isRead' (current) and 'read' (legacy)
+    final dynamic readValue = json.containsKey('isRead') ? json['isRead'] : json['read'];
+    bool toBool(dynamic v) {
+      if (v is bool) return v;
+      if (v is int) return v != 0;
+      if (v is String) return v.toLowerCase() == 'true' || v == '1';
+      return false;
+    }
+    DateTime toDate(dynamic v) {
+      if (v is String) {
+        final parsed = DateTime.tryParse(v);
+        return parsed ?? DateTime.now();
+      }
+      if (v is int) {
+        return DateTime.fromMillisecondsSinceEpoch(v);
+      }
+      return DateTime.now();
+    }
     return NotificationModel(
-      id: json['id'],
-      type: json['type'],
-      message: json['message'],
-      userId: json['userId'],
-      read: json['read'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
+      id: json['id']?.toString() ?? '',
+      type: (json['type'] ?? 'info').toString(),
+      message: (json['message'] ?? '').toString(),
+      userId: json['userId']?.toString(),
+      // Default to false if missing/null or not coercible
+      read: toBool(readValue),
+      createdAt: toDate(json['createdAt']),
+      updatedAt: toDate(json['updatedAt']),
     );
   }
 
