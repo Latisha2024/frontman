@@ -1,4 +1,4 @@
-const prisma = require('../prisma/prisma');
+const prisma = require("../prisma/prisma");
 
 const notificationController = {
   // GET /admin/notifications
@@ -6,15 +6,20 @@ const notificationController = {
     try {
       const { unreadOnly } = req.query;
       const where = {};
-      if (unreadOnly === 'true') where.read = false;
+      if (unreadOnly === "true") where.isRead = false;
+
       const notifications = await prisma.notification.findMany({
         where,
-        orderBy: { createdAt: 'desc' }
+        include: {
+          user: { select: { id: true, name: true, email: true, role: true } }
+        },
+        orderBy: { createdAt: "desc" }
       });
+
       res.json(notifications);
     } catch (err) {
       console.error(err);
-      res.status(500).json({ message: 'Failed to fetch notifications' });
+      res.status(500).json({ message: "Failed to fetch notifications" });
     }
   },
 
@@ -22,18 +27,20 @@ const notificationController = {
   createNotification: async (req, res) => {
     try {
       const { type, message, userId } = req.body;
+
       const notification = await prisma.notification.create({
         data: {
           type,
           message,
           userId: userId || null,
-          read: false
+          isRead: false // 👈 ensure default on creation
         }
       });
-      res.status(201).json({ message: 'Notification created', notification });
+
+      res.status(201).json({ message: "Notification created", notification });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ message: 'Failed to create notification' });
+      res.status(500).json({ message: "Failed to create notification" });
     }
   },
 
@@ -41,14 +48,16 @@ const notificationController = {
   markAsRead: async (req, res) => {
     try {
       const { id } = req.params;
+
       const notification = await prisma.notification.update({
         where: { id },
-        data: { read: true }
+        data: { isRead: true }
       });
-      res.json({ message: 'Notification marked as read', notification });
+
+      res.json({ message: "Notification marked as read", notification });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ message: 'Failed to mark notification as read' });
+      res.status(500).json({ message: "Failed to mark notification as read" });
     }
   },
 
@@ -56,15 +65,16 @@ const notificationController = {
   markAllAsRead: async (req, res) => {
     try {
       await prisma.notification.updateMany({
-        where: { read: false },
-        data: { read: true }
+        where: { isRead: false },
+        data: { isRead: true }
       });
-      res.json({ message: 'All notifications marked as read' });
+
+      res.json({ message: "All notifications marked as read" });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ message: 'Failed to mark all notifications as read' });
+      res.status(500).json({ message: "Failed to mark all notifications as read" });
     }
   }
 };
 
-module.exports = notificationController; 
+module.exports = notificationController;

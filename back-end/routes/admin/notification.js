@@ -1,9 +1,9 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const authenticate = require('../../middlewares/auth');
-const authorizeRoles = require('../../middlewares/roleCheck');
-const notificationController = require('../../controllers/notificationController');
+const authenticate = require("../../middlewares/auth");
+const authorizeRoles = require("../../middlewares/roleCheck");
+const notificationController = require("../../controllers/notificationController");
 
 /**
  * @swagger
@@ -13,29 +13,35 @@ const notificationController = require('../../controllers/notificationController
  */
 
 router.use(authenticate);
-router.use(authorizeRoles('Admin'));
+router.use(authorizeRoles("Admin"));
 
 /**
  * @swagger
  * /admin/notifications:
  *   get:
- *     summary: Get all notifications
+ *     summary: Get all notifications (optionally filter unread)
  *     tags: [Admin Notifications]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: unreadOnly
+ *         schema:
+ *           type: boolean
+ *         description: Only return unread notifications
  *     responses:
  *       200:
  *         description: List of notifications
  *       500:
  *         description: Server error
  */
-router.get('/', notificationController.getNotifications);
+router.get("/", notificationController.getNotifications);
 
 /**
  * @swagger
  * /admin/notifications:
  *   post:
- *     summary: Create a new notification
+ *     summary: Send a notification
  *     tags: [Admin Notifications]
  *     security:
  *       - bearerAuth: []
@@ -45,18 +51,19 @@ router.get('/', notificationController.getNotifications);
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - type
+ *               - message
  *             properties:
- *               title:
+ *               type:
  *                 type: string
+ *                 example: "info"
  *               message:
  *                 type: string
- *               recipients:
- *                 type: array
- *                 items:
- *                   type: string
- *             required:
- *               - title
- *               - message
+ *                 example: "System update scheduled at midnight"
+ *               userId:
+ *                 type: string
+ *                 example: "user_id"
  *     responses:
  *       201:
  *         description: Notification created
@@ -65,7 +72,7 @@ router.get('/', notificationController.getNotifications);
  *       500:
  *         description: Server error
  */
-router.post('/', notificationController.createNotification);
+router.post("/", notificationController.createNotification);
 
 /**
  * @swagger
@@ -81,7 +88,6 @@ router.post('/', notificationController.createNotification);
  *         required: true
  *         schema:
  *           type: string
- *         description: Notification ID
  *     responses:
  *       200:
  *         description: Notification marked as read
@@ -90,7 +96,7 @@ router.post('/', notificationController.createNotification);
  *       500:
  *         description: Server error
  */
-router.put('/:id/read', notificationController.markAsRead);
+router.put("/:id/read", notificationController.markAsRead);
 
 /**
  * @swagger
@@ -106,6 +112,6 @@ router.put('/:id/read', notificationController.markAsRead);
  *       500:
  *         description: Server error
  */
-router.put('/read-all', notificationController.markAllAsRead);
+router.put("/read-all", notificationController.markAllAsRead);
 
 module.exports = router;

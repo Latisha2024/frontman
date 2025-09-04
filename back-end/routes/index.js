@@ -3,6 +3,7 @@ const router = express.Router();
 
 router.use('/auth', require('./auth'));
 
+router.use('/admin/audits', require('./admin/audit'));
 router.use('/admin/products', require('./admin/product'));
 router.use('/admin/stock', require('./admin/stock'));
 router.use('/admin/users', require('./admin/user'));
@@ -12,7 +13,6 @@ router.use('/admin/reports', require('./admin/report'));
 router.use('/admin/invoices', require('./admin/invoice'));
 router.use('/admin/search', require('./admin/search'));
 router.use('/admin/notifications', require('./admin/notification'));
-router.use('/admin/audit-logs', require('./admin/audit'));
 router.use('/admin/dashboard', require('./admin/dashboard'));
 router.use('/admin/incentives', require('./admin/incentive'));
 router.use('/admin/points', require('./admin/points'));

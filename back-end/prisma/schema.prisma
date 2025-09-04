@@ -58,6 +58,13 @@ enum PromoCodeStatus {
   Expired
 }
 
+enum NotificationType {
+  Info
+  Alert
+  Promo
+  System
+}
+
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
@@ -85,6 +92,8 @@ model User {
   postDeliveryReports PostDeliveryReport[]
   commissionedWorks   CommissionedWork[]
   carts           Cart[]
+  audits          Audit[]
+  notifications   Notification[]
 }
 
 model Admin {
@@ -372,3 +381,26 @@ model PromoCode {
   orders      Order[]
 }
 
+model Audit {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  resource  String?
+  details   String?
+  timestamp DateTime @default(now())
+
+  @@index([userId, action, timestamp])
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  type      String
+  message   String
+  userId    String?  @db.ObjectId
+  user      User?    @relation(fields: [userId], references: [id])
+  isRead      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+}

@@ -1,9 +1,9 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const authenticate = require('../../middlewares/auth');
-const authorizeRoles = require('../../middlewares/roleCheck');
-const auditController = require('../../controllers/auditController');
+const authenticate = require("../../middlewares/auth");
+const authorizeRoles = require("../../middlewares/roleCheck");
+const auditController = require("../../controllers/auditController");
 
 /**
  * @swagger
@@ -13,27 +13,50 @@ const auditController = require('../../controllers/auditController');
  */
 
 router.use(authenticate);
-router.use(authorizeRoles('Admin'));
+router.use(authorizeRoles("Admin"));
 
 /**
  * @swagger
- * /admin/audit-logs:
+ * /admin/audit:
  *   get:
  *     summary: Get all audit logs
  *     tags: [Admin Audit Logs]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: action
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: resource
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date-time
  *     responses:
  *       200:
  *         description: Audit logs retrieved
  *       500:
  *         description: Failed to retrieve audit logs
  */
-router.get('/', auditController.getAuditLogs);
+router.get("/", auditController.getAudits);
 
 /**
  * @swagger
- * /admin/audit-logs:
+ * /admin/audit:
  *   post:
  *     summary: Create a new audit log
  *     tags: [Admin Audit Logs]
@@ -47,17 +70,17 @@ router.get('/', auditController.getAuditLogs);
  *             type: object
  *             required:
  *               - action
- *               - actorId
+ *               - resource
  *             properties:
  *               action:
  *                 type: string
  *                 example: "Created Product"
- *               actorId:
+ *               resource:
  *                 type: string
- *                 example: "user_id"
- *               metadata:
- *                 type: object
- *                 example: { productId: "123", oldValue: null, newValue: "New Product" }
+ *                 example: "Product"
+ *               details:
+ *                 type: string
+ *                 example: "Added new product with ID 123"
  *     responses:
  *       201:
  *         description: Audit log created
@@ -66,6 +89,6 @@ router.get('/', auditController.getAuditLogs);
  *       500:
  *         description: Server error
  */
-router.post('/', auditController.createAuditLog);
+router.post("/", auditController.createAudit);
 
 module.exports = router;
