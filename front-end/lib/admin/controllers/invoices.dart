@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../url.dart';
+
 class LineItem {
   final String description;
   final int quantity;
@@ -106,7 +108,7 @@ class AdminInvoicesController extends ChangeNotifier {
   String? successMessage;
   
   // Base URL for API calls - update this to match your backend
-  static const String baseUrl = 'http://10.0.2.2:5000'; // Update with your actual backend URL
+  static const String baseUrl = BaseUrl.b_url; // Update with your actual backend URL
   
   // Dio instance for HTTP requests
   late final Dio _dio;

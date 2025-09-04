@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../url.dart';
+
 class PointTransaction {
   final String id;
   final String userId;
@@ -54,7 +56,7 @@ class AdminConvertPointsController extends ChangeNotifier {
   late final Dio _dio;
 
   // Base URL - configure based on your backend
-  static const String baseUrl = 'http://10.0.2.2:5000';
+  static const String baseUrl = BaseUrl.b_url;
 
   AdminConvertPointsController() {
     _dio = Dio(BaseOptions(

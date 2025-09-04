@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../url.dart';
+
 class ReportData {
   final String type;
   final String title;
@@ -30,7 +32,7 @@ class AdminGenerateReportsController extends ChangeNotifier {
   String selectedType = 'sales';
   final List<String> availableTypes = ['sales', 'inventory', 'performance','individual'];
   late final Dio _dio;
-  final String baseUrl = 'http://10.0.2.2:5000';
+  final String baseUrl = BaseUrl.b_url;
 
   // Individual report inputs
   final TextEditingController individualUserIdController = TextEditingController();

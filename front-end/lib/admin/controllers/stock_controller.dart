@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../url.dart';
+
 class StockController {
-  static const String baseUrl = 'http://10.0.2.2:5000/admin/stock';
+  static const String baseUrl = '${BaseUrl.b_url}/admin/stock';
 
   // GET /admin/stock - Get all stock entries
   static Future<List<Map<String, dynamic>>> getAllStock() async {

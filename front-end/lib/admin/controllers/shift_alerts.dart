@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../url.dart';
+
 class AdminShiftAlertsController extends ChangeNotifier {
   bool isLoading = false;
   String? error;
@@ -13,7 +15,7 @@ class AdminShiftAlertsController extends ChangeNotifier {
   final messageController = TextEditingController();
 
   // Base URL - configure based on your backend
-  static const String baseUrl = 'http://10.0.2.2:5000';
+  static const String baseUrl = BaseUrl.b_url;
 
   AdminShiftAlertsController() {
     _dio = Dio(BaseOptions(

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../url.dart';
+
 class User {
   final String id;
   final String? name;
@@ -58,7 +60,7 @@ class AdminAuditLogsController extends ChangeNotifier {
   final List<String> availableActions = ['All', 'Login', 'Update Product', 'Delete User', 'Create Order'];
 
   final Dio _dio = Dio();
-  final String _baseUrl = 'http://10.0.2.2:5000/admin';
+  final String _baseUrl = BaseUrl.b_url;
 
   AdminAuditLogsController() {
     _dio.interceptors.add(InterceptorsWrapper(

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../url.dart';
+
 class NotificationModel {
   final String id;
   final String type;
@@ -71,7 +73,7 @@ class AdminSendNotificationsController extends ChangeNotifier {
     'reminder'
   ];
 
-  static const String baseUrl = 'http://10.0.2.2:5000';
+  static const String baseUrl = BaseUrl.b_url;
 
   AdminSendNotificationsController() {
     _dio = Dio(BaseOptions(

@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 
+import '../url.dart';
+
 class Product {
   final String id;
   final String name;
@@ -92,7 +94,7 @@ class AdminManageProductsController extends ChangeNotifier {
   bool get isEditMode => _isEditMode;
 
   // Base URL - configure based on your backend
-  static const String baseUrl = 'http://10.0.2.2:5000';
+  static const String baseUrl = BaseUrl.b_url;
 
   AdminManageProductsController() {
     _dio = Dio(BaseOptions(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../url.dart';
 
 class Incentive {
   final String id;
@@ -43,7 +44,7 @@ class Incentive {
 }
 
 class AdminAssignIncentiveController extends ChangeNotifier {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:5000'));
+  final Dio _dio = Dio(BaseOptions(baseUrl: BaseUrl.b_url));
   
   bool isLoading = false;
   String? error;
