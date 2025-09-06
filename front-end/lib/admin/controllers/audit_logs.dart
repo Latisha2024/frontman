@@ -113,7 +113,7 @@ class AdminAuditLogsController extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      final response = await _dio.get('$_baseUrl/admin/audits');
+      final response = await _dio.get('${_baseUrl}admin/audits');
       if (response.statusCode == 200) {
         final Map<String, dynamic> body = response.data as Map<String, dynamic>;
         final List<dynamic> data = body['data'] as List<dynamic>;
