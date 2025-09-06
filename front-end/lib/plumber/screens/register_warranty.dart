@@ -101,12 +101,12 @@
 //     );
 //   }
 // }
-import './plumber_drawer.dart';
 import 'package:flutter/material.dart';
 import '../controllers/register_warranty.dart';
 import '../widgets/register_warranty.dart';
-import './qr_scanner_widget.dart'; // new widget for handling both types
+import './plumber_drawer.dart';
 import '../../constants/colors.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class PlumberRegisterWarrantyScreen extends StatefulWidget {
   const PlumberRegisterWarrantyScreen({super.key});
@@ -121,17 +121,6 @@ class _PlumberRegisterWarrantyScreenState
   final controller = PlumberRegisterWarrantyController();
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    if (arguments != null) {
-      controller.sellerIdController.text = arguments['sellerId'] ?? '';
-      controller.productIdController.text = arguments['productId'] ?? '';
-    }
-  }
-
-  @override
   void dispose() {
     controller.dispose();
     super.dispose();
@@ -139,26 +128,17 @@ class _PlumberRegisterWarrantyScreenState
 
   Future<void> handleSubmit() async {
     await controller.submitWarranty();
-
     if (!mounted) return;
 
     if (controller.success == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Warranty registered successfully!')),
       );
-      clearForm();
     } else if (controller.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(controller.error!)),
       );
     }
-  }
-
-  void clearForm() {
-    controller.productIdController.clear();
-    controller.serialNumberController.clear();
-    controller.purchaseDateController.clear();
-    controller.warrantyMonthsController.clear();
   }
 
   @override
@@ -191,7 +171,14 @@ class _PlumberRegisterWarrantyScreenState
                   ),
                   if (controller.qrCodeData != null) ...[
                     const SizedBox(height: 24),
-                    QRCodeDisplay(qrCodeData: controller.qrCodeData!),
+                    Text('Generated QR (for scanning):',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
+                    QrImageView(
+                      data: controller.qrCodeData!,
+                      version: QrVersions.auto,
+                      size: 200,
+                    ),
                   ],
                 ],
               ),

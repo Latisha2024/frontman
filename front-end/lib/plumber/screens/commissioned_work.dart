@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 
-import 'qr_scanner_widget.dart'; // ✅ Updated import for MobileScanner
+import 'qr_scanner_widget.dart';
 
 class CommissionedWorkScreen extends StatefulWidget {
   const CommissionedWorkScreen({super.key});
@@ -22,18 +22,27 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
   String? _qrCode;
 
   final ImagePicker _picker = ImagePicker();
-  final Dio _dio = Dio();
+  final Dio _dio = Dio(BaseOptions(
+    baseUrl: 'https://frontman-backend-2.onrender.com',
+    connectTimeout: const Duration(seconds: 10),
+    receiveTimeout: const Duration(seconds: 20),
+  ));
 
-  // ✅ Pick image from camera
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token') ?? prefs.getString('jwt_token');
+  }
+
   Future<void> pickImage() async {
-    final pickedFile =
-        await _picker.pickImage(source: ImageSource.camera, imageQuality: 80);
+    final pickedFile = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+    );
     if (pickedFile != null) {
       setState(() => _image = File(pickedFile.path));
     }
   }
 
-  // ✅ Get location with permission check
   Future<void> getLocation() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied ||
@@ -53,87 +62,99 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
     setState(() => _location = '${pos.latitude}, ${pos.longitude}');
   }
 
-  // ✅ Scan QR code
-  void scanQRCode(BuildContext context) {
-    Navigator.push(
+  Future<void> scanQRCode(BuildContext context) async {
+    final scannedCode = await Navigator.push<String>(
       context,
       MaterialPageRoute(
-        builder: (context) => QRCodeCommissionedWork(onScan: (code) {
-          setState(() => _qrCode = code);
-        }),
+        builder: (context) => const QRCodeCommissionedWork(),
       ),
     );
+
+    if (scannedCode != null) {
+      setState(() => _qrCode = scannedCode);
+    }
   }
 
-  // ✅ Format QR content neatly if JSON
   String _formatQrCode(String code) {
     try {
       final jsonObj = jsonDecode(code);
       if (jsonObj is Map<String, dynamic>) {
-        final formatted = jsonObj.entries
+        return jsonObj.entries
             .map((e) => "${_capitalize(e.key)}: ${e.value}")
             .join("\n");
-        return "✅ QR Code:\n$formatted";
       }
-    } catch (_) {
-      // Not a JSON string, just return plain
-    }
-    return "✅ QR Code: $code";
+    } catch (_) {}
+    return code;
   }
 
-  // Helper to capitalize first letter
   String _capitalize(String input) {
     if (input.isEmpty) return input;
     return input[0].toUpperCase() + input.substring(1);
   }
 
-  // ✅ Submit button logic (with Dio)
   Future<void> submitToAdmin() async {
-    if (_image != null && _location != null && _qrCode != null) {
-      try {
-        final lat = double.parse(_location!.split(",").first.trim());
-        final lng = double.parse(_location!.split(",").last.trim());
+    final token = await _getToken();
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❗ Authentication token is required')),
+      );
+      return;
+    }
 
-        final formData = FormData.fromMap({
-          "latitude": lat,
-          "longitude": lng,
-          "qrCode": _qrCode,
-          "qrImage": await MultipartFile.fromFile(_image!.path,
-              filename: "qr_selfie.jpg"),
-        });
-
-        // ✅ Assumption: Backend endpoint exists at /commissionedWork
-        final response = await _dio.post(
-          "https://localhost:5000/user/commissioned-work",
-          data: formData,
-          options: Options(headers: {"Content-Type": "multipart/form-data"}),
-        );
-
-        if (response.statusCode == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("✅ Submitted to Admin")),
-          );
-
-          setState(() {
-            _image = null;
-            _location = null;
-            _qrCode = null;
-          });
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("❌ Failed: ${response.data}")),
-          );
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("❌ Error submitting: $e")),
-        );
-      }
-    } else {
+    if (_image == null || _location == null || _qrCode == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("❗ Please complete all 3 steps before submitting"),
+          content:
+              Text("❗ Please complete all steps: image, location, QR code"),
         ),
+      );
+      return;
+    }
+
+    try {
+      final lat = double.parse(_location!.split(",")[0].trim());
+      final lng = double.parse(_location!.split(",")[1].trim());
+
+      final formData = FormData.fromMap({
+        "latitude": lat,
+        "longitude": lng,
+        "qrCode": _qrCode!,
+        "qrImage": await MultipartFile.fromFile(
+          _image!.path,
+          filename: "qr_selfie.jpg",
+          contentType: MediaType('image', 'jpeg'),
+        ),
+      });
+
+      final response = await _dio.post(
+        "/user/commissioned-work",
+        data: formData,
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $token",
+            "Content-Type": "multipart/form-data",
+          },
+        ),
+      );
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("✅ Successfully submitted")),
+        );
+        setState(() {
+          _image = null;
+          _location = null;
+          _qrCode = null;
+        });
+      } else {
+        final msg = response.data['message'] ?? "Unknown error from server";
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("❌ Failed: $msg")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("❌ Submission failed: $e")),
       );
     }
   }
@@ -207,8 +228,10 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
                 backgroundColor: Colors.green,
                 minimumSize: const Size.fromHeight(50),
               ),
-              child:
-                  const Text("Submit to Admin", style: TextStyle(fontSize: 18)),
+              child: const Text(
+                "Submit to Admin",
+                style: TextStyle(fontSize: 18),
+              ),
             ),
           ],
         ),

@@ -46,8 +46,9 @@ class _SignUpPageState extends State<SignUpPage> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
+    final dio =
+        Dio(BaseOptions(baseUrl: "https://frontman-backend-2.onrender.com/"));
 
-    final dio = Dio(BaseOptions(baseUrl: "http://localhost:5000"));
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 

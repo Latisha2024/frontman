@@ -92,10 +92,15 @@ class QRCodeDisplay extends StatelessWidget {
   }
 }
 
-class QRCodeCommissionedWork extends StatelessWidget {
-  final Function(String) onScan;
+class QRCodeCommissionedWork extends StatefulWidget {
+  const QRCodeCommissionedWork({super.key});
 
-  const QRCodeCommissionedWork({super.key, required this.onScan});
+  @override
+  State<QRCodeCommissionedWork> createState() => _QRCodeCommissionedWorkState();
+}
+
+class _QRCodeCommissionedWorkState extends State<QRCodeCommissionedWork> {
+  bool _hasScanned = false;
 
   @override
   Widget build(BuildContext context) {
@@ -103,12 +108,13 @@ class QRCodeCommissionedWork extends StatelessWidget {
       appBar: AppBar(title: const Text("Scan QR Code")),
       body: MobileScanner(
         onDetect: (capture) {
+          if (_hasScanned) return;
           final List<Barcode> barcodes = capture.barcodes;
           if (barcodes.isNotEmpty) {
             final String? rawValue = barcodes.first.rawValue;
             if (rawValue != null && rawValue.isNotEmpty) {
-              onScan(rawValue);
-              Navigator.of(context).pop(); // Close scanner after success
+              _hasScanned = true;
+              Navigator.of(context).pop(rawValue);
             }
           }
         },

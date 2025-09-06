@@ -7,7 +7,8 @@ class PlumberIncentivesController extends ChangeNotifier {
   String? error;
   List<dynamic>? incentives;
 
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:5000'));
+  final Dio _dio =
+      Dio(BaseOptions(baseUrl: 'https://frontman-backend-2.onrender.com/'));
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();

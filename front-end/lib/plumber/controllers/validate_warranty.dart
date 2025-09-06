@@ -11,9 +11,10 @@ import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart
 String _resolveBaseUrl() {
   const lanIpForPhysicalDevice = '';
   if (lanIpForPhysicalDevice.isNotEmpty) return lanIpForPhysicalDevice;
-  if (kIsWeb) return 'http://localhost:5000'; // still supports web builds
-  if (Platform.isAndroid) return 'http://10.0.2.2:5000';
-  return 'http://localhost:5000';
+  if (kIsWeb)
+    return 'https://frontman-backend-2.onrender.com/'; // still supports web builds
+  if (Platform.isAndroid) return 'https://frontman-backend-2.onrender.com/';
+  return 'https://frontman-backend-2.onrender.com/';
 }
 
 class WarrantyInfo {

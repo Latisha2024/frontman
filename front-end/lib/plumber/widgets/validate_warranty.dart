@@ -30,64 +30,71 @@ class ValidateRegistrationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ElevatedButton.icon(
-          onPressed: controller.isLoading ? null : () => _pickImage(context),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.buttonPrimary,
-          ),
-          icon: const Icon(Icons.image),
-          label: const Text("Upload QR Image"),
-        ),
-        const SizedBox(height: 12),
-        if (controller.isLoading)
-          const Center(child: CircularProgressIndicator()),
-        if (controller.error != null) ...[
-          const SizedBox(height: 12),
-          Text(controller.error!,
-              style: const TextStyle(color: AppColors.error)),
-        ],
-        const SizedBox(height: 12),
-        if (controller.warrantyInfo != null) ...[
-          _buildInfoRow(
-              'Product ID / Name',
-              controller.warrantyInfo!.productName.isNotEmpty
-                  ? controller.warrantyInfo!.productName
-                  : controller.warrantyInfo!.productId),
-          _buildInfoRow('Serial Number', controller.warrantyInfo!.serialNumber),
-          _buildInfoRow('Purchase Date', controller.warrantyInfo!.purchaseDate),
-          _buildInfoRow('Warranty Months',
-              controller.warrantyInfo!.warrantyMonths.toString()),
-          _buildInfoRow('Seller', controller.warrantyInfo!.sellerName),
-          if (controller.warrantyInfo!.registeredAt != null)
-            _buildInfoRow('Registered At',
-                controller.warrantyInfo!.registeredAt!.toLocal().toString()),
-          if (controller.warrantyInfo!.expiryDate != null)
-            _buildInfoRow('Expiry Date',
-                controller.warrantyInfo!.expiryDate!.toLocal().toString()),
-        ],
-        const SizedBox(height: 12),
-        if (controller.isVerified != null) ...[
-          Text(
-            controller.isVerified == true
-                ? '✅ Warranty Verified'
-                : '❌ Warranty Not Found',
-            style: TextStyle(
-              color: controller.isVerified == true ? Colors.green : Colors.red,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+    return SingleChildScrollView(
+      // <--- Wrap content with scrolling
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ElevatedButton.icon(
+            onPressed: controller.isLoading ? null : () => _pickImage(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.buttonPrimary,
             ),
-            textAlign: TextAlign.center,
+            icon: const Icon(Icons.image),
+            label: const Text("Upload QR Image"),
           ),
           const SizedBox(height: 12),
-          ElevatedButton(
-            onPressed: () => controller.clear(),
-            child: const Text('Clear'),
-          ),
+          if (controller.isLoading)
+            const Center(child: CircularProgressIndicator()),
+          if (controller.error != null) ...[
+            const SizedBox(height: 12),
+            Text(controller.error!,
+                style: const TextStyle(color: AppColors.error)),
+          ],
+          const SizedBox(height: 12),
+          if (controller.warrantyInfo != null) ...[
+            _buildInfoRow(
+                'Product ID / Name',
+                controller.warrantyInfo!.productName.isNotEmpty
+                    ? controller.warrantyInfo!.productName
+                    : controller.warrantyInfo!.productId),
+            _buildInfoRow(
+                'Serial Number', controller.warrantyInfo!.serialNumber),
+            _buildInfoRow(
+                'Purchase Date', controller.warrantyInfo!.purchaseDate),
+            _buildInfoRow('Warranty Months',
+                controller.warrantyInfo!.warrantyMonths.toString()),
+            _buildInfoRow('Seller', controller.warrantyInfo!.sellerName),
+            if (controller.warrantyInfo!.registeredAt != null)
+              _buildInfoRow('Registered At',
+                  controller.warrantyInfo!.registeredAt!.toLocal().toString()),
+            if (controller.warrantyInfo!.expiryDate != null)
+              _buildInfoRow('Expiry Date',
+                  controller.warrantyInfo!.expiryDate!.toLocal().toString()),
+          ],
+          const SizedBox(height: 12),
+          if (controller.isVerified != null) ...[
+            Text(
+              controller.isVerified == true
+                  ? '✅ Warranty Verified'
+                  : '❌ Warranty Not Found',
+              style: TextStyle(
+                color:
+                    controller.isVerified == true ? Colors.green : Colors.red,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () => controller.clear(),
+              child: const Text('Clear'),
+            ),
+          ],
+          const SizedBox(height: 24), // Add some padding at the bottom
         ],
-      ],
+      ),
     );
   }
 }
