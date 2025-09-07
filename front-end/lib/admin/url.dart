@@ -1,4 +1,4 @@
 
 class BaseUrl {
-  static const String b_url = 'http://localhost:5000';
+  static const String b_url = 'https://frontman-backend-2.onrender.com/';
 }
