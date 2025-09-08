@@ -5,7 +5,7 @@ import '../widgets/Getcatalogpage.dart';
 import '../widgets/Addtocartpage.dart';
 import '../widgets/Addpromocode.dart';
 import '../widgets/Placeorderpage.dart';
-import '../widgets/createorderpage.dart';
+//import '../widgets/createorderpage.dart';
 import '../widgets/Trackorderpage.dart';
 import '../widgets/Orderhistorypage.dart';
 import '../widgets/Orderconfirmationpage.dart';
