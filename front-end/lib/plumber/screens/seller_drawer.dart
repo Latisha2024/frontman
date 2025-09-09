@@ -25,6 +25,11 @@ class SellerDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
+            leading: const Icon(Icons.dashboard),
+            title: const Text('Plumber Dashboard'),
+            onTap: () => Navigator.pushNamed(context, '/seller/dashboard'),
+          ),
+          ListTile(
             leading: const Icon(Icons.card_giftcard),
             title: const Text('View Incentives'),
             onTap: () => Navigator.pushNamed(context, '/seller/incentives'),

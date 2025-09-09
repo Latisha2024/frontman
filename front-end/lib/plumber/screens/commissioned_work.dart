@@ -20,6 +20,7 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
   File? _image;
   String? _location;
   String? _qrCode;
+  bool _isLoadingLocation = false;
 
   final ImagePicker _picker = ImagePicker();
   final Dio _dio = Dio(BaseOptions(
@@ -44,6 +45,8 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
   }
 
   Future<void> getLocation() async {
+    setState(() => _isLoadingLocation = true);
+
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
@@ -53,13 +56,18 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('❗ Location permission is required')),
         );
+        setState(() => _isLoadingLocation = false);
         return;
       }
     }
 
     final pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    setState(() => _location = '${pos.latitude}, ${pos.longitude}');
+
+    setState(() {
+      _location = '${pos.latitude}, ${pos.longitude}';
+      _isLoadingLocation = false;
+    });
   }
 
   Future<void> scanQRCode(BuildContext context) async {
@@ -139,7 +147,7 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Successfully submitted")),
+          const SnackBar(content: Text("Successfully submitted")),
         );
         setState(() {
           _image = null;
@@ -149,12 +157,12 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
       } else {
         final msg = response.data['message'] ?? "Unknown error from server";
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("❌ Failed: $msg")),
+          SnackBar(content: Text("Failed: $msg")),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ Submission failed: $e")),
+        SnackBar(content: Text("Submission failed: $e")),
       );
     }
   }
@@ -192,7 +200,12 @@ class _CommissionedWorkScreenState extends State<CommissionedWorkScreen> {
               icon: const Icon(Icons.location_on),
               label: const Text("Get Current Location"),
             ),
-            if (_location != null)
+            if (_isLoadingLocation)
+              const Padding(
+                padding: EdgeInsets.only(top: 16),
+                child: CircularProgressIndicator(),
+              )
+            else if (_location != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
