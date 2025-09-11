@@ -183,49 +183,25 @@ class _InvoiceListState extends State<InvoiceList> {
           Row(
             children: [
               Expanded(
-                child: GestureDetector(
-                  onTap: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
-                    );
-                    if (picked != null) {
-                      final y = picked.year.toString().padLeft(4, '0');
-                      final m = picked.month.toString().padLeft(2, '0');
-                      final d = picked.day.toString().padLeft(2, '0');
-                      controller.dateFilterController.text = '$y-$m-$d';
-                      controller.notifyListeners();
-                    }
-                  },
-                  child: AbsorbPointer(
-                    child: _buildFilterField(
-                      controller: controller.dateFilterController,
-                      hint: 'Date (YYYY-MM-DD)',
-                      icon: Icons.calendar_today,
-                    ),
-                  ),
+                child: ElevatedButton.icon(
+                  onPressed: controller.isLoading ? null : () => controller.applyFilters(),
+                  icon: const Icon(Icons.search),
+                  label: const Text('Apply'),
                 ),
               ),
               const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: controller.isLoading ? null : () => controller.applyFilters(),
-                icon: const Icon(Icons.search),
-                label: const Text('Apply'),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton.icon(
-                onPressed: controller.isLoading
-                    ? null
-                    : () async {
-                        controller.orderIdFilterController.clear();
-                        controller.userIdFilterController.clear();
-                        controller.dateFilterController.clear();
-                        await controller.fetchInvoices();
-                      },
-                icon: const Icon(Icons.clear),
-                label: const Text('Clear'),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: controller.isLoading
+                      ? null
+                      : () async {
+                          controller.orderIdFilterController.clear();
+                          controller.userIdFilterController.clear();
+                          await controller.fetchInvoices();
+                        },
+                  icon: const Icon(Icons.clear),
+                  label: const Text('Clear'),
+                ),
               ),
             ],
           ),

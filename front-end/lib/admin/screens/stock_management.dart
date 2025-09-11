@@ -38,6 +38,57 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
     _loadStockEntries();
   }
 
+  Future<void> _deleteStock(String id) async {
+    // Optimistic update: remove immediately, revert on error
+    final previous = List<Map<String, dynamic>>.from(stockEntries);
+    setState(() {
+      stockEntries = stockEntries.where((e) => e['id'] != id).toList();
+      successMessage = null;
+      error = null;
+    });
+    try {
+      final res = await StockController.deleteStock(id: id);
+      setState(() {
+        successMessage = (res['message'] ?? 'Stock deleted successfully').toString();
+      });
+      _scheduleAutoHideMessages();
+    } catch (e) {
+      // Revert list and show error
+      setState(() {
+        stockEntries = previous;
+        error = 'Error deleting stock: $e';
+        successMessage = null;
+      });
+      _scheduleAutoHideMessages();
+    }
+  }
+
+  void _confirmDelete(Map<String, dynamic> stock) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Stock'),
+        content: Text(
+          'Are you sure you want to delete this stock for "${stock['product']?['name'] ?? 'Unknown Product'}"? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              Navigator.pop(context);
+              _deleteStock(stock['id']);
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _scheduleAutoHideMessages() {
     Future.delayed(const Duration(seconds: 3), () {
       if (!mounted) return;
@@ -426,9 +477,20 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
                                   ],
                                 ],
                               ),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _showEditDialog(stock),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    tooltip: 'Edit',
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () => _showEditDialog(stock),
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Delete',
+                                    icon: const Icon(Icons.delete, color: Colors.redAccent),
+                                    onPressed: () => _confirmDelete(stock),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

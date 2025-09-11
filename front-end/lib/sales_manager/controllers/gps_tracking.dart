@@ -7,7 +7,7 @@ class SalesManagerGpsTrackingController extends ChangeNotifier {
   // Android Emulator: http://10.0.2.2:5000
   // iOS Simulator/Web: http://localhost:5000
   // Physical device: http://<your-PC-LAN-IP>:5000
-  static const String baseUrl = 'http://10.0.2.2:5000';
+  static const String baseUrl = 'https://frontman-backend-2.onrender.com/';
 
   final Dio _dio = Dio(BaseOptions(
     baseUrl: baseUrl,

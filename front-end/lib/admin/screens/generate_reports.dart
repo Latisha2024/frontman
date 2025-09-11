@@ -3,6 +3,7 @@ import './admin_drawer.dart';
 import 'package:flutter/material.dart';
 import '../controllers/generate_reports.dart';
 import '../../constants/colors.dart';
+import 'report_details.dart';
 
 class GenerateReportsScreen extends StatefulWidget {
   final String role;
@@ -19,6 +20,122 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
   void initState() {
     super.initState();
     controller = AdminGenerateReportsController();
+  }
+
+  // Render a structured, line-by-line view of the report details (Map/List/primitive)
+  Widget _buildDetailsSection(dynamic data, {int indent = 0}) {
+    if (data == null) {
+      return const Text('No details available');
+    }
+
+    if (data is Map) {
+      final entries = data.entries.toList();
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: entries.map((e) {
+          final key = e.key?.toString() ?? '';
+          final value = e.value;
+          final isComplex = value is Map || value is List;
+          return Padding(
+            padding: EdgeInsets.only(left: (indent > 0 ? 12.0 : 0.0)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!isComplex)
+                  _labelValue(key, _primitiveToString(value))
+                else ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6.0),
+                    child: Text(
+                      _titleCase(key),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  _buildDetailsSection(value, indent: indent + 1),
+                  const SizedBox(height: 6),
+                ],
+              ],
+            ),
+          );
+        }).toList(),
+      );
+    }
+
+    if (data is List) {
+      if (data.isEmpty) return const Text('—');
+      // If list of maps, render each item as a card-like block
+      final isListOfMaps = data.every((el) => el is Map);
+      if (isListOfMaps) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List.generate(data.length, (index) {
+            final map = Map<String, dynamic>.from(data[index] as Map);
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: _buildDetailsSection(map, indent: indent + 1),
+            );
+          }),
+        );
+      }
+      // Otherwise render as bullet list
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: data.map<Widget>((el) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('• '),
+                Expanded(child: Text(_primitiveToString(el))),
+              ],
+            ),
+          );
+        }).toList(),
+      );
+    }
+
+    // Primitive
+    return Text(_primitiveToString(data));
+  }
+
+  Widget _labelValue(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 160,
+            child: Text(
+              _titleCase(label),
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(child: Text(value)),
+        ],
+      ),
+    );
+  }
+
+  String _primitiveToString(dynamic v) {
+    if (v == null) return '—';
+    if (v is num || v is bool) return v.toString();
+    return v.toString();
+  }
+
+  String _titleCase(String input) {
+    if (input.isEmpty) return input;
+    return input.replaceAllMapped(RegExp(r'(^|_|-|\s)([a-z])'), (m) => '${m[1] ?? ''}${m[2]!.toUpperCase()}')
+        .replaceAll('_', ' ')
+        .replaceAll('-', ' ');
   }
 
   @override
@@ -74,20 +191,26 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                       },
                     ),
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryBlue,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        'Total: \n₹${controller.totalAmount.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryBlue,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            controller.selectedType == 'sales'
+                                ? 'Revenue: ₹${controller.totalAmount.toStringAsFixed(2)}'
+                                : 'Total: ₹${controller.totalAmount.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -233,35 +356,10 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                                     '${report.date.year}-${report.date.month.toString().padLeft(2, '0')}-${report.date.day.toString().padLeft(2, '0')}',
                                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                                   ),
-                                  onTap: () => showDialog(
-                                    context: context,
-                                    builder: (_) => AlertDialog(
-                                      title: Text(report.title),
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(report.description),
-                                          if (report.userName != null) ...[
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              'User: ${report.userName}',
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: AppColors.primaryBlue,
-                                              ),
-                                            ),
-                                          ],
-                                          const SizedBox(height: 12),
-                                          ...report.details.entries.map((e) => Text('${e.key}: ${e.value}')),
-                                        ],
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context),
-                                          child: const Text('Close'),
-                                        ),
-                                      ],
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ReportDetailsScreen(report: report),
                                     ),
                                   ),
                                 ),

@@ -144,7 +144,7 @@ class AdminAuditLogsController extends ChangeNotifier {
     successMessage = null;
     notifyListeners();
     try {
-      final response = await _dio.post('$_baseUrl/admin/audits', data: {
+      final response = await _dio.post('${_baseUrl}admin/audits', data: {
         'action': action,
         'resource': resource,
         'details': details,

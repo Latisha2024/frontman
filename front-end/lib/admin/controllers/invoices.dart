@@ -179,17 +179,15 @@ class AdminInvoicesController extends ChangeNotifier {
   // Filters (for GET /admin/invoices)
   final orderIdFilterController = TextEditingController();
   final userIdFilterController = TextEditingController();
-  final dateFilterController = TextEditingController(); // YYYY-MM-DD
+  // Removed date filter controller as per requirement
 
   // Apply filters from controllers
   Future<void> applyFilters() async {
     final orderId = orderIdFilterController.text.trim();
     final userId = userIdFilterController.text.trim();
-    final date = dateFilterController.text.trim();
     await fetchInvoices(
       orderId: orderId.isEmpty ? null : orderId,
       userId: userId.isEmpty ? null : userId,
-      date: date.isEmpty ? null : date,
     );
   }
 
@@ -297,7 +295,7 @@ class AdminInvoicesController extends ChangeNotifier {
   }
 
   // GET /admin/invoices - Fetch all invoices (supports orderId, userId, date)
-  Future<List<Invoice>> fetchInvoices({String? orderId, String? userId, String? date}) async {
+  Future<List<Invoice>> fetchInvoices({String? orderId, String? userId}) async {
     try {
       isLoading = true;
       error = null;
@@ -306,7 +304,6 @@ class AdminInvoicesController extends ChangeNotifier {
       final queryParams = <String, dynamic>{};
       if (orderId != null && orderId.isNotEmpty) queryParams['orderId'] = orderId;
       if (userId != null && userId.isNotEmpty) queryParams['userId'] = userId;
-      if (date != null && date.isNotEmpty) queryParams['date'] = date;
       
       final response = await _dio.get('/admin/invoices', queryParameters: queryParams);
       
@@ -570,7 +567,6 @@ class AdminInvoicesController extends ChangeNotifier {
     signatureController.dispose();
     orderIdFilterController.dispose();
     userIdFilterController.dispose();
-    dateFilterController.dispose();
     super.dispose();
   }
 }

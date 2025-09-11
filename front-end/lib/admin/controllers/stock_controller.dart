@@ -118,6 +118,40 @@ class StockController {
     }
   }
 
+  // DELETE /admin/stock/{id} - Delete a stock entry by ID
+  static Future<Map<String, dynamic>> deleteStock({
+    required String id,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      final response = await http.delete(
+        Uri.parse('$baseUrl/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null && token.isNotEmpty) 'Authorization': 'Bearer ' + token,
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        if (response.body.isNotEmpty) {
+          return json.decode(response.body);
+        }
+        return {'message': 'Stock deleted successfully'};
+      } else {
+        try {
+          final err = json.decode(response.body);
+          final msg = err['message'] ?? err['error'] ?? response.reasonPhrase ?? 'Unknown error';
+          throw Exception('Failed to delete stock entry: $msg');
+        } catch (_) {
+          throw Exception('Failed to delete stock entry: ${response.statusCode}');
+        }
+      }
+    } catch (e) {
+      throw Exception('Error deleting stock entry: $e');
+    }
+  }
+
   // DELETE /admin/stock/cleanup-broken - Cleanup broken stock entries
   static Future<Map<String, dynamic>> cleanupBrokenStock() async {
     try {
