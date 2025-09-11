@@ -28,7 +28,7 @@ class PlumberDeliveryReportScreenState
     if (controller.success == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('✅ Delivery report submitted successfully!'),
+          content: Text('Delivery report submitted successfully!'),
         ),
       );
       controller.productController.clear();
