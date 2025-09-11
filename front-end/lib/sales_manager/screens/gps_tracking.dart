@@ -51,7 +51,7 @@ class _SalesManagerGpsTrackingScreenState extends State<SalesManagerGpsTrackingS
             icon: const Icon(Icons.refresh),
             onPressed: userIdController.text.trim().isEmpty
                 ? null
-                : () => controller.fetchLocations(userIdController.text.trim()),
+                : () => controller.fetchLocationsByName(userIdController.text.trim()),
             tooltip: 'Refresh',
           )
         ],
@@ -94,8 +94,8 @@ class _SalesManagerGpsTrackingScreenState extends State<SalesManagerGpsTrackingS
                     child: TextField(
                       controller: userIdController,
                       decoration: const InputDecoration(
-                        labelText: 'User ID',
-                        prefixIcon: Icon(Icons.badge),
+                        labelText: 'User Name',
+                        prefixIcon: Icon(Icons.person),
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -104,7 +104,7 @@ class _SalesManagerGpsTrackingScreenState extends State<SalesManagerGpsTrackingS
                   ElevatedButton.icon(
                     onPressed: userIdController.text.trim().isEmpty
                         ? null
-                        : () => controller.fetchLocations(userIdController.text.trim()),
+                        : () => controller.fetchLocationsByName(userIdController.text.trim()),
                     icon: const Icon(Icons.search),
                     label: const Text('Search'),
                     style: ElevatedButton.styleFrom(backgroundColor: AppColors.buttonPrimary, foregroundColor: Colors.white),
@@ -115,7 +115,7 @@ class _SalesManagerGpsTrackingScreenState extends State<SalesManagerGpsTrackingS
               if (userIdController.text.trim().isEmpty)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12.0),
-                  child: Text('Enter a User ID to view location history', textAlign: TextAlign.center),
+                  child: Text('Enter a User Name to view location history', textAlign: TextAlign.center),
                 ),
               if (locations.isEmpty)
                 const Center(child: Text('No location history'))

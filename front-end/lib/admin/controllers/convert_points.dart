@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../user_lookup.dart';
 
 import '../url.dart';
 
@@ -51,6 +52,8 @@ class AdminConvertPointsController extends ChangeNotifier {
   double? convertedAmount;
   List<PointTransaction> _transactions = [];
   List<PointTransaction> get transactions => _transactions;
+  List<PointTransaction> filteredTransactions = [];
+  String searchQuery = '';
   int? _userTotalPoints;
   int? get userTotalPoints => _userTotalPoints;
   late final Dio _dio;
@@ -90,20 +93,20 @@ class AdminConvertPointsController extends ChangeNotifier {
     });
   }
 
-  // GET /admin/points - Fetch all point transactions
-  Future<void> fetchAllTransactions({String? userId, String? type}) async {
+  // GET /admin/points - Fetch all point transactions (userId filter removed)
+  Future<void> fetchAllTransactions({String? type}) async {
     try {
       isLoading = true;
       error = null;
       notifyListeners();
 
       final queryParams = <String, dynamic>{};
-      if (userId != null && userId.isNotEmpty) queryParams['userId'] = userId;
       if (type != null && type.isNotEmpty) queryParams['type'] = type;
 
       final response = await _dio.get('/admin/points', queryParameters: queryParams);
       final List<dynamic> data = response.data;
       _transactions = data.map((json) => PointTransaction.fromJson(json)).toList();
+      _applyLocalSearch();
       successMessage = 'Transactions loaded successfully';
       _scheduleAutoHideMessages();
     } on DioException catch (e) {
@@ -122,16 +125,48 @@ class AdminConvertPointsController extends ChangeNotifier {
     }
   }
 
+  // Local search API for transactions
+  void searchTransactions(String query) {
+    searchQuery = query;
+    _applyLocalSearch();
+  }
+
+  void _applyLocalSearch() {
+    if (searchQuery.isEmpty) {
+      filteredTransactions = List.from(_transactions);
+    } else {
+      final q = searchQuery.toLowerCase();
+      filteredTransactions = _transactions.where((t) {
+        final name = t.user?['name']?.toString().toLowerCase() ?? '';
+        final uid = t.userId.toLowerCase();
+        final reason = t.reason.toLowerCase();
+        final type = t.type.toLowerCase();
+        final points = t.points.toString();
+        return name.contains(q) || uid.contains(q) || reason.contains(q) || type.contains(q) || points.contains(q);
+      }).toList();
+    }
+    notifyListeners();
+  }
+
   // GET user points total by calculating from transactions
-  Future<void> fetchUserPoints(String userId) async {
+  // Accepts username or userId; resolves username to id before computing.
+  Future<void> fetchUserPoints(String userInput) async {
     try {
       isLoading = true;
       error = null;
       notifyListeners();
 
-      final response = await _dio.get('/admin/points', queryParameters: {'userId': userId});
-      final List<dynamic> data = response.data;
-      final userTransactions = data.map((json) => PointTransaction.fromJson(json)).toList();
+      // Reuse loaded transactions; if empty, load all and then filter locally
+      if (_transactions.isEmpty) {
+        await fetchAllTransactions();
+      }
+      // Resolve username to userId if possible
+      String resolved = userInput.trim();
+      final lookedUp = await UserLookup.resolveUserIdByName(resolved);
+      if (lookedUp != null) {
+        resolved = lookedUp;
+      }
+      final userTransactions = _transactions.where((t) => t.userId == resolved).toList();
       
       // Calculate total points for user
       _userTotalPoints = userTransactions.fold<int>(0, (sum, txn) => sum + txn.points);
@@ -162,8 +197,15 @@ class AdminConvertPointsController extends ChangeNotifier {
       error = null;
       notifyListeners();
 
+      // Resolve username to userId if needed
+      String resolvedUserId = userIdController.text.trim();
+      final lookedUp = await UserLookup.resolveUserIdByName(resolvedUserId);
+      if (lookedUp != null) {
+        resolvedUserId = lookedUp;
+      }
+
       final adjustData = {
-        'userId': userIdController.text.trim(),
+        'userId': resolvedUserId,
         'points': int.parse(pointsController.text.trim()),
         'reason': reasonController.text.trim(),
       };
@@ -205,8 +247,15 @@ class AdminConvertPointsController extends ChangeNotifier {
       final parsedRate = double.parse(conversionRateController.text.trim());
       final reason = reasonController.text.trim();
 
+      // Resolve username to userId if needed
+      String resolvedUserId = userIdController.text.trim();
+      final lookedUp = await UserLookup.resolveUserIdByName(resolvedUserId);
+      if (lookedUp != null) {
+        resolvedUserId = lookedUp;
+      }
+
       final payload = <String, dynamic>{
-        'userId': userIdController.text.trim(),
+        'userId': resolvedUserId,
         'points': parsedPoints,
         'conversionRate': parsedRate,
       };
@@ -222,7 +271,7 @@ class AdminConvertPointsController extends ChangeNotifier {
         convertedAmount = (amt is num) ? amt.toDouble() : null;
         successMessage = data['message'] ?? 'Points converted successfully!';
         // Refresh transactions to reflect the conversion entry
-        await fetchAllTransactions(userId: userIdController.text.trim());
+        await fetchAllTransactions();
         _scheduleAutoHideMessages();
       } else {
         error = 'Failed to convert points: ${response.statusCode}';

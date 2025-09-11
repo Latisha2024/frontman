@@ -12,6 +12,7 @@ class ConvertPointsToCashForm extends StatefulWidget {
 
 class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final TextEditingController _txnSearchController = TextEditingController();
 
   @override
   void initState() {
@@ -21,6 +22,7 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
 
   @override
   void dispose() {
+    _txnSearchController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -127,7 +129,7 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
           // User ID Field
           _buildTextField(
             controller: widget.controller.userIdController,
-            label: 'User ID',
+            label: 'User Name',
             icon: Icons.person,
             suffixIcon: IconButton(
               icon: const Icon(Icons.search),
@@ -216,7 +218,7 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
           // User ID Field
           _buildTextField(
             controller: widget.controller.userIdController,
-            label: 'User ID',
+            label: 'User Name',
             icon: Icons.person,
           ),
           const SizedBox(height: 16),
@@ -304,16 +306,16 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
   Widget _buildTransactionsTab() {
     return Column(
       children: [
-        // Filter Row
+        // Search and type filter
         Row(
           children: [
             Expanded(
               child: _buildTextField(
-                controller: TextEditingController(),
-                label: 'Filter by User ID',
-                icon: Icons.filter_list,
+                controller: _txnSearchController,
+                label: 'Search by user, ID, reason, or type',
+                icon: Icons.search,
                 onChanged: (value) {
-                  widget.controller.fetchAllTransactions(userId: value.isEmpty ? null : value);
+                  widget.controller.searchTransactions(value);
                 },
               ),
             ),
@@ -337,7 +339,7 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
         Expanded(
           child: widget.controller.isLoading
               ? const Center(child: CircularProgressIndicator())
-              : widget.controller.transactions.isEmpty
+              : widget.controller.filteredTransactions.isEmpty
                   ? const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -352,9 +354,9 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
                       ),
                     )
                   : ListView.builder(
-                      itemCount: widget.controller.transactions.length,
+                      itemCount: widget.controller.filteredTransactions.length,
                       itemBuilder: (context, index) {
-                        final transaction = widget.controller.transactions[index];
+                        final transaction = widget.controller.filteredTransactions[index];
                         return _buildTransactionCard(transaction);
                       },
                     ),

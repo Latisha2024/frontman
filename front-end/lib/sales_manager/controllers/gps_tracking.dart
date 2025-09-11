@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../admin/user_lookup.dart';
+import '../../admin/url.dart';
 
 class SalesManagerGpsTrackingController extends ChangeNotifier {
   // Backend base URL (align with other controllers)
   // Android Emulator: http://10.0.2.2:5000
   // iOS Simulator/Web: http://localhost:5000
   // Physical device: http://<your-PC-LAN-IP>:5000
-  static const String baseUrl = 'https://frontman-backend-2.onrender.com/';
+  static const String baseUrl = BaseUrl.b_url;
 
   final Dio _dio = Dio(BaseOptions(
     baseUrl: baseUrl,
@@ -17,6 +19,17 @@ class SalesManagerGpsTrackingController extends ChangeNotifier {
       'Content-Type': 'application/json',
     },
   ));
+
+  // Convenience: accept a user name, resolve to userId, then fetch
+  Future<void> fetchLocationsByName(String userName) async {
+    final resolved = await UserLookup.resolveUserIdByName(userName.trim());
+    if (resolved == null) {
+      error = 'User not found for name: $userName';
+      notifyListeners();
+      return;
+    }
+    await fetchLocations(resolved);
+  }
 
   // List of location history entries for a selected user
   List<Map<String, dynamic>> locations = [];

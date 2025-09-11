@@ -159,8 +159,8 @@ class AdminOrderSummaryController extends ChangeNotifier {
     }
   }
 
-  // GET /admin/orders with filters
-  Future<void> fetchOrdersWithFilters({String? status, String? userId}) async {
+  // GET /admin/orders with filters (userId removed as per requirement)
+  Future<void> fetchOrdersWithFilters({String? status}) async {
     try {
       isLoading = true;
       error = null;
@@ -168,7 +168,6 @@ class AdminOrderSummaryController extends ChangeNotifier {
 
       final queryParams = <String, dynamic>{};
       if (status != null && status != 'All') queryParams['status'] = status;
-      if (userId != null && userId.isNotEmpty) queryParams['userId'] = userId;
 
       final response = await _dio.get('/admin/orders', queryParameters: queryParams);
       final List<dynamic> data = response.data;
@@ -228,15 +227,15 @@ class AdminOrderSummaryController extends ChangeNotifier {
     // Use backend filtering for better performance
     fetchOrdersWithFilters(
       status: status,
-      userId: filterUserId.isNotEmpty ? filterUserId : null,
     );
   }
 
   void filterByUserId() {
-    filterUserId = filterUserIdController.text.trim();
+    // userId filter removed; simply refresh with current status only
+    filterUserId = '';
+    filterUserIdController.clear();
     fetchOrdersWithFilters(
       status: selectedStatus != 'All' ? selectedStatus : null,
-      userId: filterUserId.isNotEmpty ? filterUserId : null,
     );
   }
 
@@ -267,7 +266,7 @@ class AdminOrderSummaryController extends ChangeNotifier {
   }
 
   // GET /admin/search/orders - Search orders with query (API)
-  Future<List<Order>> searchOrdersApi(String query, {String? status, String? userId, String? startDate, String? endDate}) async {
+  Future<List<Order>> searchOrdersApi(String query, {String? status, String? startDate, String? endDate}) async {
     try {
       isLoading = true;
       error = null;
@@ -277,7 +276,6 @@ class AdminOrderSummaryController extends ChangeNotifier {
         'q': query,
       };
       if (status != null && status != 'All') queryParams['status'] = status;
-      if (userId != null && userId.isNotEmpty) queryParams['userId'] = userId;
       if (startDate != null) queryParams['startDate'] = startDate;
       if (endDate != null) queryParams['endDate'] = endDate;
 

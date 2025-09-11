@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../user_lookup.dart';
 import '../url.dart';
 
 class Incentive {
@@ -111,49 +112,20 @@ class AdminAssignIncentiveController extends ChangeNotifier {
     }
   }
 
-  // GET /admin/incentives?userId=... - Filter incentives by user
+  // Filter incentives by user (removed backend filter; now a no-op that resets to full list)
   Future<void> filterIncentivesByUser(String userId) async {
-    if (userId.isEmpty) {
-      filteredIncentives = List.from(incentives);
-      notifyListeners();
-      return;
-    }
-
-    try {
-      isLoading = true;
-      error = null;
-      notifyListeners();
-
-      final response = await _dio.get('/admin/incentives', queryParameters: {'userId': userId});
-      final List<dynamic> data = response.data;
-      filteredIncentives = data.map((json) => Incentive.fromJson(json)).toList();
-      
-      successMessage = 'Incentives filtered by user';
-      _scheduleAutoHideMessages();
-    } on DioException catch (e) {
-      if (e.response != null) {
-        error = 'Failed to filter incentives: ${e.response!.statusCode} - ${e.response!.data}';
-      } else {
-        error = 'Network error: ${e.message}';
-      }
-      _scheduleAutoHideMessages();
-    } catch (e) {
-      error = 'Unexpected error: $e';
-      _scheduleAutoHideMessages();
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
+    filteredIncentives = List.from(incentives);
+    notifyListeners();
   }
 
   // POST /admin/incentives - Assign new incentive
   Future<void> assignIncentive() async {
-    final userId = userIdController.text.trim();
+    final userInput = userIdController.text.trim();
     final points = int.tryParse(pointsController.text.trim());
     final description = descriptionController.text.trim();
     
-    if (userId.isEmpty || points == null || points <= 0 || description.isEmpty) {
-      error = 'Please fill all fields with valid data.';
+    if (userInput.isEmpty || points == null || points <= 0 || description.isEmpty) {
+      error = 'Please provide user name, points (>0), and description.';
       notifyListeners();
       _scheduleAutoHideMessages();
       return;
@@ -164,8 +136,15 @@ class AdminAssignIncentiveController extends ChangeNotifier {
       error = null;
       notifyListeners();
 
+      // Resolve username to userId if needed
+      String resolvedUserId = userInput;
+      final lookedUp = await UserLookup.resolveUserIdByName(resolvedUserId);
+      if (lookedUp != null) {
+        resolvedUserId = lookedUp;
+      }
+
       final response = await _dio.post('/admin/incentives', data: {
-        'assignedId': userId,
+        'assignedId': resolvedUserId,
         'description': description,
         'points': points,
       });

@@ -146,7 +146,7 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
                   child: TextFormField(
                     controller: controller.userIdController,
                     decoration: const InputDecoration(
-                      labelText: 'User ID (Optional - leave empty for all users)',
+                      labelText: 'User Name (Optional - leave empty for all users)',
                       border: InputBorder.none,
                       prefixIcon: Icon(Icons.person),
                     ),

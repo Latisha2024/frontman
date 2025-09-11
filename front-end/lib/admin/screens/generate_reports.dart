@@ -229,7 +229,7 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                               child: TextField(
                                 controller: controller.individualUserIdController,
                                 decoration: const InputDecoration(
-                                  labelText: 'User ID',
+                                  labelText: 'User Name',
                                   border: OutlineInputBorder(),
                                 ),
                               ),
@@ -254,65 +254,13 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            // Start Date
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () async {
-                                  final picked = await showDatePicker(
-                                    context: context,
-                                    initialDate: controller.individualStartDate ?? DateTime.now(),
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime(2100),
-                                  );
-                                  if (picked != null) {
-                                    setState(() {
-                                      controller.individualStartDate = picked;
-                                    });
-                                  }
-                                },
-                                child: Text(
-                                  controller.individualStartDate == null
-                                      ? 'From'
-                                      : 'From: ${controller.individualStartDate!.year}-${controller.individualStartDate!.month.toString().padLeft(2, '0')}-${controller.individualStartDate!.day.toString().padLeft(2, '0')}',
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            // End Date
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () async {
-                                  final picked = await showDatePicker(
-                                    context: context,
-                                    initialDate: controller.individualEndDate ?? DateTime.now(),
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime(2100),
-                                  );
-                                  if (picked != null) {
-                                    setState(() {
-                                      controller.individualEndDate = picked;
-                                    });
-                                  }
-                                },
-                                child: Text(
-                                  controller.individualEndDate == null
-                                      ? 'To'
-                                      : 'To: ${controller.individualEndDate!.year}-${controller.individualEndDate!.month.toString().padLeft(2, '0')}-${controller.individualEndDate!.day.toString().padLeft(2, '0')}',
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            ElevatedButton(
-                              onPressed: controller.isLoading
-                                  ? null
-                                  : () {
-                                      controller.fetchIndividualReport();
-                                    },
-                              child: const Text('Fetch Report'),
-                            ),
-                          ],
+                        ElevatedButton(
+                          onPressed: controller.isLoading
+                              ? null
+                              : () {
+                            controller.fetchIndividualReport();
+                          },
+                          child: const Text('Fetch Report'),
                         ),
                       ],
                     ),

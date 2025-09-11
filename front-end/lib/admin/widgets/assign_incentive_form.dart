@@ -160,38 +160,6 @@ class _AssignIncentiveFormState extends State<AssignIncentiveForm>
                   fillColor: Colors.white,
                 ),
               ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: widget.controller.filterUserIdController,
-                      decoration: InputDecoration(
-                        hintText: 'Filter by User ID',
-                        prefixIcon: const Icon(Icons.person),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      final userId = widget.controller.filterUserIdController.text.trim();
-                      widget.controller.filterIncentivesByUser(userId);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryBlue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    child: const Text('Filter'),
-                  ),
-                ],
-              ),
             ],
           ),
         ),

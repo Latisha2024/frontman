@@ -241,6 +241,46 @@ class AdminManageUsersController extends ChangeNotifier {
       error = null;
       notifyListeners();
 
+      // Enforce unique user name (case-insensitive)
+      final newName = nameController.text.trim();
+      final newNameLower = newName.toLowerCase();
+      // Check locally first
+      final localDuplicate = _users.any((u) => u.name.toLowerCase() == newNameLower);
+      if (localDuplicate) {
+        error = 'User name already exists. Please choose a different name.';
+        notifyListeners();
+        _scheduleAutoHideMessages();
+        isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      // Double-check via backend search to avoid race conditions
+      try {
+        final resp = await _dio.get(
+          '/admin/search/users',
+          queryParameters: {'q': newName},
+        );
+        if (resp.data is List) {
+          final List list = resp.data as List;
+          final exists = list.any((item) {
+            final map = item as Map<String, dynamic>;
+            final nm = (map['name'] ?? '').toString().toLowerCase();
+            return nm == newNameLower;
+          });
+          if (exists) {
+            error = 'User name already exists. Please choose a different name.';
+            notifyListeners();
+            _scheduleAutoHideMessages();
+            isLoading = false;
+            notifyListeners();
+            return;
+          }
+        }
+      } catch (_) {
+        // If search endpoint fails, proceed to creation; backend should still enforce if supported
+      }
+
       final userData = {
         'name': nameController.text.trim(),
         'email': emailController.text.trim(),

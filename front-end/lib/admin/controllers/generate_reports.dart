@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../user_lookup.dart';
 
 import '../url.dart';
 
@@ -264,12 +265,18 @@ class AdminGenerateReportsController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final uid = (userId ?? individualUserIdController.text.trim());
+      String uid = (userId ?? individualUserIdController.text.trim());
       if (uid.isEmpty) {
-        error = 'User ID is required for individual reports';
+        error = 'User name is required for individual reports';
         isLoading = false;
         notifyListeners();
         return;
+      }
+
+      // Resolve a provided username to userId if possible
+      final lookedUp = await UserLookup.resolveUserIdByName(uid);
+      if (lookedUp != null) {
+        uid = lookedUp;
       }
 
       final type = (reportType ?? individualReportType);

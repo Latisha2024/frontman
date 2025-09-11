@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../user_lookup.dart';
 
 import '../url.dart';
 
@@ -164,7 +165,7 @@ class AdminSendNotificationsController extends ChangeNotifier {
   }
 
   Future<void> sendNotification() async {
-    final userId = userIdController.text.trim();
+    final userInput = userIdController.text.trim();
     final title = titleController.text.trim();
     final message = messageController.text.trim();
     
@@ -181,10 +182,16 @@ class AdminSendNotificationsController extends ChangeNotifier {
       successMessage = null;
       notifyListeners();
 
+      // Resolve username to userId if provided
+      String? resolvedUserId;
+      if (userInput.isNotEmpty) {
+        resolvedUserId = await UserLookup.resolveUserIdByName(userInput) ?? userInput;
+      }
+
       final requestBody = {
         'type': selectedNotificationType,
         'message': message,
-        'userId': userId.isEmpty ? null : userId,
+        'userId': resolvedUserId,
       };
 
       final response = await _dio.post(

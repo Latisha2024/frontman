@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../user_lookup.dart';
 
 import '../url.dart';
 
@@ -106,10 +107,11 @@ class AdminInvoicesController extends ChangeNotifier {
   bool isLoading = false;
   String? error;
   String? successMessage;
-  
+  String searchQuery = '';
+
   // Base URL for API calls - update this to match your backend
   static const String baseUrl = BaseUrl.b_url; // Update with your actual backend URL
-  
+
   // Dio instance for HTTP requests
   late final Dio _dio;
 
@@ -122,7 +124,7 @@ class AdminInvoicesController extends ChangeNotifier {
         'Content-Type': 'application/json',
       },
     ));
-    
+
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         final prefs = await SharedPreferences.getInstance();
@@ -133,7 +135,7 @@ class AdminInvoicesController extends ChangeNotifier {
         return handler.next(options);
       },
     ));
-    
+
     // Add interceptors for logging and error handling
     _dio.interceptors.add(LogInterceptor(
       requestBody: true,
@@ -142,11 +144,10 @@ class AdminInvoicesController extends ChangeNotifier {
     ));
   }
 
-
   AdminInvoicesController() {
     // Initialize Dio
     _initializeDio();
-    
+
     // Initialize with empty invoice data - will be loaded from API
     invoices = [];
     filteredInvoices = [];
@@ -176,19 +177,13 @@ class AdminInvoicesController extends ChangeNotifier {
   Invoice? editingInvoice;
   bool isEditMode = false;
 
-  // Filters (for GET /admin/invoices)
+  // Filters removed as per requirement; keeping controllers for compatibility if UI still references them
   final orderIdFilterController = TextEditingController();
   final userIdFilterController = TextEditingController();
-  // Removed date filter controller as per requirement
 
-  // Apply filters from controllers
+  // Filters removed: simply refetch all invoices
   Future<void> applyFilters() async {
-    final orderId = orderIdFilterController.text.trim();
-    final userId = userIdFilterController.text.trim();
-    await fetchInvoices(
-      orderId: orderId.isEmpty ? null : orderId,
-      userId: userId.isEmpty ? null : userId,
-    );
+    await fetchInvoices();
   }
 
   void addInvoice() {
@@ -294,25 +289,22 @@ class AdminInvoicesController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // GET /admin/invoices - Fetch all invoices (supports orderId, userId, date)
-  Future<List<Invoice>> fetchInvoices({String? orderId, String? userId}) async {
+  // GET /admin/invoices - Fetch all invoices (filters removed)
+  Future<List<Invoice>> fetchInvoices() async {
     try {
       isLoading = true;
       error = null;
       notifyListeners();
-      
-      final queryParams = <String, dynamic>{};
-      if (orderId != null && orderId.isNotEmpty) queryParams['orderId'] = orderId;
-      if (userId != null && userId.isNotEmpty) queryParams['userId'] = userId;
-      
-      final response = await _dio.get('/admin/invoices', queryParameters: queryParams);
-      
+
+      final response = await _dio.get('/admin/invoices');
+
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         final List<Invoice> fetchedInvoices = data.map((item) => _mapBackendInvoiceToModel(item)).toList();
-        
+
         invoices = fetchedInvoices;
-        filteredInvoices = List.from(invoices);
+        _applyLocalSearch();
+
         successMessage = 'Invoices loaded successfully';
         _scheduleAutoHideMessages();
         return fetchedInvoices;
@@ -336,119 +328,13 @@ class AdminInvoicesController extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
-  // GET /admin/invoices/:id - Fetch specific invoice by ID
-  Future<Invoice?> fetchInvoiceById(String id) async {
-    try {
-      isLoading = true;
-      error = null;
-      notifyListeners();
-      
-      final response = await _dio.get('/admin/invoices/$id');
-      
-      if (response.statusCode == 200) {
-        final invoice = _mapBackendInvoiceToModel(response.data);
-        successMessage = 'Invoice loaded successfully';
-        notifyListeners();
-        _scheduleAutoHideMessages();
-        return invoice;
-      } else {
-        error = 'Failed to fetch invoice: ${response.statusCode}';
-        notifyListeners();
-        _scheduleAutoHideMessages();
-        return null;
-      }
-    } on DioException catch (e) {
-      _handleDioError(e);
-      _scheduleAutoHideMessages();
-      return null;
-    } catch (e) {
-      error = 'Unexpected error: $e';
-      notifyListeners();
-      _scheduleAutoHideMessages();
-      return null;
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
+
+  // Helper method to refresh invoices from API
+  Future<void> refreshInvoices() async {
+    await fetchInvoices();
   }
-  
-  // POST - Create manual invoice (new endpoint for manual creation)
-  Future<Invoice?> createManualInvoice({
-    required String userId,
-    required List<LineItem> items,
-    String? description,
-    DateTime? dueDate,
-  }) async {
-    try {
-      isLoading = true;
-      error = null;
-      successMessage = null;
-      notifyListeners();
 
-      if (userId.trim().isEmpty) {
-        error = 'User ID is required';
-        notifyListeners();
-        _scheduleAutoHideMessages();
-        return null;
-      }
-      if (items.isEmpty) {
-        error = 'At least one item is required';
-        notifyListeners();
-        _scheduleAutoHideMessages();
-        return null;
-      }
-
-      final totalAmount = items.fold<double>(0.0, (sum, it) => sum + (it.quantity * it.unitPrice));
-      final body = {
-        'userId': userId,
-        'totalAmount': totalAmount,
-        'items': items
-            .map((it) => {
-                  'productName': it.description,
-                  'quantity': it.quantity,
-                  'unitPrice': it.unitPrice,
-                })
-            .toList(),
-        if (description != null && description.isNotEmpty) 'description': description,
-        if (dueDate != null) 'dueDate': dueDate.toIso8601String().split('T').first,
-      };
-
-      final response = await _dio.post('/admin/invoices', data: body);
-      if (response.statusCode == 201) {
-        final created = _mapBackendInvoiceToModel(response.data['invoice'] ?? response.data);
-        invoices.insert(0, created);
-        filteredInvoices = List.from(invoices);
-        successMessage = 'Invoice created successfully';
-        notifyListeners();
-        _scheduleAutoHideMessages();
-        return created;
-      } else {
-        error = 'Failed to create invoice: ${response.statusCode}';
-        notifyListeners();
-        _scheduleAutoHideMessages();
-        return null;
-      }
-    } on DioException catch (e) {
-      if (e.response != null && e.response?.data is Map && (e.response?.data)['message'] != null) {
-        error = (e.response?.data)['message'];
-      } else {
-        _handleDioError(e);
-      }
-      _scheduleAutoHideMessages();
-      return null;
-    } catch (e) {
-      error = 'Unexpected error: $e';
-      notifyListeners();
-      _scheduleAutoHideMessages();
-      return null;
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
-  }
-  
-  // Generate invoice from existing order
+  // Generate invoice from existing order (Admin allowed to call accountant endpoint)
   Future<Invoice?> generateInvoiceFromOrder(String orderId) async {
     if (orderId.trim().isEmpty) {
       error = 'Please enter a valid order ID.';
@@ -462,18 +348,17 @@ class AdminInvoicesController extends ChangeNotifier {
       successMessage = null;
       notifyListeners();
 
-      // Admins are authorized to use accountant invoice generation
       final response = await _dio.post('/accountant/invoice/$orderId');
 
       if (response.statusCode == 201) {
-        final created = _mapBackendInvoiceToModel(response.data['invoice']);
+        final created = _mapBackendInvoiceToModel(response.data['invoice'] ?? response.data);
         final idx = invoices.indexWhere((i) => i.id == created.id);
         if (idx >= 0) {
           invoices[idx] = created;
         } else {
           invoices.insert(0, created);
         }
-        filteredInvoices = List.from(invoices);
+        _applyLocalSearch();
         successMessage = 'Invoice generated successfully.';
         notifyListeners();
         _scheduleAutoHideMessages();
@@ -502,12 +387,112 @@ class AdminInvoicesController extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
-  // Helper method to refresh invoices from API
-  Future<void> refreshInvoices() async {
-    await fetchInvoices();
+
+  // Create manual invoice
+  Future<Invoice?> createManualInvoice({
+    required String userId,
+    required List<LineItem> items,
+    String? description,
+    DateTime? dueDate,
+  }) async {
+    try {
+      isLoading = true;
+      error = null;
+      successMessage = null;
+      notifyListeners();
+
+      if (userId.trim().isEmpty) {
+        error = 'User ID is required';
+        notifyListeners();
+        _scheduleAutoHideMessages();
+        return null;
+      }
+      if (items.isEmpty) {
+        error = 'At least one item is required';
+        notifyListeners();
+        _scheduleAutoHideMessages();
+        return null;
+      }
+
+      // Resolve username to userId if needed
+      String resolvedUserId = userId.trim();
+      // Attempt resolving if value doesn't look like an ID pattern (always safe to try)
+      final lookedUp = await UserLookup.resolveUserIdByName(resolvedUserId);
+      if (lookedUp != null) {
+        resolvedUserId = lookedUp;
+      }
+
+      final totalAmount = items.fold<double>(0.0, (sum, it) => sum + (it.quantity * it.unitPrice));
+      final body = {
+        'userId': resolvedUserId,
+        'totalAmount': totalAmount,
+        'items': items
+            .map((it) => {
+                  'productName': it.description,
+                  'quantity': it.quantity,
+                  'unitPrice': it.unitPrice,
+                })
+            .toList(),
+        if (description != null && description.isNotEmpty) 'description': description,
+        if (dueDate != null) 'dueDate': dueDate.toIso8601String().split('T').first,
+      };
+
+      final response = await _dio.post('/admin/invoices', data: body);
+      if (response.statusCode == 201) {
+        final created = _mapBackendInvoiceToModel(response.data['invoice'] ?? response.data);
+        invoices.insert(0, created);
+        _applyLocalSearch();
+        successMessage = 'Invoice created successfully';
+        notifyListeners();
+        _scheduleAutoHideMessages();
+        return created;
+      } else {
+        error = 'Failed to create invoice: ${response.statusCode}';
+        notifyListeners();
+        _scheduleAutoHideMessages();
+        return null;
+      }
+    } on DioException catch (e) {
+      if (e.response != null && e.response?.data is Map && (e.response?.data)['message'] != null) {
+        error = (e.response?.data)['message'];
+      } else {
+        _handleDioError(e);
+      }
+      _scheduleAutoHideMessages();
+      return null;
+    } catch (e) {
+      error = 'Unexpected error: $e';
+      notifyListeners();
+      _scheduleAutoHideMessages();
+      return null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
-  
+
+  // Local search support
+  void searchInvoices(String query) {
+    searchQuery = query;
+    _applyLocalSearch();
+  }
+
+  void _applyLocalSearch() {
+    if (searchQuery.isEmpty) {
+      filteredInvoices = List.from(invoices);
+    } else {
+      final q = searchQuery.toLowerCase();
+      filteredInvoices = invoices.where((inv) {
+        final invNo = inv.invoiceNumber.toLowerCase();
+        final billTo = inv.billTo.toLowerCase();
+        final ref = inv.reference.toLowerCase();
+        final total = inv.totalDue.toStringAsFixed(2);
+        return invNo.contains(q) || billTo.contains(q) || ref.contains(q) || total.contains(q);
+      }).toList();
+    }
+    notifyListeners();
+  }
+
   // Map backend invoice data to frontend model
   Invoice _mapBackendInvoiceToModel(Map<String, dynamic> data) {
     final orderItems = data['order']?['orderItems'] as List<dynamic>? ?? [];

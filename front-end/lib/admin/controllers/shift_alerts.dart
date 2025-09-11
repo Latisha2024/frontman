@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../user_lookup.dart';
 
 import '../url.dart';
 
@@ -134,8 +135,15 @@ class AdminShiftAlertsController extends ChangeNotifier {
       error = null;
       notifyListeners();
 
+      // Resolve username to userId if needed
+      String resolvedUserId = userIdController.text.trim();
+      final lookedUp = await UserLookup.resolveUserIdByName(resolvedUserId);
+      if (lookedUp != null) {
+        resolvedUserId = lookedUp;
+      }
+
       final alertData = {
-        'userId': userIdController.text.trim(),
+        'userId': resolvedUserId,
         'message': messageController.text.trim(),
       };
 

@@ -46,7 +46,7 @@ class _InvoiceListState extends State<InvoiceList> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: buildFilters(context),
+              child: _buildSearchBar(context),
             ),
             if (controller.successMessage != null)
               Padding(
@@ -138,7 +138,7 @@ class _InvoiceListState extends State<InvoiceList> {
     );
   }
 
-  Widget buildFilters(BuildContext context) {
+  Widget _buildSearchBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -152,81 +152,23 @@ class _InvoiceListState extends State<InvoiceList> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Filters',
-            style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _buildFilterField(
-                  controller: controller.orderIdFilterController,
-                  hint: 'Order ID',
-                  icon: Icons.tag,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildFilterField(
-                  controller: controller.userIdFilterController,
-                  hint: 'User ID',
-                  icon: Icons.person,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: controller.isLoading ? null : () => controller.applyFilters(),
-                  icon: const Icon(Icons.search),
-                  label: const Text('Apply'),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: controller.isLoading
-                      ? null
-                      : () async {
-                          controller.orderIdFilterController.clear();
-                          controller.userIdFilterController.clear();
-                          await controller.fetchInvoices();
-                        },
-                  icon: const Icon(Icons.clear),
-                  label: const Text('Clear'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterField({
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.secondaryBlue.withOpacity(0.3)),
-      ),
       child: TextField(
-        controller: controller,
+        onChanged: controller.searchInvoices,
         decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: AppColors.secondaryBlue),
-          hintText: hint,
-          border: InputBorder.none,
+          prefixIcon: const Icon(Icons.search),
+          hintText: 'Search invoices by number, client, reference, or amount...',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: AppColors.secondaryBlue.withOpacity(0.3)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: AppColors.secondaryBlue.withOpacity(0.3)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.secondaryBlue),
+          ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         ),
       ),

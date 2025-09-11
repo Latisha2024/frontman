@@ -160,8 +160,8 @@ class _ShiftAlertsScreenState extends State<ShiftAlertsScreen> {
               TextFormField(
                 controller: controller.userIdController,
                 decoration: InputDecoration(
-                  labelText: 'User ID *',
-                  hintText: 'Enter user ID',
+                  labelText: 'User Name *',
+                  hintText: 'Enter user name',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   prefixIcon: const Icon(Icons.person),
                 ),
@@ -246,20 +246,6 @@ class _ShiftAlertsScreenState extends State<ShiftAlertsScreen> {
                       if (val != null) controller.filterAlerts(val);
                     },
                   )
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: controller.isLoading ? null : controller.fetchAlerts,
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Refresh'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryBlue,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
                 ],
               ),
             ],
