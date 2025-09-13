@@ -215,18 +215,18 @@ class AdminDrawer extends StatelessWidget {
               );
             },
           ),
-          // ListTile(
-          //   leading: const Icon(Icons.arrow_back),
-          //   title: const Text('Select Company'),
-          //   onTap: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) => CompanySelectionScreen(),
-          //       ),
-          //     );
-          //   },
-          // ),
+          ListTile(
+            leading: const Icon(Icons.arrow_back),
+            title: const Text('Select Company'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CompanySelectionScreen(),
+                ),
+              );
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sign Out'),
