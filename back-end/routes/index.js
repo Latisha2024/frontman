@@ -7,6 +7,7 @@ router.use('/admin/audits', require('./admin/audit'));
 router.use('/admin/products', require('./admin/product'));
 router.use('/admin/stock', require('./admin/stock'));
 router.use('/admin/users', require('./admin/user'));
+router.use('/admin/companies', require('./admin/company'));
 router.use('/admin/orders', require('./admin/order'));
 router.use('/admin/warranty-cards', require('./admin/warrantyCard'));
 router.use('/admin/reports', require('./admin/report'));
