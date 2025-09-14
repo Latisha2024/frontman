@@ -27,6 +27,7 @@ router.use('/distributor/promo', require('./distributor/promo'));
 router.use('/distributor/categories', require('./distributor/category'));
 
 router.use('/accountant/invoice', require('./accountant/invoice'));
+router.use('/accountant/financial-logs', require('./accountant/financial-logs'));
 
 router.use('/worker/attendance', require('./worker/attendance'));
 router.use('/worker/production', require('./worker/production'));
