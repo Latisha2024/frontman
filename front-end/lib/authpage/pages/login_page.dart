@@ -568,7 +568,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     final dio =
-        Dio(BaseOptions(baseUrl: 'http://10.0.2.2:5000/'));
+        Dio(BaseOptions(baseUrl: 'https://frontman-backend-2.onrender.com/'));
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
