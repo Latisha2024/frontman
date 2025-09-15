@@ -519,8 +519,8 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../admin/screens/company_selection.dart';
 import '../../authpage/pages/auth_services.dart';
-import '../../admin/screens/admin_dashboard.dart';
 import '../../external_seller/screens/external_seller_dashboard.dart';
 import '../../plumber/screens/plumber_dashboard.dart';
 import '../../worker/screens/worker_dashboard.dart';
@@ -568,7 +568,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     final dio =
-        Dio(BaseOptions(baseUrl: 'https://frontman-backend-2.onrender.com/'));
+        Dio(BaseOptions(baseUrl: 'http://10.0.2.2:5000/'));
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -623,7 +623,7 @@ class _LoginPageState extends State<LoginPage> {
         Widget homeScreen;
         switch (user['role']) {
           case 'Admin':
-            homeScreen = const AdminDashboardScreen();
+            homeScreen = const CompanySelectionScreen();
             break;
           case 'Plumber':
             homeScreen = const PlumberDashboardScreen();

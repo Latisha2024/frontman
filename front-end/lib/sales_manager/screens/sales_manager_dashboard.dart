@@ -4,9 +4,7 @@ import '../../constants/colors.dart';
 import '../../admin/screens/company_selection.dart';
 
 class SalesManagerDashboardScreen extends StatelessWidget {
-  final Company? company;
-  
-  const SalesManagerDashboardScreen({Key? key, this.company}) : super(key: key);
+  const SalesManagerDashboardScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -70,25 +68,6 @@ class SalesManagerDashboardScreen extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      if (company != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          company!.name,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          company!.description,
-                          style: const TextStyle(
-                            color: Colors.white60,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),
