@@ -37,6 +37,9 @@ router.use('/worker/shift-alerts', require('./worker/shiftAlert'));
 router.use('/field-executive/followups', require('./fieldExecutive/followUp'));
 router.use('/fieldExecutive/dvr', require('./fieldExecutive/dvr'));
 router.use('/fieldExecutive/delivery', require('./fieldExecutive/delivery'));
+router.use('/fieldExecutive/camera', require('./fieldExecutive/camera'));
+router.use('/fieldExecutive/chat', require('./fieldExecutive/chat'));
+router.use('/fieldExecutive/task', require('./fieldExecutive/task'));
 
 router.use('/user/incentives', require('./plumber/incentive'));
 router.use('/user/points', require('./plumber/points'));

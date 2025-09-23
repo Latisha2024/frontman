@@ -73,6 +73,12 @@ enum NotificationType {
   System
 }
 
+enum TaskStatus {
+  Pending
+  InProgress
+  Completed
+}
+
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
@@ -454,4 +460,17 @@ model FinancialLog {
 
   @@index([type, createdAt])
   @@index([createdBy, createdAt])
+}
+
+model Task {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  status      TaskStatus @default(Pending)
+  dueDate     DateTime?
+  executiveId String     @db.ObjectId
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  executive   FieldExecutive @relation(fields: [executiveId], references: [id])
 }

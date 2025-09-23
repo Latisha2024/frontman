@@ -351,7 +351,7 @@ The following endpoints were added alongside existing ID-based ones to support l
 - DELETE `/admin/products/by-name/:name`
   - Delete product by `name` with related cleanup: `warrantyCard`, `orderItem`.
 
-### Categories (Distributor)
+### Categories (Distributor)  
 
 - GET `/distributor/categories/by-name/:name`
   - Fetch category by `name` including product summary.
