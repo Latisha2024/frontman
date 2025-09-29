@@ -13,7 +13,7 @@ const productController = require('../../controllers/productController');
  */
 
 router.use(authenticate);
-router.use(authorizeRoles('Admin'));
+router.use(authorizeRoles('Admin',"SalesManager"));
 
 /**
  * @swagger

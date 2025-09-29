@@ -13,7 +13,7 @@ const incentiveController = require('../../controllers/incentiveController');
  */
 
 router.use(authenticate);
-router.use(authorizeRoles('Admin'));
+router.use(authorizeRoles('Admin',"SalesManager"));
 
 /**
  * @swagger

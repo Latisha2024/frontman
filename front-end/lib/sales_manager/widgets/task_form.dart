@@ -3,10 +3,9 @@ import '../../constants/colors.dart';
 
 class TaskForm extends StatelessWidget {
   final TextEditingController executiveIdController;
+  final TextEditingController titleController;
   final TextEditingController descriptionController;
   final TextEditingController dueDateController;
-  final String selectedPriority;
-  final ValueChanged<String> onPriorityChanged;
   final VoidCallback onSubmit;
   final bool isEditMode;
   final VoidCallback onCancel;
@@ -15,10 +14,9 @@ class TaskForm extends StatelessWidget {
   const TaskForm({
     super.key,
     required this.executiveIdController,
+    required this.titleController,
     required this.descriptionController,
     required this.dueDateController,
-    required this.selectedPriority,
-    required this.onPriorityChanged,
     required this.onSubmit,
     required this.isEditMode,
     required this.onCancel,
@@ -57,8 +55,15 @@ class TaskForm extends StatelessWidget {
             const SizedBox(height: 26),
             buildTextField(
               controller: executiveIdController,
-              label: 'Executive ID',
+              label: 'Executive Name',
               icon: Icons.person,
+              isRequired: true,
+            ),
+            const SizedBox(height: 16),
+            buildTextField(
+              controller: titleController,
+              label: 'Task Title',
+              icon: Icons.title,
               isRequired: true,
             ),
             const SizedBox(height: 16),
@@ -74,18 +79,6 @@ class TaskForm extends StatelessWidget {
               label: 'Due Date (YYYY-MM-DD)',
               icon: Icons.date_range,
               isRequired: true,
-            ),
-            const SizedBox(height: 16),
-            buildDropdown(
-              value: selectedPriority,
-              items: const [
-                DropdownMenuItem(value: 'High', child: Text('High', style: TextStyle(color: AppColors.textPrimary))),
-                DropdownMenuItem(value: 'Normal', child: Text('Normal', style: TextStyle(color: AppColors.textPrimary))),
-                DropdownMenuItem(value: 'Low', child: Text('Low', style: TextStyle(color: AppColors.textPrimary))),
-              ],
-              label: 'Priority',
-              icon: Icons.flag,
-              onChanged: (val) { if (val != null) onPriorityChanged(val); },
             ),
             const SizedBox(height: 24),
             Row(

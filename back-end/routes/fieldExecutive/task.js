@@ -13,7 +13,7 @@ const taskController = require('../../controllers/taskController');
  */
 
 router.use(authenticate);
-router.use(authorizeRoles('FieldExecutive'));
+router.use(authorizeRoles('FieldExecutive',"SalesManager"));
 
 /**
  * @swagger

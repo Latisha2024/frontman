@@ -14,6 +14,32 @@ class _SalesManagerApproveDvrReportsScreenState extends State<SalesManagerApprov
   final controller = SalesManagerApproveDvrReportsController();
 
   @override
+  void initState() {
+    super.initState();
+    // auto-load when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _onRefresh();
+    });
+  }
+
+  Future<void> _onRefresh() async {
+    try {
+      await controller.loadAllReports();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Loaded ${controller.reports.length} report(s)')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load DVRs: $e')),
+        );
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -25,6 +51,13 @@ class _SalesManagerApproveDvrReportsScreenState extends State<SalesManagerApprov
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: _onRefresh,
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            tooltip: 'Refresh Reports',
+          ),
+        ],
       ),
       drawer: const SalesManagerDrawer(),
       backgroundColor: AppColors.backgroundGray,
@@ -42,12 +75,16 @@ class _SalesManagerApproveDvrReportsScreenState extends State<SalesManagerApprov
                 margin: const EdgeInsets.symmetric(vertical: 10),
                 child: ListTile(
                   leading: const Icon(Icons.description, color: AppColors.secondaryBlue),
-                  title: Text('Executive: ${report['executiveName']}'),
+                  title: Text(
+                    'Executive: ${((report['executiveName'] as String?)?.trim().isNotEmpty ?? false)
+                            ? (report['executiveName'] as String)
+                            : (report['executiveId'] as String)}',
+                  ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Details: ${report['details']}'),
-                      Text('Submitted: ${report['submittedAt'].year}-${report['submittedAt'].month}-${report['submittedAt'].day}'),
+                      Text('Location: ${report['location']}'),
+                      Text('Feedback: ${report['feedback']}'),
                       Text('Status: ${report['status']}', style: TextStyle(color: report['status'] == 'Approved' ? Colors.green : report['status'] == 'Rejected' ? Colors.red : Colors.orange)),
                     ],
                   ),
@@ -57,11 +94,41 @@ class _SalesManagerApproveDvrReportsScreenState extends State<SalesManagerApprov
                           children: [
                             IconButton(
                               icon: const Icon(Icons.check, color: Colors.green),
-                              onPressed: () => controller.approveReport(index),
+                              onPressed: () async {
+                                try {
+                                  await controller.approveReportRemote(report['id']);
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('DVR approved')),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Failed to approve: $e')),
+                                    );
+                                  }
+                                }
+                              },
                             ),
                             IconButton(
                               icon: const Icon(Icons.close, color: Colors.red),
-                              onPressed: () => controller.rejectReport(index),
+                              onPressed: () async {
+                                try {
+                                  await controller.rejectReportRemote(report['id']);
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('DVR rejected')),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Failed to reject: $e')),
+                                    );
+                                  }
+                                }
+                              },
                             ),
                           ],
                         )

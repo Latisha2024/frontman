@@ -13,7 +13,7 @@ const auditController = require("../../controllers/auditController");
  */
 
 router.use(authenticate);
-router.use(authorizeRoles("Admin"));
+router.use(authorizeRoles("Admin","SalesManager"));
 
 /**
  * @swagger

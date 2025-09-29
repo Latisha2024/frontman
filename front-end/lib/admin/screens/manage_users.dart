@@ -7,8 +7,7 @@ import '../widgets/user_list.dart';
 import 'admin_drawer.dart';
 
 class ManageUsersScreen extends StatefulWidget {
-  final String role;
-  const ManageUsersScreen({super.key, required this.role});
+  const ManageUsersScreen({super.key});
 
   @override
   State<ManageUsersScreen> createState() => ManageUsersScreenState();
@@ -75,7 +74,7 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
               ),
             ],
           ),
-          drawer: widget.role == "admin" ? const AdminDrawer() : const SalesManagerDrawer(),
+          drawer:const AdminDrawer(),
           body: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               SliverToBoxAdapter(

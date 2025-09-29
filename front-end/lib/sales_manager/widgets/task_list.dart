@@ -4,16 +4,12 @@ import '../../constants/colors.dart';
 class TaskList extends StatelessWidget {
   final List<Map<String, dynamic>> tasks;
   final TextEditingController searchController;
-  final String filterPriority;
-  final ValueChanged<String> onPriorityChanged;
   final Function(Map<String, dynamic>) onEdit;
   final Function(Map<String, dynamic>) onDelete;
   const TaskList({
     super.key,
     required this.tasks,
     required this.searchController,
-    required this.filterPriority,
-    required this.onPriorityChanged,
     required this.onEdit,
     required this.onDelete,
   });
@@ -21,11 +17,11 @@ class TaskList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final filteredTasks = tasks.where((task) {
-      final matchesPriority = filterPriority == 'All' || task['priority'] == filterPriority;
       final matchesSearch = searchController.text.isEmpty ||
-        task['description'].toLowerCase().contains(searchController.text.toLowerCase()) ||
-        task['executiveId'].toLowerCase().contains(searchController.text.toLowerCase());
-      return matchesPriority && matchesSearch;
+        (task['title'] ?? '').toString().toLowerCase().contains(searchController.text.toLowerCase()) ||
+        (task['description'] ?? '').toString().toLowerCase().contains(searchController.text.toLowerCase()) ||
+        (task['executiveId'] ?? '').toString().toLowerCase().contains(searchController.text.toLowerCase());
+      return matchesSearch;
     }).toList();
     return Column(
       children: [
@@ -64,9 +60,9 @@ class TaskList extends StatelessWidget {
         children: [
           TextField(
             controller: searchController,
-            onChanged: (_) => onPriorityChanged(filterPriority),
+            onChanged: (_) {},
             decoration: InputDecoration(
-              hintText: 'Search tasks by description or executive ID...',
+              hintText: 'Search tasks by title',
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -83,57 +79,7 @@ class TaskList extends StatelessWidget {
               filled: true,
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: buildFilterDropdown(
-                  value: filterPriority,
-                  items: const ['All', 'High', 'Normal', 'Low'],
-                  label: 'Priority',
-                  onChanged: onPriorityChanged,
-                ),
-              ),
-            ],
-          ),
         ],
-      ),
-    );
-  }
-
-  Widget buildFilterDropdown({
-    required String value,
-    required List<String> items,
-    required String label,
-    required Function(String) onChanged,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.primaryBlue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        items: items.map((item) {
-          return DropdownMenuItem(
-            value: item,
-            child: Text(
-              item == 'All' ? 'All' : item,
-              style: const TextStyle(fontSize: 14),
-            ),
-          );
-        }).toList(),
-        onChanged: (newValue) {
-          if (newValue != null) onChanged(newValue);
-        },
-        decoration: InputDecoration(
-          labelText: label,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          labelStyle: TextStyle(color: AppColors.textPrimary, fontSize: 12),
-        ),
-        dropdownColor: Colors.white,
-        style: const TextStyle(color: Colors.black87, fontSize: 14),
       ),
     );
   }
@@ -166,7 +112,7 @@ class TaskList extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        task['description'],
+                        (task['title'] ?? '').toString(),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -183,14 +129,19 @@ class TaskList extends StatelessWidget {
                     ],
                   ),
                 ),
-                buildStatusChip(task['status']),
               ],
             ),
             const SizedBox(height: 10),
             Text(
-              'Due: ${task['dueDate'].year}-${task['dueDate'].month}-${task['dueDate'].day} | Priority: ${task['priority']}',
+              'Due: ${task['dueDate'].year}-${task['dueDate'].month}-${task['dueDate'].day}',
               style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
             ),
+            const SizedBox(height: 6),
+            if ((task['description'] ?? '').toString().isNotEmpty)
+              Text(
+                task['description'],
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
+              ),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -248,31 +199,6 @@ class TaskList extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget buildStatusChip(String status) {
-    Color color;
-    switch (status) {
-      case 'Completed':
-        color = AppColors.success;
-        break;
-      case 'Rejected':
-        color = AppColors.error;
-        break;
-      default:
-        color = AppColors.textPrimary;
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        status,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13),
       ),
     );
   }

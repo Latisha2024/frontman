@@ -19,16 +19,49 @@ class SalesManagerAssignTasksScreenState extends State<SalesManagerAssignTasksSc
   Map<String, dynamic>? editingTask;
 
   final TextEditingController executiveIdController = TextEditingController();
+  final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController dueDateController = TextEditingController();
   final TextEditingController searchController = TextEditingController();
-  String selectedPriority = 'Normal';
-  String filterPriority = 'All';
+  // No extra fields like priority/status per backend
 
   @override
   void initState() {
     super.initState();
     controller = SalesManagerAssignTasksController();
+    // Rebuild UI when the search query changes
+    searchController.addListener(() => setState(() {}));
+    // Auto-load all tasks when page opens
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await onRefresh();
+    });
+  }
+
+  @override
+  void dispose() {
+    executiveIdController.dispose();
+    titleController.dispose();
+    descriptionController.dispose();
+    dueDateController.dispose();
+    searchController.dispose();
+    super.dispose();
+  }
+
+    Future<void> onRefresh() async {
+    try {
+      await controller.loadAllTasks();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Loaded ${controller.tasks.length} task(s)')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load tasks: $e')),
+        );
+      }
+    }
   }
 
   void onEditTask(Map<String, dynamic> task) {
@@ -37,40 +70,78 @@ class SalesManagerAssignTasksScreenState extends State<SalesManagerAssignTasksSc
       isEditMode = true;
       editingTask = task;
       executiveIdController.text = task['executiveId'];
+      titleController.text = task['title'] ?? '';
       descriptionController.text = task['description'];
       dueDateController.text = "${task['dueDate'].year}-${task['dueDate'].month.toString().padLeft(2, '0')}-${task['dueDate'].day.toString().padLeft(2, '0')}";
-      selectedPriority = task['priority'];
     });
   }
 
-  void onDeleteTask(Map<String, dynamic> task) {
-    setState(() {
-      controller.tasks.removeWhere((t) => t['id'] == task['id']);
-    });
+   void onDeleteTask(Map<String, dynamic> task) async {
+    final taskId = task['id'] as String;
+    try {
+      await controller.deleteTaskRemote(taskId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Task deleted')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete task: $e')),
+        );
+      }
+    }
   }
 
-  void onSubmitTask() {
+  Future<void> onSubmitTask() async {
     if (executiveIdController.text.isEmpty || descriptionController.text.isEmpty || dueDateController.text.isEmpty) return;
+
     if (isEditMode && editingTask != null) {
-      final idx = controller.tasks.indexWhere((t) => t['id'] == editingTask!['id']);
-      if (idx != -1) {
-        controller.tasks[idx] = {
-          'id': editingTask!['id'],
-          'executiveId': executiveIdController.text,
-          'description': descriptionController.text,
-          'dueDate': DateTime.tryParse(dueDateController.text) ?? DateTime.now(),
-          'priority': selectedPriority,
-          'status': controller.tasks[idx]['status'],
-        };
+      final taskId = editingTask!['id'] as String;
+      try {
+        await controller.updateTaskRemote(
+          taskId: taskId,
+          title: titleController.text,
+          description: descriptionController.text,
+          dueDate: DateTime.tryParse(dueDateController.text) ?? DateTime.now(),
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Task updated successfully')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update task: $e')),
+          );
+        }
+        return;
       }
     } else {
-      controller.addTask(
-        executiveId: executiveIdController.text,
-        description: descriptionController.text,
-        dueDate: DateTime.tryParse(dueDateController.text) ?? DateTime.now(),
-        priority: selectedPriority,
-      );
+      try {
+        await controller.submitTaskByExecutiveName(
+          executiveName: executiveIdController.text,
+          title: titleController.text,
+          description: descriptionController.text,
+          dueDate: DateTime.tryParse(dueDateController.text) ?? DateTime.now(),
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Task created successfully')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to create task: $e')),
+          );
+        }
+        return;
+      }
     }
+
     clearForm();
     setState(() {
       showForm = false;
@@ -81,9 +152,9 @@ class SalesManagerAssignTasksScreenState extends State<SalesManagerAssignTasksSc
 
   void clearForm() {
     executiveIdController.clear();
+    titleController.clear();
     descriptionController.clear();
     dueDateController.clear();
-    selectedPriority = 'Normal';
   }
 
   @override
@@ -109,6 +180,11 @@ class SalesManagerAssignTasksScreenState extends State<SalesManagerAssignTasksSc
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
             actions: [
+              IconButton(
+                onPressed: onRefresh,
+                icon: const Icon(Icons.refresh, color: Colors.white),
+                tooltip: 'Refresh Tasks',
+              ),
               IconButton(
                 onPressed: () {
                   setState(() {
@@ -137,10 +213,9 @@ class SalesManagerAssignTasksScreenState extends State<SalesManagerAssignTasksSc
                   child: (showForm || isEditMode)
                       ? TaskForm(
                           executiveIdController: executiveIdController,
+                          titleController: titleController,
                           descriptionController: descriptionController,
                           dueDateController: dueDateController,
-                          selectedPriority: selectedPriority,
-                          onPriorityChanged: (val) => setState(() => selectedPriority = val),
                           onSubmit: onSubmitTask,
                           isEditMode: isEditMode,
                           onCancel: () {
@@ -155,8 +230,6 @@ class SalesManagerAssignTasksScreenState extends State<SalesManagerAssignTasksSc
                       : TaskList(
                           tasks: controller.tasks,
                           searchController: searchController,
-                          filterPriority: filterPriority,
-                          onPriorityChanged: (val) => setState(() => filterPriority = val),
                           onEdit: onEditTask,
                           onDelete: onDeleteTask,
                         ),

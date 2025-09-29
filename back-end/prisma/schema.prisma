@@ -79,6 +79,12 @@ enum TaskStatus {
   Completed
 }
 
+enum DVRStatus {
+  Pending
+  Approved
+  Rejected
+}
+
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
@@ -161,6 +167,7 @@ model FieldExecutive {
   user          User                @relation(fields: [userId], references: [id])
   followUps     CustomerFollowUp[]
   dvrReports    DVR[]
+  tasks         Task[]
 }
 
 model Worker {
@@ -255,6 +262,9 @@ model DVR {
   executiveId    String   @db.ObjectId
   feedback       String
   location       String
+  status         DVRStatus @default(Pending)
+  approvedBy     String?   @db.ObjectId
+  approvedAt     DateTime?
 
   executive      FieldExecutive @relation(fields: [executiveId], references: [id])
 }

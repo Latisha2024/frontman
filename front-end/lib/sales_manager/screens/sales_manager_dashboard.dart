@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:role_based_app/sales_manager/screens/gps_tracking.dart';
+import '../../admin/screens/generate_reports.dart';
+import 'approve_dvr_reports.dart';
+import 'assign_tasks.dart';
 import 'sales_manager_drawer.dart';
 import '../../constants/colors.dart';
-import '../../admin/screens/company_selection.dart';
 
 class SalesManagerDashboardScreen extends StatelessWidget {
   const SalesManagerDashboardScreen({Key? key}) : super(key: key);
@@ -10,7 +13,7 @@ class SalesManagerDashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Seller Dashboard'),
+        title: const Text('Manager Dashboard'),
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -121,38 +124,46 @@ class SalesManagerDashboardScreen extends StatelessWidget {
                 _buildActionButton(
                   context,
                   icon: Icons.people,
-                  label: 'GPS Tracking',
-                  onPressed: () => Navigator.pushNamed(context, '/sales_manager/gps_tracking'),
+                  label: 'Assign tasks',
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SalesManagerAssignTasksScreen(),
+                    ),
+                  ),
                 ),
                 _buildActionButton(
                   context,
                   icon: Icons.inventory,
-                  label: 'Performance',
-                  onPressed: () => Navigator.pushNamed(context, '/sales_manager/performance_reports'),
+                  label: 'Approve DVR',
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SalesManagerApproveDvrReportsScreen(),
+                    ),
+                  )
                 ),
                 _buildActionButton(
                   context,
                   icon: Icons.verified_user,
-                  label: 'Assign Tasks',
-                  onPressed: () => Navigator.pushNamed(context, '/sales_manager/assign_tasks'),
+                  label: 'Location',
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SalesManagerGpsTrackingScreen(role: "manager"),
+                      ),
+                    )
                 ),
                 _buildActionButton(
                   context,
                   icon: Icons.bar_chart,
-                  label: 'Approve DVR',
-                  onPressed: () => Navigator.pushNamed(context, '/sales_manager/approve_dvr_reports'),
-                ),
-                _buildActionButton(
-                  context,
-                  icon: Icons.people_alt,
-                  label: 'CRM',
-                  onPressed: () => _showCrmDialog(context),
-                ),
-                _buildActionButton(
-                  context,
-                  icon: Icons.map,
-                  label: 'Route Chart',
-                  onPressed: () => _showRouteChartDialog(context),
+                  label: 'Reports',
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GenerateReportsScreen(role: "manager"),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -184,7 +195,7 @@ class SalesManagerDashboardScreen extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -194,65 +205,6 @@ class SalesManagerDashboardScreen extends StatelessWidget {
     );
   }
 
-  void _showCrmDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Customer Relationship Management'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Customer Overview:'),
-              const SizedBox(height: 8),
-              _buildCrmCard('Total Customers', '1,250', Icons.people),
-              _buildCrmCard('Active Customers', '890', Icons.person),
-              _buildCrmCard('New This Month', '45', Icons.person_add),
-              _buildCrmCard('VIP Customers', '23', Icons.star),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showRouteChartDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Distributor Route Chart'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Route Overview:'),
-              const SizedBox(height: 8),
-              _buildRouteCard('Total Routes', '15', Icons.route),
-              _buildRouteCard('Active Routes', '12', Icons.directions_car),
-              _buildRouteCard('Total Distance', '1,250 km', Icons.straighten),
-              _buildRouteCard('Efficiency', '94%', Icons.trending_up),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildCrmCard(String title, String value, IconData icon) {
     return Card(

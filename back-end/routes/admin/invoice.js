@@ -13,7 +13,7 @@ const invoiceController = require('../../controllers/invoiceController');
  */
 
 router.use(authenticate);
-router.use(authorizeRoles('Admin'));
+router.use(authorizeRoles('Admin',"SalesManager"));
 
 /**
  * @swagger
