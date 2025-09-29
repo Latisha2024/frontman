@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
 import './worker_drawer.dart';
-import 'package:flutter/material.dart';
 import '../controllers/production.dart';
 import '../widgets/production.dart';
 
@@ -8,10 +8,10 @@ class WorkerProductionScreen extends StatefulWidget {
   const WorkerProductionScreen({super.key});
 
   @override
-  State<WorkerProductionScreen> createState() => WorkerProductionScreenState();
+  State<WorkerProductionScreen> createState() => _WorkerProductionScreenState();
 }
 
-class WorkerProductionScreenState extends State<WorkerProductionScreen> {
+class _WorkerProductionScreenState extends State<WorkerProductionScreen> {
   late WorkerProductionController controller;
   bool isLoading = false;
 
@@ -27,19 +27,17 @@ class WorkerProductionScreenState extends State<WorkerProductionScreen> {
     super.dispose();
   }
 
-  void handleSubmit() {
+  Future<void> handleSubmit() async {
+    setState(() => isLoading = true);
+
+    await controller.logProduction(context);
+
     setState(() {
-      isLoading = true;
-    });
-    // Simulate local update
-    Future.delayed(const Duration(milliseconds: 500), () {
-      setState(() {
-        isLoading = false;
-        controller.productIdController.clear();
-        controller.quantityController.clear();
-        controller.locationController.clear();
-        controller.status = 'Available';
-      });
+      isLoading = false;
+      controller.productIdController.clear();
+      controller.quantityController.clear();
+      controller.locationController.clear();
+      controller.status = 'Available';
     });
   }
 
@@ -56,12 +54,12 @@ class WorkerProductionScreenState extends State<WorkerProductionScreen> {
           ),
         ),
       ),
-      drawer: WorkerDrawer(),
+      drawer: const WorkerDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: WorkerProductionForm(
           controller: controller,
-          onSubmit: handleSubmit,
+          onSubmit: isLoading ? null : handleSubmit,
           isLoading: isLoading,
         ),
       ),

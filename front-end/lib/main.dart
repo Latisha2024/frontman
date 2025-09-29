@@ -175,6 +175,7 @@ import './worker/screens/production.dart';
 import './worker/screens/manage_stock.dart';
 import './worker/screens/report_damage.dart';
 import './worker/screens/shift_alerts.dart';
+import './worker/screens/attendance.dart';
 
 void main() {
   runApp(const MyApp());
@@ -269,6 +270,7 @@ class MyApp extends StatelessWidget {
           '/worker/report-damage': (context) =>
               const WorkerReportDamageScreen(),
           '/worker/shift-alerts': (context) => const WorkerShiftAlertsScreen(),
+          '/worker/attendance': (context) => const WorkerAttendanceScreen(),
         },
       ),
     );

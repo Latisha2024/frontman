@@ -26,6 +26,7 @@ enum StockStatus {
   Available
   Moved
   Missing
+  Damaged
 }
 
 enum OrderStatus {
@@ -77,12 +78,6 @@ enum TaskStatus {
   Pending
   InProgress
   Completed
-}
-
-enum DVRStatus {
-  Pending
-  Approved
-  Rejected
 }
 
 model User {
@@ -167,7 +162,6 @@ model FieldExecutive {
   user          User                @relation(fields: [userId], references: [id])
   followUps     CustomerFollowUp[]
   dvrReports    DVR[]
-  tasks         Task[]
 }
 
 model Worker {
@@ -199,6 +193,7 @@ model Stock {
   location  String
 
   product   Product      @relation(fields: [productId], references: [id])
+  damageReports DamageReport[]
 }
 
 model WarrantyCard {
@@ -262,9 +257,6 @@ model DVR {
   executiveId    String   @db.ObjectId
   feedback       String
   location       String
-  status         DVRStatus @default(Pending)
-  approvedBy     String?   @db.ObjectId
-  approvedAt     DateTime?
 
   executive      FieldExecutive @relation(fields: [executiveId], references: [id])
 }
@@ -482,5 +474,16 @@ model Task {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-  executive   FieldExecutive @relation(fields: [executiveId], references: [id])
+}
+
+model DamageReport {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  stockId   String   @db.ObjectId
+  workerId  String   @db.ObjectId
+  reason    String
+  quantity  Int
+  location   String 
+  reportedAt DateTime @default(now())
+
+  stock     Stock    @relation(fields: [stockId], references: [id])
 }

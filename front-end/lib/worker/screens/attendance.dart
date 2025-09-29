@@ -1,200 +1,264 @@
+// import 'package:flutter/material.dart';
+// import 'package:intl/intl.dart';
+// import 'package:provider/provider.dart';
+// import '../controllers/attendance.dart';
+
+// class WorkerAttendanceScreen extends StatelessWidget {
+//   const WorkerAttendanceScreen({Key? key}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return ChangeNotifierProvider(
+//       create: (_) => AttendanceController(),
+//       child: Consumer<AttendanceController>(
+//         builder: (context, controller, _) {
+//           final todayDateFormatted =
+//               DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now());
+
+//           return Scaffold(
+//             appBar: AppBar(
+//               title: const Text('Worker Attendance'),
+//               centerTitle: true,
+//             ),
+//             body: controller.loading
+//                 ? const Center(child: CircularProgressIndicator())
+//                 : RefreshIndicator(
+//                     onRefresh: () async {
+//                       await controller.fetchTodayAttendance();
+//                       await controller.fetchAttendanceHistory();
+//                     },
+//                     child: SingleChildScrollView(
+//                       physics: const AlwaysScrollableScrollPhysics(),
+//                       padding: const EdgeInsets.all(16),
+//                       child: Column(
+//                         crossAxisAlignment: CrossAxisAlignment.center,
+//                         children: [
+//                           Text(
+//                             'Attendance for $todayDateFormatted',
+//                             textAlign: TextAlign.center,
+//                             style: const TextStyle(
+//                               fontSize: 22,
+//                               fontWeight: FontWeight.bold,
+//                             ),
+//                           ),
+//                           const SizedBox(height: 20),
+//                           if (controller.checkInTime != null)
+//                             Text(
+//                               "Checked in at: ${DateFormat('hh:mm a').format(controller.checkInTime!)}",
+//                               style: const TextStyle(
+//                                 color: Colors.green,
+//                                 fontSize: 16,
+//                               ),
+//                             ),
+//                           if (controller.checkOutTime != null)
+//                             Text(
+//                               "Checked out at: ${DateFormat('hh:mm a').format(controller.checkOutTime!)}",
+//                               style: const TextStyle(
+//                                 color: Colors.red,
+//                                 fontSize: 16,
+//                               ),
+//                             ),
+//                           if (controller.totalHoursToday != null)
+//                             Text(
+//                               "Total worked: ${controller.totalHoursToday}",
+//                               style: const TextStyle(fontSize: 16),
+//                             ),
+//                           const SizedBox(height: 20),
+//                           Text(
+//                             'Attendance streak: ${controller.attendanceStreak} days',
+//                             style: const TextStyle(
+//                               fontWeight: FontWeight.w600,
+//                               fontSize: 16,
+//                             ),
+//                           ),
+//                           const SizedBox(height: 40),
+//                           ElevatedButton(
+//                             onPressed: controller.isCheckedOut
+//                                 ? null
+//                                 : () async {
+//                                     try {
+//                                       await controller.markAttendance();
+//                                       ScaffoldMessenger.of(context)
+//                                           .showSnackBar(SnackBar(
+//                                               content: Text(controller
+//                                                       .isCheckedIn
+//                                                   ? 'Checked in successfully!'
+//                                                   : 'Checked out successfully!')));
+//                                     } catch (e) {
+//                                       ScaffoldMessenger.of(context)
+//                                           .showSnackBar(SnackBar(
+//                                               content: Text('Error: $e')));
+//                                     }
+//                                   },
+//                             style: ElevatedButton.styleFrom(
+//                               minimumSize: const Size(180, 50),
+//                             ),
+//                             child: Text(
+//                               controller.isCheckedOut
+//                                   ? "Already Checked Out"
+//                                   : controller.isCheckedIn
+//                                       ? "Check Out"
+//                                       : "Check In",
+//                               style: const TextStyle(fontSize: 16),
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                   ),
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../controllers/attendance.dart';
+import 'package:provider/provider.dart';
+import '../controllers/attendancE.dart';
 
-class WorkerAttendanceScreen extends StatefulWidget {
+class WorkerAttendanceScreen extends StatelessWidget {
   const WorkerAttendanceScreen({Key? key}) : super(key: key);
 
   @override
-  State<WorkerAttendanceScreen> createState() => _WorkerAttendanceScreenState();
-}
-
-class _WorkerAttendanceScreenState extends State<WorkerAttendanceScreen> {
-  final AttendanceController _controller = AttendanceController();
-
-  // Compute current formatted date dynamically using intl package
-  String get todayDateFormatted =>
-      DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now());
-
-  // Dummy data for now; replace with API call responses
-  final String totalHoursToday = "5 hrs 30 mins"; // Endpoint #2
-  final String lastAttendanceSummary =
-      "Last checked in on August 9, 2025 at 9:05 AM"; // Endpoint #3
-  final int attendanceStreak = 4; // Endpoint #4
-  final String nextBreakInfo = "Next break at 3:00 PM"; // Endpoint #7
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Show a SnackBar on page load if user already checked in today
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_controller.isCheckedIn) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Today's log recorded. System log resets next working day.",
-            ),
-            duration: Duration(seconds: 4),
-          ),
-        );
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Worker Attendance')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // 2. Today's Date & Weekday
-                Text(
-                  'Attendance for $todayDateFormatted',
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
+    return ChangeNotifierProvider(
+      create: (_) => AttendanceController(),
+      child: Consumer<AttendanceController>(
+        builder: (context, controller, _) {
+          final todayDateFormatted =
+              DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now());
 
-                // 1. Total hours worked today (only if checked out)
-                if (_controller.checkInTime != null &&
-                    _controller.checkOutTime != null)
-                  Text(
-                    'Total hours worked: $totalHoursToday',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-
-                const SizedBox(height: 20),
-
-                // 3. Last Attendance Summary
-                Text(
-                  lastAttendanceSummary,
-                  style: const TextStyle(
-                      fontSize: 14, fontStyle: FontStyle.italic),
-                ),
-
-                const SizedBox(height: 12),
-
-                // 4. Attendance Streak
-                Text(
-                  'Attendance streak: $attendanceStreak days',
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-
-                const SizedBox(height: 20),
-
-                // 7. Next Break Info
-                Card(
-                  color: Colors.blue.shade50,
-                  margin: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.timer, color: Colors.blue),
-                        const SizedBox(width: 8),
-                        Text(
-                          nextBreakInfo,
-                          style:
-                              const TextStyle(fontSize: 16, color: Colors.blue),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-                // 6. Buttons and Status Messages with updated UI
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        _controller.isCheckedIn ? Colors.green : null,
-                  ),
-                  onPressed: () {
-                    if (_controller.isCheckedIn) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'You have already checked in at ${_controller.formattedCheckInTime}'),
-                        ),
-                      );
-                      return;
-                    }
-                    setState(() {
-                      _controller.checkIn();
-                    });
-                  },
-                  child: Text(
-                    _controller.isCheckedIn ? 'Checked In' : 'Check In',
-                    style: TextStyle(
-                      color: _controller.isCheckedIn ? Colors.white : null,
-                    ),
-                  ),
-                ),
-                if (_controller.isCheckedIn) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    'Successfully checked in at ${_controller.formattedCheckInTime}',
-                    style: const TextStyle(color: Colors.green),
-                  ),
-                ],
-
-                const SizedBox(height: 40),
-
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        _controller.isCheckedOut ? Colors.black : null,
-                  ),
-                  onPressed: () {
-                    if (!_controller.isCheckedIn) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('You need to check in first!'),
-                        ),
-                      );
-                      return;
-                    }
-                    if (_controller.isCheckedOut) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'You have already checked out at ${_controller.formattedCheckOutTime}'),
-                        ),
-                      );
-                      return;
-                    }
-                    setState(() {
-                      _controller.checkOut();
-                    });
-                  },
-                  child: Text(
-                    _controller.isCheckedOut ? 'Checked Out' : 'Check Out',
-                    style: TextStyle(
-                      color: _controller.isCheckedOut ? Colors.white : null,
-                    ),
-                  ),
-                ),
-                if (_controller.isCheckedOut) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    'Successfully checked out at ${_controller.formattedCheckOutTime}',
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                ],
-              ],
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Worker Attendance'),
+              centerTitle: true,
             ),
-          ),
-        ),
+            body: controller.loading
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: () async {
+                      await controller.fetchTodayAttendance();
+                      await controller.fetchAttendanceHistory();
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Attendance for $todayDateFormatted',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          if (controller.checkInTime != null)
+                            Text(
+                              "Checked in at: ${DateFormat('hh:mm a').format(controller.checkInTime!)}",
+                              style: const TextStyle(
+                                color: Colors.green,
+                                fontSize: 16,
+                              ),
+                            ),
+                          if (controller.checkOutTime != null)
+                            Text(
+                              "Checked out at: ${DateFormat('hh:mm a').format(controller.checkOutTime!)}",
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 16,
+                              ),
+                            ),
+                          if (controller.totalHoursToday != null)
+                            Text(
+                              "Total worked: ${controller.totalHoursToday}",
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Attendance streak: ${controller.attendanceStreak} days',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: controller.isCheckedOut
+                                ? null
+                                : () async {
+                                    try {
+                                      await controller.markAttendance();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text(controller.isCheckedIn
+                                            ? 'Checked in successfully!'
+                                            : 'Checked out successfully!'),
+                                      ));
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content: Text('Error: $e')));
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(180, 50),
+                            ),
+                            child: Text(
+                              controller.isCheckedOut
+                                  ? "Already Checked Out"
+                                  : controller.isCheckedIn
+                                      ? "Check Out"
+                                      : "Check In",
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          const Divider(),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Past Attendance Records',
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 10),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: controller.pastRecords.length,
+                            itemBuilder: (context, index) {
+                              final record = controller.pastRecords[index];
+                              return Card(
+                                margin: const EdgeInsets.symmetric(vertical: 6),
+                                child: ListTile(
+                                  title: Text(
+                                      "${DateFormat('dd MMM yyyy').format(record.date)}"),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          "Check In: ${DateFormat('hh:mm a').format(record.checkIn)}"),
+                                      Text(record.checkOut != null
+                                          ? "Check Out: ${DateFormat('hh:mm a').format(record.checkOut!)}"
+                                          : "Check Out: -"),
+                                      Text("Total: ${record.totalHours}"),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+          );
+        },
       ),
     );
   }

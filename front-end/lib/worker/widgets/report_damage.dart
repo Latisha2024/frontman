@@ -20,60 +20,11 @@ class WorkerReportDamageForm extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 6,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: TextFormField(
-              controller: controller.productIdController,
-              decoration: const InputDecoration(labelText: 'Product ID:', border: InputBorder.none),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 6,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: TextFormField(
-              controller: controller.quantityController,
-              decoration: const InputDecoration(labelText: 'Quantity:', border: InputBorder.none),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 6,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: TextFormField(
-              controller: controller.locationController,
-              decoration: const InputDecoration(labelText: 'Location:', border: InputBorder.none),
-            ),
-          ),
+          _buildTextField(controller.stockIdController, 'Stock ID:'),
+          _buildTextField(controller.quantityController, 'Quantity:',
+              isNumber: true),
+          _buildTextField(controller.locationController, 'Location:'),
+          _buildTextField(controller.reasonController, 'Reason:'),
           const SizedBox(height: 20),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -87,10 +38,37 @@ class WorkerReportDamageForm extends StatelessWidget {
             onPressed: isLoading ? null : onSubmit,
             child: isLoading
                 ? const CircularProgressIndicator(color: Colors.white)
-                : const Text('Submit'),
+                : const Text('Submit Report'),
           ),
         ],
       ),
     );
   }
-} 
+
+  Widget _buildTextField(TextEditingController controller, String label,
+      {bool isNumber = false}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        decoration: InputDecoration(
+          labelText: label,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+        ),
+      ),
+    );
+  }
+}

@@ -33,6 +33,8 @@ router.use('/accountant/financial-logs', require('./accountant/financial-logs'))
 router.use('/worker/attendance', require('./worker/attendance'));
 router.use('/worker/production', require('./worker/production'));
 router.use('/worker/shift-alerts', require('./worker/shiftAlert'));
+router.use('/worker/stock', require('./worker/stock'));
+router.use('/worker/damage-report', require('./worker/damageReportRoutes'));
 
 router.use('/field-executive/followups', require('./fieldExecutive/followUp'));
 router.use('/fieldExecutive/dvr', require('./fieldExecutive/dvr'));

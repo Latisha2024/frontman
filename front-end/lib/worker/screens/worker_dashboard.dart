@@ -110,25 +110,36 @@ class WorkerDashboardScreen extends StatelessWidget {
                   context,
                   icon: Icons.people,
                   label: 'Enter Production',
-                  onPressed: () => Navigator.pushNamed(context, '/worker/production'),
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/worker/production'),
                 ),
                 _buildActionButton(
                   context,
                   icon: Icons.inventory,
                   label: 'Manage Stock',
-                  onPressed: () => Navigator.pushNamed(context, '/worker/manage-stock'),
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/worker/manage-stock'),
                 ),
                 _buildActionButton(
                   context,
                   icon: Icons.verified_user,
                   label: 'Report Damage',
-                  onPressed: () => Navigator.pushNamed(context, '/worker/report-damage'),
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/worker/report-damage'),
                 ),
                 _buildActionButton(
                   context,
                   icon: Icons.bar_chart,
                   label: 'Shift Alerts',
-                  onPressed: () => Navigator.pushNamed(context, '/worker/shift-alerts'),
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/worker/shift-alerts'),
+                ),
+                _buildActionButton(
+                  context,
+                  icon: Icons.access_time,
+                  label: 'Report Attendance',
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/worker/attendance'),
                 ),
               ],
             ),
@@ -138,15 +149,19 @@ class WorkerDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(BuildContext context, {required IconData icon, required String label, required VoidCallback onPressed}) {
+  Widget _buildActionButton(BuildContext context,
+      {required IconData icon,
+      required String label,
+      required VoidCallback onPressed}) {
     return SizedBox(
       width: double.infinity,
       height: 54,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.secondaryBlue,
-          foregroundColor: AppColors.textPrimary,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          foregroundColor: Colors.white, // text color fixed
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         ),
@@ -160,7 +175,7 @@ class WorkerDashboardScreen extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: Colors.white, // text color fixed
                 ),
               ),
             ),

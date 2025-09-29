@@ -568,7 +568,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     final dio =
-        Dio(BaseOptions(baseUrl: 'http://10.0.2.2:5000/'));
+        Dio(BaseOptions(baseUrl: 'https://frontman-backend-2.onrender.com/'));
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -578,7 +578,7 @@ class _LoginPageState extends State<LoginPage> {
         final name = _nameController.text.trim();
         final phone = _phoneController.text.trim();
         final role =
-        _roleController.text.trim(); // must match backend role keys
+            _roleController.text.trim(); // must match backend role keys
 
         response = await dio.post('/auth/register', data: {
           'name': name,
@@ -768,7 +768,7 @@ class _LoginPageState extends State<LoginPage> {
                             ? Icons.visibility
                             : Icons.visibility_off),
                         onPressed: () => setState(
-                                () => _obscurePassword = !_obscurePassword),
+                            () => _obscurePassword = !_obscurePassword),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty)

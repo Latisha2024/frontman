@@ -16,10 +16,21 @@ class WorkerDrawer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 12),
-                CircleAvatar(radius: 28, backgroundColor: AppColors.secondaryBlue ,child: Icon(Icons.person, size: 32, color: Colors.white,),),
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: AppColors.secondaryBlue,
+                  child: Icon(
+                    Icons.person,
+                    size: 32,
+                    color: Colors.white,
+                  ),
+                ),
                 SizedBox(height: 12),
-                Text('Worker', style: TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+                Text('Worker',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white)),
               ],
             ),
           ),
@@ -41,13 +52,17 @@ class WorkerDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.report_problem),
             title: const Text('Report Damaged Stock'),
-            onTap: () =>
-                Navigator.pushNamed(context, '/worker/report-damage'),
+            onTap: () => Navigator.pushNamed(context, '/worker/report-damage'),
           ),
           ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text('Shift Alerts'),
             onTap: () => Navigator.pushNamed(context, '/worker/shift-alerts'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.access_time),
+            title: const Text('Mark Attendance'),
+            onTap: () => Navigator.pushNamed(context, '/worker/attendance'),
           ),
           ListTile(
             leading: const Icon(Icons.logout),

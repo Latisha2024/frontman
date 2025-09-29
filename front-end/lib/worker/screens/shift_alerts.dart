@@ -1,78 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../controllers/shift_alerts.dart';
-import 'worker_drawer.dart';
 import '../../constants/colors.dart';
-import 'dart:async';
 
-class WorkerShiftAlertsScreen extends StatefulWidget {
-  const WorkerShiftAlertsScreen({super.key});
-
-  @override
-  State<WorkerShiftAlertsScreen> createState() => _WorkerShiftAlertsScreenState();
-}
-
-class _WorkerShiftAlertsScreenState extends State<WorkerShiftAlertsScreen> {
-  final controller = WorkerShiftAlertsController();
-  Timer? updateTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    controller.generateDailySchedule();
-    updateTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
-      controller.generateDailySchedule();
-    });
-  }
-
-  @override
-  void dispose() {
-    updateTimer?.cancel();
-    super.dispose();
-  }
+class WorkerShiftAlertsScreen extends StatelessWidget {
+  const WorkerShiftAlertsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shift Alerts'),
-        backgroundColor: AppColors.primary,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-      ),
-      drawer: const WorkerDrawer(),
-      backgroundColor: AppColors.backgroundGray,
-      body: AnimatedBuilder(
-        animation: controller,
-        builder: (context, child) {
-          if (controller.shiftAlerts.isEmpty) {
-            return const Center(
-              child: Text('No alerts', style: TextStyle(color: Colors.white70, fontSize: 18)),
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: controller.shiftAlerts.length,
-            itemBuilder: (context, index) {
-              final alert = controller.shiftAlerts[index];
-              return buildAlertCard(alert);
-            },
+    return ChangeNotifierProvider(
+      create: (_) => WorkerShiftAlertsController(),
+      child: Consumer<WorkerShiftAlertsController>(
+        builder: (context, controller, _) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Shift Alerts'),
+              backgroundColor: AppColors.primary,
+            ),
+            backgroundColor: AppColors.backgroundGray,
+            body: Column(
+              children: [
+                // 🔹 Show progress bar when refreshing
+                if (controller.loading)
+                  const LinearProgressIndicator(
+                    minHeight: 3,
+                    backgroundColor: Colors.transparent,
+                  ),
+
+                // 🔹 Content area
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      await controller.fetchAlerts();
+                    },
+                    child: controller.shiftAlerts.isEmpty
+                        ? ListView(
+                            // RefreshIndicator requires scrollable child
+                            children: const [
+                              SizedBox(height: 200),
+                              Center(
+                                child: Text(
+                                  'No alerts',
+                                  style: TextStyle(
+                                      color: Colors.white70, fontSize: 18),
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: controller.shiftAlerts.length,
+                            itemBuilder: (context, index) {
+                              final alert = controller.shiftAlerts[index];
+                              return buildAlertCard(alert, controller);
+                            },
+                          ),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
     );
   }
 
-  Widget buildAlertCard(Map<String, dynamic> alert) {
-    final timestamp = alert['timestamp'] as DateTime;
-    final type = alert['type'] as String;
-    return Container(
+  Widget buildAlertCard(
+      ShiftAlert alert, WorkerShiftAlertsController controller) {
+    IconData iconData;
+    Color iconColor;
+
+    if (alert.acknowledged) {
+      iconData = Icons.check_circle;
+      iconColor = Colors.green;
+    } else {
+      iconData = Icons.notifications;
+      iconColor = AppColors.secondaryBlue;
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: alert.acknowledged ? Colors.grey[300] : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -82,94 +93,46 @@ class _WorkerShiftAlertsScreenState extends State<WorkerShiftAlertsScreen> {
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            getAlertIcon(type),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    getAlertTitle(type),
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                  ),
-                  Text(
-                    alert['message'],
-                    style: const TextStyle(fontSize: 14, color: Colors.black87),
-                  ),
-                  Text(
-                    formatTimestamp(timestamp),
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                ],
-              ),
-            ),
-          ],
+      child: ListTile(
+        leading: Icon(iconData, color: iconColor, size: 32),
+        title: Text(
+          alert.message,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: alert.acknowledged ? Colors.grey : Colors.black87,
+          ),
         ),
+        subtitle: Text(
+          formatTimestamp(alert.createdAt),
+          style: TextStyle(color: Colors.grey.shade600),
+        ),
+        trailing: alert.acknowledged
+            ? null
+            : TextButton(
+                onPressed: () => controller.acknowledgeAlert(alert.id),
+                child: const Text('Acknowledge'),
+              ),
       ),
     );
-  }
-
-  Widget getAlertIcon(String type) {
-    IconData iconData;
-    Color iconColor;
-    switch (type) {
-      case 'shiftStart':
-        iconData = Icons.play_circle_filled;
-        iconColor = AppColors.secondaryBlue;
-        break;
-      case 'breakTime':
-        iconData = Icons.coffee;
-        iconColor = AppColors.secondaryBlue;
-        break;
-      case 'lunchBreak':
-        iconData = Icons.restaurant;
-        iconColor = AppColors.secondaryBlue;
-        break;
-      case 'secondBreak':
-        iconData = Icons.coffee;
-        iconColor = AppColors.secondaryBlue;
-        break;
-      case 'shiftEnd':
-        iconData = Icons.stop_circle;
-        iconColor = AppColors.secondaryBlue;
-        break;
-      default:
-        iconData = Icons.notifications;
-        iconColor = AppColors.secondaryBlue;
-    }
-    return Icon(iconData, color: iconColor, size: 32);
-  }
-
-  String getAlertTitle(String type) {
-    switch (type) {
-      case 'shiftStart':
-        return 'Shift Start';
-      case 'breakTime':
-        return 'First Break';
-      case 'lunchBreak':
-        return 'Lunch Break';
-      case 'secondBreak':
-        return 'Second Break';
-      case 'shiftEnd':
-        return 'Shift End';
-      default:
-        return 'Alert';
-    }
   }
 
   String formatTimestamp(DateTime timestamp) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
+
     if (difference.inMinutes < 1) {
       return 'Just now';
     } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes} minutes ago';
-    } else{
-      return '${difference.inHours} hours ago';
+      final mins = difference.inMinutes;
+      return '$mins minute${mins > 1 ? 's' : ''} ago';
+    } else if (difference.inHours < 24) {
+      final hours = difference.inHours;
+      return '$hours hour${hours > 1 ? 's' : ''} ago';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else {
+      final days = difference.inDays;
+      return '$days days ago';
     }
   }
 }
