@@ -110,6 +110,8 @@ model User {
   audits          Audit[]
   notifications   Notification[]
   financialLogs   FinancialLog[]
+  sentMessages    ChatMessage[] @relation("SentMessages")
+  receivedMessages ChatMessage[] @relation("ReceivedMessages")
 }
 
 model Company {
@@ -486,4 +488,81 @@ model DamageReport {
   reportedAt DateTime @default(now())
 
   stock     Stock    @relation(fields: [stockId], references: [id])
+}
+
+// Sales Executive Models
+model Customer {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String?
+  phone       String
+  location    String
+  address     String?
+  assignedTo  String   @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  visits      CustomerVisit[]
+}
+
+model CustomerVisit {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId        String   @db.ObjectId
+  executiveId       String   @db.ObjectId
+  visitDate         DateTime
+  location          String
+  peoplePresent     String?
+  productsDiscussed String?
+  reasonForVisit    String?
+  customerConcerns  String?
+  investigationStatus String?
+  rootCause         String?
+  correctiveAction  String?
+  recommendations   String?
+  feedback          String?
+  reportCompletedBy String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  customer          Customer @relation(fields: [customerId], references: [id])
+}
+
+model ChatMessage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  senderId  String   @db.ObjectId
+  receiverId String? @db.ObjectId
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver  User?    @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
+
+model CapturedImage {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  executiveId String   @db.ObjectId
+  imageData   Bytes
+  latitude    Float?
+  longitude   Float?
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+model Signature {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  executiveId String   @db.ObjectId
+  signatureData Bytes
+  context     String?  // What the signature is for
+  createdAt   DateTime @default(now())
+}
+
+model OfflineData {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  executiveId String   @db.ObjectId
+  dataType    String   // 'order', 'visit', 'image', etc.
+  data        String   // JSON string of the data
+  synced      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  syncedAt    DateTime?
 }

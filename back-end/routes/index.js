@@ -42,6 +42,10 @@ router.use('/fieldExecutive/delivery', require('./fieldExecutive/delivery'));
 router.use('/fieldExecutive/camera', require('./fieldExecutive/camera'));
 router.use('/fieldExecutive/chat', require('./fieldExecutive/chat'));
 router.use('/fieldExecutive/task', require('./fieldExecutive/task'));
+router.use('/fieldExecutive/location', require('./fieldExecutive/location'));
+router.use('/fieldExecutive/customers', require('./fieldExecutive/customers'));
+router.use('/fieldExecutive/orders', require('./fieldExecutive/orders'));
+router.use('/fieldExecutive/operations', require('./fieldExecutive/operations'));
 
 router.use('/user/incentives', require('./plumber/incentive'));
 router.use('/user/points', require('./plumber/points'));
@@ -50,5 +54,6 @@ router.use('/user/warranty', require('./plumber/warranty'));
 router.use('/user/commissioned-work', require('./plumber/commissionedWork'));
 
 router.use('/user/location', require('./user/location'));
+
 
 module.exports = router;
