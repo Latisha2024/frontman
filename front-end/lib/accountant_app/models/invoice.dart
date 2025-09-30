@@ -1,87 +1,44 @@
-class InvoiceItem {
-  final String description;
-  final int quantity;
-  final double unitPrice;
-  final double totalAmount;
-
-  InvoiceItem({
-    required this.description,
-    required this.quantity,
-    required this.unitPrice,
-    required this.totalAmount,
-  });
-
-  factory InvoiceItem.fromJson(Map<String, dynamic> json) {
-    return InvoiceItem(
-      description: json['description'],
-      quantity: json['quantity'],
-      unitPrice: json['unitPrice'].toDouble(),
-      totalAmount: json['total'].toDouble(),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'description': description,
-      'quantity': quantity,
-      'unitPrice': unitPrice,
-      'total': totalAmount,
-    };
-  }
-}
+// lib/models/invoice.dart (Corrected)
 
 class Invoice {
   final String id;
+  String status;
+  final double amount;
+  final DateTime? dueDate;
+  final DateTime invoiceDate;
   final String clientName;
   final String clientEmail;
-  final String? clientAddress;
-  final String description;
-  final double amount;
-  final DateTime dueDate;
-  final DateTime createdDate;
-  String status; // 'draft', 'sent', 'paid', 'overdue'
-  final String? notes;
+  final String? userId;
 
   Invoice({
     required this.id,
+    required this.status,
+    required this.amount,
+    this.dueDate,
+    required this.invoiceDate,
     required this.clientName,
     required this.clientEmail,
-    this.clientAddress,
-    required this.description,
-    required this.amount,
-    required this.dueDate,
-    required this.createdDate,
-    this.status = 'draft',
-    this.notes,
+    this.userId,
   });
 
   factory Invoice.fromJson(Map<String, dynamic> json) {
     return Invoice(
-      id: json['id'],
-      clientName: json['clientName'],
-      clientEmail: json['clientEmail'],
-      clientAddress: json['clientAddress'],
-      description: json['description'],
-      amount: json['amount'].toDouble(),
-      dueDate: DateTime.parse(json['dueDate']),
-      createdDate: DateTime.parse(json['createdDate']),
-      status: json['status'] ?? 'draft',
-      notes: json['notes'],
+      id: json['id'] ?? json['_id'],
+      status: json['status'],
+      amount: double.tryParse(json['totalAmount'].toString()) ?? 0.0,
+      dueDate: json['dueDate'] == null ? null : DateTime.parse(json['dueDate']),
+      invoiceDate: DateTime.parse(json['invoiceDate']),
+      clientName: json['order']?['user']?['name'] ?? 'N/A',
+      clientEmail: json['order']?['user']?['email'] ?? 'N/A',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'clientName': clientName,
-      'clientEmail': clientEmail,
-      'clientAddress': clientAddress,
-      'description': description,
-      'amount': amount,
-      'dueDate': dueDate.toIso8601String(),
-      'createdDate': createdDate.toIso8601String(),
-      'status': status,
-      'notes': notes,
+      'totalAmount': amount,
+      
+      'dueDate': dueDate?.toIso8601String(),
+      'userId': userId,
     };
   }
 }

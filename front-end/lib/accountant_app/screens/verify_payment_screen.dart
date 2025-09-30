@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+// Your project's local imports
+import '../models/invoice.dart';
 import '../providers/accountant_provider.dart';
 import '../theme/app_theme.dart';
 import 'acc_home_screen.dart';
@@ -71,8 +74,9 @@ class _VerifyPaymentScreenState extends State<VerifyPaymentScreen> {
                 );
               }
 
+              // CORRECTED: Status check is now 'Sent' (Title Case)
               final sentInvoices = provider.invoices
-                  .where((invoice) => invoice.status == 'sent')
+                  .where((invoice) => invoice.status == 'Sent')
                   .toList();
 
               if (sentInvoices.isEmpty) {
@@ -124,7 +128,9 @@ class _VerifyPaymentScreenState extends State<VerifyPaymentScreen> {
                       itemCount: sentInvoices.length,
                       itemBuilder: (context, index) {
                         final invoice = sentInvoices[index];
-                        final isOverdue = DateTime.now().isAfter(invoice.dueDate);
+                        // CORRECTED: Added null check to prevent crash on nullable dueDate
+                        final isOverdue = invoice.dueDate != null &&
+                            DateTime.now().isAfter(invoice.dueDate!);
                         
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
@@ -179,13 +185,7 @@ class _VerifyPaymentScreenState extends State<VerifyPaymentScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 12),
-                                Text(
-                                  invoice.description,
-                                  style: const TextStyle(
-                                    color: AppTheme.textColor,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
+                                // REMOVED: Text widget for description as it no longer exists.
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
@@ -200,7 +200,8 @@ class _VerifyPaymentScreenState extends State<VerifyPaymentScreen> {
                                           ),
                                         ),
                                         Text(
-                                          '\$${invoice.amount.toStringAsFixed(2)}',
+                                          // CORRECTED: Removed unnecessary escape character before ₹
+                                          '₹${invoice.amount.toStringAsFixed(2)}',
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
@@ -220,7 +221,10 @@ class _VerifyPaymentScreenState extends State<VerifyPaymentScreen> {
                                           ),
                                         ),
                                         Text(
-                                          '${invoice.dueDate.day}/${invoice.dueDate.month}/${invoice.dueDate.year}',
+                                          // CORRECTED: Added null check for nullable dueDate
+                                          invoice.dueDate != null
+                                            ? '${invoice.dueDate!.day}/${invoice.dueDate!.month}/${invoice.dueDate!.year}'
+                                            : 'N/A',
                                           style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
@@ -260,6 +264,7 @@ class _VerifyPaymentScreenState extends State<VerifyPaymentScreen> {
     );
   }
 
+  // Included for completeness, no changes needed here.
   Widget _buildNavigationDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -414,7 +419,8 @@ class _VerifyPaymentScreenState extends State<VerifyPaymentScreen> {
               final invoice = availableInvoices[index];
               return ListTile(
                 title: Text(invoice.clientName),
-                subtitle: Text('\$${invoice.amount.toStringAsFixed(2)}'),
+                // CORRECTED: Removed unnecessary escape character before ₹
+                subtitle: Text('₹${invoice.amount.toStringAsFixed(2)}'),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -451,14 +457,24 @@ class _VerifyPaymentScreenState extends State<VerifyPaymentScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              context.read<AccountantProvider>().verifyPayment(invoiceId);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Payment verified successfully!'),
-                  backgroundColor: AppTheme.accentColor,
-                ),
-              );
+              context.read<AccountantProvider>().verifyPayment(invoiceId)
+              .then((_) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Payment verified successfully!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }).catchError((error) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to verify payment: $error'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              });
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentColor),
             child: const Text('Verify'),

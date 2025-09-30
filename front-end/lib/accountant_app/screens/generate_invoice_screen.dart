@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:role_based_app/constants/colors.dart';
+
+// Your project's local imports
+// CORRECTED: Removed provider, added service and models directly
 import '../models/invoice.dart';
-import '../providers/accountant_provider.dart';
+import '../services/accountant_service.dart';
 import '../theme/app_theme.dart';
 import 'acc_home_screen.dart';
 import 'maintain_financial_log_screen.dart';
@@ -22,30 +23,21 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
   final _formKey = GlobalKey<FormState>();
   final _clientNameController = TextEditingController();
   final _clientEmailController = TextEditingController();
-  final _clientAddressController = TextEditingController();
-  final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
-  final _notesController = TextEditingController();
+  final _userIdController = TextEditingController();
 
   DateTime _dueDate = DateTime.now().add(const Duration(days: 30));
-  DateTime _createdDate = DateTime.now();
+  final DateTime _invoiceDate = DateTime.now();
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AccountantProvider>().loadInvoices();
-    });
-  }
+  // ADDED: An instance of your service to handle the API call
+  final AccountantService _accountantService = AccountantService();
 
   @override
   void dispose() {
     _clientNameController.dispose();
     _clientEmailController.dispose();
-    _clientAddressController.dispose();
-    _descriptionController.dispose();
     _amountController.dispose();
-    _notesController.dispose();
+    _userIdController.dispose();
     super.dispose();
   }
 
@@ -81,6 +73,21 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
+                        controller: _userIdController,
+                        decoration: const InputDecoration(
+                          labelText: 'User ID',
+                          hintText: 'Enter the ID of the client/user',
+                          prefixIcon: Icon(Icons.badge, color: AppTheme.accentColor),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'User ID is required for the invoice';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
                         controller: _clientNameController,
                         decoration: const InputDecoration(
                           labelText: 'Client Name',
@@ -113,32 +120,10 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
-                        controller: _clientAddressController,
-                        decoration: const InputDecoration(
-                          labelText: 'Client Address (Optional)',
-                          prefixIcon: Icon(Icons.location_on, color: AppTheme.accentColor),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _descriptionController,
-                        decoration: const InputDecoration(
-                          labelText: 'Description',
-                          prefixIcon: Icon(Icons.description, color: AppTheme.accentColor),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a description';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
                         controller: _amountController,
                         decoration: const InputDecoration(
                           labelText: 'Amount',
-                          prefixIcon: Icon(Icons.attach_money, color: AppTheme.accentColor),
+                          prefixIcon: Icon(Icons.currency_rupee, color: AppTheme.accentColor),
                         ),
                         keyboardType: TextInputType.number,
                         validator: (value) {
@@ -178,14 +163,6 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _notesController,
-                        decoration: const InputDecoration(
-                          labelText: 'Notes (Optional)',
-                          prefixIcon: Icon(Icons.note, color: AppTheme.accentColor),
-                        ),
-                      ),
                       const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
@@ -210,6 +187,47 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
     );
   }
 
+  void _generateInvoice() {
+    if (_formKey.currentState!.validate()) {
+      final newInvoice = Invoice(
+        id: DateTime.now().millisecondsSinceEpoch.toString(), // Temporary ID
+        clientName: _clientNameController.text,
+        clientEmail: _clientEmailController.text,
+        amount: double.parse(_amountController.text),
+        dueDate: _dueDate,
+        invoiceDate: _invoiceDate,
+        status: 'Draft',
+        userId: _userIdController.text,
+      );
+
+      // CORRECTED: Call the service directly instead of the provider
+      _accountantService.addInvoice(newInvoice).then((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Invoice generated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _clientNameController.clear();
+        _clientEmailController.clear();
+        _amountController.clear();
+        _userIdController.clear();
+        setState(() {
+          _dueDate = DateTime.now().add(const Duration(days: 30));
+        });
+      }).catchError((error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to generate invoice: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      });
+    }
+  }
+
+  // NOTE: Preview PDF dialog is removed from this screen's drawer as it requires
+  // a shared list of invoices, which was handled by the provider.
   Widget _buildNavigationDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -225,21 +243,10 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
                 CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person,
-                    size: 30,
-                    color: AppTheme.primaryColor,
-                  ),
+                  child: Icon(Icons.person, size: 30, color: AppTheme.primaryColor),
                 ),
                 SizedBox(height: 10),
-                Text(
-                  'Accountant App',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text('Accountant App', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -250,9 +257,7 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
               Navigator.pop(context);
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const AccountantHomeScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const AccountantHomeScreen()),
               );
             },
           ),
@@ -263,9 +268,7 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const MaintainFinancialLogScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const MaintainFinancialLogScreen()),
               );
             },
           ),
@@ -276,9 +279,7 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const TrackFinancialLogsScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const TrackFinancialLogsScreen()),
               );
             },
           ),
@@ -290,23 +291,13 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.preview, color: AppTheme.accentColor),
-            title: const Text('Preview PDF', style: TextStyle(color: AppTheme.textColor)),
-            onTap: () {
-              Navigator.pop(context);
-              _showPreviewPdfDialog(context);
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.send, color: AppTheme.accentColor),
             title: const Text('Send Invoice', style: TextStyle(color: AppTheme.textColor)),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const SendInvoiceScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const SendInvoiceScreen()),
               );
             },
           ),
@@ -317,9 +308,7 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const VerifyPaymentScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const VerifyPaymentScreen()),
               );
             },
           ),
@@ -335,92 +324,5 @@ class _GenerateInvoiceScreenState extends State<GenerateInvoiceScreen> {
         ],
       ),
     );
-  }
-
-  void _showPreviewPdfDialog(BuildContext context) {
-    final provider = context.read<AccountantProvider>();
-    final availableInvoices = provider.invoices;
-
-    if (availableInvoices.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No invoices available to preview'),
-          backgroundColor: AppTheme.accentColor,
-        ),
-      );
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Invoice to Preview'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: availableInvoices.length,
-            itemBuilder: (context, index) {
-              final invoice = availableInvoices[index];
-              return ListTile(
-                title: Text(invoice.clientName),
-                subtitle: Text('\$${invoice.amount.toStringAsFixed(2)}'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PreviewPdfScreen(invoice: invoice),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _generateInvoice() {
-    if (_formKey.currentState!.validate()) {
-      final newInvoice = Invoice(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        clientName: _clientNameController.text,
-        clientEmail: _clientEmailController.text,
-        clientAddress: _clientAddressController.text.isEmpty ? null : _clientAddressController.text,
-        description: _descriptionController.text,
-        amount: double.parse(_amountController.text),
-        dueDate: _dueDate,
-        createdDate: _createdDate,
-        status: 'draft',
-        notes: _notesController.text.isEmpty ? null : _notesController.text,
-      );
-
-      context.read<AccountantProvider>().addInvoice(newInvoice);
-
-      _clientNameController.clear();
-      _clientEmailController.clear();
-      _clientAddressController.clear();
-      _descriptionController.clear();
-      _amountController.clear();
-      _notesController.clear();
-      setState(() {
-        _dueDate = DateTime.now().add(const Duration(days: 30));
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invoice generated successfully!'),
-          backgroundColor: AppTheme.accentColor,
-        ),
-      );
-    }
   }
 }

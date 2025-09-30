@@ -9,6 +9,7 @@ import 'generate_invoice_screen.dart';
 import 'send_invoice_screen.dart';
 import 'verify_payment_screen.dart';
 import 'preview_pdf_screen.dart';
+import '../models/invoice.dart';
 
 class TrackFinancialLogsScreen extends StatefulWidget {
   const TrackFinancialLogsScreen({Key? key}) : super(key: key);
@@ -21,9 +22,11 @@ class _TrackFinancialLogsScreenState extends State<TrackFinancialLogsScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AccountantProvider>().loadFinancialLogs();
-    });
+    
+    Future.microtask(() =>
+      
+      context.read<AccountantProvider>().loadDashboardData()
+    );
   }
 
   @override
@@ -246,7 +249,7 @@ class _TrackFinancialLogsScreenState extends State<TrackFinancialLogsScreen> {
               final invoice = availableInvoices[index];
               return ListTile(
                 title: Text(invoice.clientName),
-                subtitle: Text('\$${invoice.amount.toStringAsFixed(2)}'),
+                subtitle: Text('\₹${invoice.amount.toStringAsFixed(2)}'),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -288,7 +291,7 @@ class _TrackFinancialLogsScreenState extends State<TrackFinancialLogsScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'Total Income',
-                '\$${provider.totalIncome.toStringAsFixed(2)}',
+                '\₹${provider.totalIncome.toStringAsFixed(2)}',
                 Icons.trending_up,
                 AppTheme.primaryColor,
               ),
@@ -297,7 +300,7 @@ class _TrackFinancialLogsScreenState extends State<TrackFinancialLogsScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'Total Expenses',
-                '\$${provider.totalExpenses.toStringAsFixed(2)}',
+                '\₹${provider.totalExpenses.toStringAsFixed(2)}',
                 Icons.trending_down,
                 AppTheme.accentColor,
               ),
@@ -307,7 +310,7 @@ class _TrackFinancialLogsScreenState extends State<TrackFinancialLogsScreen> {
         const SizedBox(height: 12),
         _buildSummaryCard(
           'Net Profit/Loss',
-          '\$${provider.netProfit.toStringAsFixed(2)}',
+          '\₹${provider.netProfit.toStringAsFixed(2)}',
           provider.netProfit >= 0 ? Icons.trending_up : Icons.trending_down,
           provider.netProfit >= 0 ? AppTheme.primaryColor : AppTheme.accentColor,
         ),
@@ -352,9 +355,10 @@ class _TrackFinancialLogsScreenState extends State<TrackFinancialLogsScreen> {
 
   Widget _buildCategoryBreakdown(AccountantProvider provider) {
     final categoryTotals = <String, double>{};
-    
+
     for (final log in provider.financialLogs) {
-      categoryTotals[log.category] = (categoryTotals[log.category] ?? 0) + log.amount;
+      final category = log.category ?? 'Uncategorized';
+      categoryTotals[category] = (categoryTotals[category] ?? 0) + log.amount;
     }
 
     final sortedCategories = categoryTotals.entries.toList()
@@ -401,7 +405,7 @@ class _TrackFinancialLogsScreenState extends State<TrackFinancialLogsScreen> {
               leading: CircleAvatar(
                 backgroundColor: AppTheme.primaryColor,
                 child: Text(
-                  entry.key[0].toUpperCase(),
+                  entry.key.isNotEmpty ? entry.key[0].toUpperCase() : '?',
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -416,7 +420,7 @@ class _TrackFinancialLogsScreenState extends State<TrackFinancialLogsScreen> {
                 ),
               ),
               trailing: Text(
-                '\$${entry.value.toStringAsFixed(2)}',
+                '\₹${entry.value.toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

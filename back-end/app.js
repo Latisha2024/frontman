@@ -10,12 +10,13 @@ const { swaggerUi, swaggerSpec } = require('./swagger');
 
 dotenv.config();
 
-// Middleware
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+const corsOptions = {
+  origin: 'http://localhost:3000', // Your fixed frontend port
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"]
-}));
+};
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Rate-Limiters

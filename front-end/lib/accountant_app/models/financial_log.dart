@@ -1,43 +1,54 @@
+// models/financial_log.dart
+
 class FinancialLog {
-  final String id;
+  final String? id;
   final String description;
   final double amount;
-  final String type; // 'income' or 'expense'
-  final String category;
-  final DateTime date;
-  final String? notes;
+  final String type; // e.g., "Income", "Expense"
+  final String? category;
+  final DateTime createdAt;
+  final String? reference;
+  final String? createdBy;
 
   FinancialLog({
-    required this.id,
+    this.id,
     required this.description,
     required this.amount,
     required this.type,
-    required this.category,
-    required this.date,
-    this.notes,
+    this.category,
+    required this.createdAt,
+    this.reference,
+    this.createdBy,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'description': description,
-      'amount': amount,
-      'type': type,
-      'category': category,
-      'date': date.toIso8601String(),
-      'notes': notes,
-    };
-  }
-
   factory FinancialLog.fromJson(Map<String, dynamic> json) {
+    // This part is for reading data and is already robust from our previous fixes.
     return FinancialLog(
-      id: json['id'],
+      id: json['_id'] ?? json['id'],
       description: json['description'],
-      amount: json['amount'].toDouble(),
+      amount: double.tryParse(json['amount'].toString()) ?? 0.0,
       type: json['type'],
       category: json['category'],
-      date: DateTime.parse(json['date']),
-      notes: json['notes'],
+      createdAt: DateTime.parse(json['createdAt']),
+      reference: json['reference'],
+      createdBy: json['createdByUser']?['name'],
     );
+  }
+
+  // THIS IS THE METHOD TO CHANGE
+  Map<String, dynamic> toJson() {
+    // This helper logic ensures the string is "Income" not "INCOME" or "income"
+    String formattedType = type.isEmpty
+        ? ''
+        : '${type[0].toUpperCase()}${type.substring(1).toLowerCase()}';
+
+    return {
+      'description': description,
+      'amount': amount,
+      // CORRECTED: Send the type in the exact Title Case format the schema requires
+      'type': formattedType,
+      'category': category,
+      'reference': reference,
+    };
   }
 }

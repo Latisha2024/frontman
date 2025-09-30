@@ -1,55 +1,47 @@
+import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class AuthService {
+  final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: 'http://localhost:5001',
+    ),
+  );
+
+  AuthService._internal();
+  static final AuthService _instance = AuthService._internal();
+  factory AuthService() => _instance;
+
+  Dio get dio => _dio;
+
   static const _tokenKey = 'auth_token';
-  static const _userIdKey = 'user_id';
-  static const _userRoleKey = 'user_role';
-  static const _userNameKey = 'user_name';
-  static const _userEmailKey = 'user_email';
-  static const _userPhoneKey = 'user_phone';
+  static const _userKey = 'user_data';
 
-  /// Save token & user details
   Future<void> setToken(String token, Map<String, dynamic> user) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString(_tokenKey, token);
-  await prefs.setString(_userIdKey, user['_id'] ?? '');
-  await prefs.setString(_userRoleKey, user['role'] ?? '');
-  await prefs.setString(_userNameKey, user['name'] ?? '');
-  await prefs.setString(_userEmailKey, user['email'] ?? '');
-  await prefs.setString(_userPhoneKey, user['phone'] ?? '');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tokenKey, token);
+    await prefs.setString(_userKey, jsonEncode(user));
+    _dio.options.headers['Authorization'] = 'Bearer $token';
+  }
 
-  print("✅ Token saved: $token");
-  print("✅ User saved: $user");
-}
-
-
-  /// Get token
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_tokenKey);
   }
 
-  /// Get user role
-  Future<String?> getUserRole() async {
+  Future<Map<String, dynamic>?> getUser() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_userRoleKey);
+    final userString = prefs.getString(_userKey);
+    if (userString != null) {
+      return jsonDecode(userString) as Map<String, dynamic>;
+    }
+    return null;
   }
 
-  /// Get full user object
-  Future<Map<String, dynamic>> getUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    return {
-      "_id": prefs.getString(_userIdKey),
-      "role": prefs.getString(_userRoleKey),
-      "name": prefs.getString(_userNameKey),
-      "email": prefs.getString(_userEmailKey),
-      "phone": prefs.getString(_userPhoneKey),
-    };
-  }
-
-  /// Clear saved token & user data (logout)
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    _dio.options.headers.remove('Authorization');
   }
 }

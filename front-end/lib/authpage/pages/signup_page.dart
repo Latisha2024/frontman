@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import '../../authpage/auth_services.dart';
+import '../../authpage/pages/auth_services.dart';
 import '../../admin/screens/admin_dashboard.dart';
 import '../../plumber/screens/plumber_dashboard.dart';
 import '../../worker/screens/worker_dashboard.dart';
@@ -23,11 +23,11 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController(); // registration
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _phoneController = TextEditingController(); // registration
-  final _roleController = TextEditingController(); // registration
+  final _phoneController = TextEditingController();
+  final _roleController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _isRegister = true; // Start in register mode
@@ -46,8 +46,9 @@ class _SignUpPageState extends State<SignUpPage> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-    final dio =
-        Dio(BaseOptions(baseUrl: 'https://frontman-backend-2.onrender.com/'));
+    
+    // *** FIX: Use the shared Dio instance from your AuthService ***
+    final dio = AuthService().dio;
 
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
@@ -58,7 +59,7 @@ class _SignUpPageState extends State<SignUpPage> {
         final name = _nameController.text.trim();
         final phone = _phoneController.text.trim();
         final role =
-            _roleController.text.trim(); // must match backend role keys
+            _roleController.text.trim();
 
         response = await dio.post('/auth/register', data: {
           'name': name,
@@ -69,7 +70,7 @@ class _SignUpPageState extends State<SignUpPage> {
         });
 
         print('Register response: ${response.data}');
-        setState(() => _isRegister = false);
+        setState(() => _isRegister = false); // Switch to login view after successful registration
         _showDialog('Registration successful! Please login.');
       } else {
         response = await dio.post('/auth/login', data: {
@@ -81,13 +82,9 @@ class _SignUpPageState extends State<SignUpPage> {
         final token = response.data['token'];
         final user = response.data['user'];
 
-        AuthService().setToken(token, user);
-
-        final savedToken = await AuthService().getToken();
-        final savedUser = await AuthService().getUser();
-        print("🔎 Retrieved token: $savedToken");
-        print("🔎 Retrieved user: $savedUser");
-
+        // *** This now also automatically sets the token for all future API calls ***
+        await AuthService().setToken(token, user);
+        
         Widget homeScreen;
         switch (user['role']) {
           case 'Admin':

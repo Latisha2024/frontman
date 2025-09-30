@@ -17,7 +17,7 @@ class ExternalSellerPointsController extends ChangeNotifier {
       if (token == null) throw Exception('User not logged in');
 
       final dio = Dio(BaseOptions(
-        baseUrl: 'http://localhost:5000/user/points',
+        baseUrl: 'http://localhost:5001/user/points',
         headers: {'Authorization': 'Bearer $token'},
       ));
 

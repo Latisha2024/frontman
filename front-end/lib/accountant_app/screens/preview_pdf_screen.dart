@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+// Your project's local imports
 import '../models/invoice.dart';
-import '../providers/accountant_provider.dart';
 import '../theme/app_theme.dart';
 import 'acc_home_screen.dart';
 import 'maintain_financial_log_screen.dart';
@@ -44,9 +44,8 @@ class PreviewPdfScreen extends StatelessWidget {
                     _buildClientDetails(),
                     const SizedBox(height: 16),
                     _buildInvoiceDetails(),
-                    const SizedBox(height: 16),
-                    _buildNotes(),
                     const SizedBox(height: 24),
+                    // REMOVED: _buildNotes() call as the field no longer exists
                     _buildActions(context),
                   ],
                 ),
@@ -59,6 +58,7 @@ class PreviewPdfScreen extends StatelessWidget {
   }
 
   Widget _buildNavigationDrawer(BuildContext context) {
+    // This navigation drawer is for context, no changes needed here.
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -234,11 +234,7 @@ class PreviewPdfScreen extends StatelessWidget {
           'Email: ${invoice.clientEmail}',
           style: const TextStyle(color: AppTheme.textColor),
         ),
-        if (invoice.clientAddress != null)
-          Text(
-            'Address: ${invoice.clientAddress}',
-            style: const TextStyle(color: AppTheme.textColor),
-          ),
+        // REMOVED: Text widget for clientAddress as it no longer exists.
       ],
     );
   }
@@ -256,78 +252,62 @@ class PreviewPdfScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
+        // REMOVED: Text widget for description as it no longer exists.
         Text(
-          'Description: ${invoice.description}',
-          style: const TextStyle(color: AppTheme.textColor),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Amount: \$${invoice.amount.toStringAsFixed(2)}',
+          // CORRECTED: Currency symbol changed from $ to ₹
+          'Amount: ₹${invoice.amount.toStringAsFixed(2)}',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: AppTheme.primaryColor,
           ),
         ),
         const SizedBox(height: 4),
+        // ADDED: Null check for dueDate
         Text(
-          'Due Date: ${invoice.dueDate.day}/${invoice.dueDate.month}/${invoice.dueDate.year}',
+          invoice.dueDate != null
+              ? 'Due Date: ${invoice.dueDate!.day}/${invoice.dueDate!.month}/${invoice.dueDate!.year}'
+              : 'Due Date: N/A',
           style: const TextStyle(color: AppTheme.textColor),
         ),
         const SizedBox(height: 4),
         Text(
-          'Created Date: ${invoice.createdDate.day}/${invoice.createdDate.month}/${invoice.createdDate.year}',
+          // RENAMED: from createdDate to invoiceDate
+          'Invoice Date: ${invoice.invoiceDate.day}/${invoice.invoiceDate.month}/${invoice.invoiceDate.year}',
           style: const TextStyle(color: AppTheme.textColor),
         ),
         const SizedBox(height: 4),
         Text(
           'Status: ${invoice.status}',
           style: TextStyle(
-            color: invoice.status == 'paid'
-                ? AppTheme.primaryColor
-                : invoice.status == 'overdue'
+            // CORRECTED: Status checks are now Title Case to match the enum
+            color: invoice.status == 'Paid'
+                ? Colors.green.shade700
+                : invoice.status == 'Overdue'
                     ? AppTheme.accentColor
                     : AppTheme.textColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNotes() {
-    if (invoice.notes == null) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Notes',
-          style: TextStyle(
-            fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppTheme.textColor,
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          invoice.notes!,
-          style: const TextStyle(color: AppTheme.textColor),
         ),
       ],
     );
   }
+
+  // REMOVED: The entire _buildNotes widget as the field no longer exists.
 
   Widget _buildActions(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        if (invoice.status == 'draft')
+        // CORRECTED: Status check is now 'Draft' (Title Case)
+        if (invoice.status == 'Draft')
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SendInvoiceScreen(),
+                  // You might want to pass the invoice object to the SendInvoiceScreen
+                  builder: (context) => const SendInvoiceScreen(),
                 ),
               );
             },

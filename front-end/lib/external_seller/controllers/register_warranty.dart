@@ -31,7 +31,7 @@ class ExternalSellerRegisterWarrantyController extends ChangeNotifier {
       }
 
       final response = await _dio.post(
-        'http://localhost:5000/user/register-warranty',
+        'http://localhost:5001/user/register-warranty',
         data: {
           'productId': productIdController.text,
           'serialNumber': serialNumberController.text,

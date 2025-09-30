@@ -23,7 +23,7 @@ class _StockPageState extends State<StockPage> {
   final TextEditingController stockItemIdController = TextEditingController();
   final TextEditingController updateStatusController = TextEditingController();
 
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5000"));
+  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
 
   bool loading = false;
   String? message;
