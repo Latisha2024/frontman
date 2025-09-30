@@ -13,7 +13,7 @@ const warrantyCardController = require('../../controllers/warrantyCardController
  */
 
 router.use(authenticate);
-router.use(authorizeRoles('Admin'));
+router.use(authorizeRoles('Admin',"SalesManager"));
 
 /**
  * @swagger

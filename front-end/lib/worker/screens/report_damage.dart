@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
 import './worker_drawer.dart';
-import 'package:flutter/material.dart';
 import '../controllers/report_damage.dart';
 import '../widgets/report_damage.dart';
 
@@ -8,7 +8,8 @@ class WorkerReportDamageScreen extends StatefulWidget {
   const WorkerReportDamageScreen({super.key});
 
   @override
-  State<WorkerReportDamageScreen> createState() => WorkerReportDamageScreenState();
+  State<WorkerReportDamageScreen> createState() =>
+      WorkerReportDamageScreenState();
 }
 
 class WorkerReportDamageScreenState extends State<WorkerReportDamageScreen> {
@@ -27,19 +28,31 @@ class WorkerReportDamageScreenState extends State<WorkerReportDamageScreen> {
     super.dispose();
   }
 
-  void handleSubmit() {
+  Future<void> handleSubmit() async {
     setState(() {
       isLoading = true;
     });
-    // Simulate local update
-    Future.delayed(const Duration(milliseconds: 500), () {
-      setState(() {
-        isLoading = false;
-        controller.productIdController.clear();
-        controller.quantityController.clear();
-        controller.locationController.clear();
-      });
+
+    final result = await controller.submitDamageReport();
+
+    setState(() {
+      isLoading = false;
     });
+
+    if (result['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ Damage report submitted successfully')),
+      );
+
+      controller.stockIdController.clear();
+      controller.quantityController.clear();
+      controller.locationController.clear();
+      controller.reasonController.clear();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ Error: ${result['message']}')),
+      );
+    }
   }
 
   @override

@@ -13,7 +13,7 @@ const searchController = require('../../controllers/searchController');
  */
 
 router.use(authenticate);
-router.use(authorizeRoles('Admin'));
+router.use(authorizeRoles('Admin',"SalesManager"));
 
 /**
  * @swagger

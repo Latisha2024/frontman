@@ -13,7 +13,7 @@ const dvrController = require('../../controllers/dvrController');
  */
 
 router.use(authenticate);
-router.use(authorizeRoles('FieldExecutive'));
+router.use(authorizeRoles('FieldExecutive', 'SalesManager', 'Admin'));
 
 /**
  * @swagger
@@ -68,5 +68,9 @@ router.post('/', dvrController.createDVR);
  *         description: Failed to fetch DVRs
  */
 router.get('/', dvrController.getMyDVRs);
+
+// SalesManager/Admin-only actions
+router.patch('/:id/approve', authorizeRoles('SalesManager', 'Admin'), dvrController.approveDVR);
+router.patch('/:id/reject', authorizeRoles('SalesManager', 'Admin'), dvrController.rejectDVR);
 
 module.exports = router;

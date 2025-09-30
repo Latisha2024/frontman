@@ -66,7 +66,7 @@ class AdminDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ManageUsersScreen(role: "admin"),
+                  builder: (context) => const ManageUsersScreen(),
                 ),
               );
             },

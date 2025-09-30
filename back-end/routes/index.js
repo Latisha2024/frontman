@@ -33,10 +33,19 @@ router.use('/accountant/financial-logs', require('./accountant/financial-logs'))
 router.use('/worker/attendance', require('./worker/attendance'));
 router.use('/worker/production', require('./worker/production'));
 router.use('/worker/shift-alerts', require('./worker/shiftAlert'));
+router.use('/worker/stock', require('./worker/stock'));
+router.use('/worker/damage-report', require('./worker/damageReportRoutes'));
 
 router.use('/field-executive/followups', require('./fieldExecutive/followUp'));
 router.use('/fieldExecutive/dvr', require('./fieldExecutive/dvr'));
 router.use('/fieldExecutive/delivery', require('./fieldExecutive/delivery'));
+router.use('/fieldExecutive/camera', require('./fieldExecutive/camera'));
+router.use('/fieldExecutive/chat', require('./fieldExecutive/chat'));
+router.use('/fieldExecutive/task', require('./fieldExecutive/task'));
+router.use('/fieldExecutive/location', require('./fieldExecutive/location'));
+router.use('/fieldExecutive/customers', require('./fieldExecutive/customers'));
+router.use('/fieldExecutive/orders', require('./fieldExecutive/orders'));
+router.use('/fieldExecutive/operations', require('./fieldExecutive/operations'));
 
 router.use('/user/incentives', require('./plumber/incentive'));
 router.use('/user/points', require('./plumber/points'));
@@ -45,5 +54,6 @@ router.use('/user/warranty', require('./plumber/warranty'));
 router.use('/user/commissioned-work', require('./plumber/commissionedWork'));
 
 router.use('/user/location', require('./user/location'));
+
 
 module.exports = router;

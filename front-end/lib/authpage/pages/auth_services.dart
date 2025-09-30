@@ -23,8 +23,12 @@ class AuthService {
     await prefs.setString(_tokenKey, token);
     await prefs.setString(_userKey, jsonEncode(user));
     _dio.options.headers['Authorization'] = 'Bearer $token';
+
+    print("✅ Token saved: $token");
+    print("✅ User saved: $user");
   }
 
+  /// Get token
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_tokenKey);

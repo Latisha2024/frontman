@@ -13,7 +13,7 @@ const reportController = require('../../controllers/reportController');
  */
 
 router.use(authenticate);
-router.use(authorizeRoles('Admin'));
+router.use(authorizeRoles('Admin',"SalesManager"));
 
 /**
  * @swagger

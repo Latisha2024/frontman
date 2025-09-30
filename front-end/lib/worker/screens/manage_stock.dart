@@ -1,17 +1,18 @@
-import '../../constants/colors.dart';
-import './worker_drawer.dart';
 import 'package:flutter/material.dart';
 import '../controllers/manage_stock.dart';
 import '../widgets/manage_stock.dart';
+import '../../constants/colors.dart';
+import './worker_drawer.dart';
 
 class WorkerManageStockScreen extends StatefulWidget {
   const WorkerManageStockScreen({super.key});
 
   @override
-  State<WorkerManageStockScreen> createState() => WorkerManageStockScreenState();
+  State<WorkerManageStockScreen> createState() =>
+      _WorkerManageStockScreenState();
 }
 
-class WorkerManageStockScreenState extends State<WorkerManageStockScreen> {
+class _WorkerManageStockScreenState extends State<WorkerManageStockScreen> {
   late WorkerManageStockController controller;
   bool isLoading = false;
 
@@ -27,19 +28,15 @@ class WorkerManageStockScreenState extends State<WorkerManageStockScreen> {
     super.dispose();
   }
 
-  void handleSubmit() {
+  Future<void> handleSubmit() async {
+    setState(() => isLoading = true);
+
+    await controller.updateStock(context);
+
     setState(() {
-      isLoading = true;
-    });
-    // Simulate local update
-    Future.delayed(const Duration(milliseconds: 500), () {
-      setState(() {
-        isLoading = false;
-        controller.productIdController.clear();
-        controller.quantityController.clear();
-        controller.fromLocationController.clear();
-        controller.toLocationController.clear();
-      });
+      isLoading = false;
+      controller.locationController.clear();
+      controller.selectedStatus = "Available"; // reset dropdown
     });
   }
 
@@ -56,15 +53,15 @@ class WorkerManageStockScreenState extends State<WorkerManageStockScreen> {
           ),
         ),
       ),
-      drawer: WorkerDrawer(),
+      drawer: const WorkerDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: WorkerManageStockForm(
           controller: controller,
-          onSubmit: handleSubmit,
+          onSubmit: isLoading ? null : handleSubmit,
           isLoading: isLoading,
         ),
       ),
     );
   }
-} 
+}

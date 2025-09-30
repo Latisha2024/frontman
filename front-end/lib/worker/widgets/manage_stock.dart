@@ -1,115 +1,92 @@
 import 'package:flutter/material.dart';
-import '../../../constants/colors.dart';
 import '../controllers/manage_stock.dart';
 
 class WorkerManageStockForm extends StatelessWidget {
   final WorkerManageStockController controller;
-  final VoidCallback onSubmit;
+  final VoidCallback? onSubmit;
   final bool isLoading;
 
   const WorkerManageStockForm({
     super.key,
     required this.controller,
     required this.onSubmit,
-    this.isLoading = false,
+    required this.isLoading,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 6,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: TextFormField(
-              controller: controller.productIdController,
-              decoration: const InputDecoration(labelText: 'Product ID:', border: InputBorder.none),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 6,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: TextFormField(
-              controller: controller.quantityController,
-              decoration: const InputDecoration(labelText: 'Quantity:', border: InputBorder.none),
-              keyboardType: TextInputType.number,
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 6,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: TextFormField(
-              controller: controller.fromLocationController,
-              decoration: const InputDecoration(labelText: 'From Location:', border: InputBorder.none),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 6,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: TextFormField(
-              controller: controller.toLocationController,
-              decoration: const InputDecoration(labelText: 'To Location:',border: InputBorder.none),
-            ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.buttonPrimary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(), // dismiss keyboard
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Stock ID Input
+            TextField(
+              controller: controller.stockIdController,
+              decoration: const InputDecoration(
+                labelText: "Stock ID",
+                border: OutlineInputBorder(),
               ),
             ),
-            onPressed: isLoading ? null : onSubmit,
-            child: isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
-                : const Text('Submit'),
-          ),
-        ],
+            const SizedBox(height: 16),
+
+            // Status Dropdown
+            DropdownButtonFormField<String>(
+              value: controller.selectedStatus,
+              items: ["Available", "Moved", "Sold"]
+                  .map((status) => DropdownMenuItem(
+                        value: status,
+                        child: Text(status),
+                      ))
+                  .toList(),
+              onChanged: (val) {
+                if (val != null) controller.selectedStatus = val;
+              },
+              decoration: const InputDecoration(
+                labelText: "Status",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Location Input
+            TextField(
+              controller: controller.locationController,
+              decoration: const InputDecoration(
+                labelText: "Location",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Submit Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isLoading ? null : onSubmit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // consistent theme
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        "Update Stock",
+                        style: TextStyle(fontSize: 16),
+                      ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-} 
+}

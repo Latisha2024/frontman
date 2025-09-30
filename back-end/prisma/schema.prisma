@@ -26,6 +26,7 @@ enum StockStatus {
   Available
   Moved
   Missing
+  Damaged
 }
 
 enum OrderStatus {
@@ -73,6 +74,12 @@ enum NotificationType {
   System
 }
 
+enum TaskStatus {
+  Pending
+  InProgress
+  Completed
+}
+
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
@@ -103,6 +110,8 @@ model User {
   audits          Audit[]
   notifications   Notification[]
   financialLogs   FinancialLog[]
+  sentMessages    ChatMessage[] @relation("SentMessages")
+  receivedMessages ChatMessage[] @relation("ReceivedMessages")
 }
 
 model Company {
@@ -186,6 +195,7 @@ model Stock {
   location  String
 
   product   Product      @relation(fields: [productId], references: [id])
+  damageReports DamageReport[]
 }
 
 model WarrantyCard {
@@ -454,4 +464,105 @@ model FinancialLog {
 
   @@index([type, createdAt])
   @@index([createdBy, createdAt])
+}
+
+model Task {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  status      TaskStatus @default(Pending)
+  dueDate     DateTime?
+  executiveId String     @db.ObjectId
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+}
+
+model DamageReport {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  stockId   String   @db.ObjectId
+  workerId  String   @db.ObjectId
+  reason    String
+  quantity  Int
+  location   String 
+  reportedAt DateTime @default(now())
+
+  stock     Stock    @relation(fields: [stockId], references: [id])
+}
+
+// Sales Executive Models
+model Customer {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String?
+  phone       String
+  location    String
+  address     String?
+  assignedTo  String   @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  visits      CustomerVisit[]
+}
+
+model CustomerVisit {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId        String   @db.ObjectId
+  executiveId       String   @db.ObjectId
+  visitDate         DateTime
+  location          String
+  peoplePresent     String?
+  productsDiscussed String?
+  reasonForVisit    String?
+  customerConcerns  String?
+  investigationStatus String?
+  rootCause         String?
+  correctiveAction  String?
+  recommendations   String?
+  feedback          String?
+  reportCompletedBy String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  customer          Customer @relation(fields: [customerId], references: [id])
+}
+
+model ChatMessage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  senderId  String   @db.ObjectId
+  receiverId String? @db.ObjectId
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver  User?    @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
+
+model CapturedImage {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  executiveId String   @db.ObjectId
+  imageData   Bytes
+  latitude    Float?
+  longitude   Float?
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+model Signature {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  executiveId String   @db.ObjectId
+  signatureData Bytes
+  context     String?  // What the signature is for
+  createdAt   DateTime @default(now())
+}
+
+model OfflineData {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  executiveId String   @db.ObjectId
+  dataType    String   // 'order', 'visit', 'image', etc.
+  data        String   // JSON string of the data
+  synced      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  syncedAt    DateTime?
 }

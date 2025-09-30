@@ -10,19 +10,19 @@ class AuthService {
 
   /// Save token & user details
   Future<void> setToken(String token, Map<String, dynamic> user) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString(_tokenKey, token);
-  // Backend returns Prisma id as 'id'. Fallback to Mongo-style '_id' if present.
-  await prefs.setString(_userIdKey, (user['id'] ?? user['_id'] ?? '').toString());
-  await prefs.setString(_userRoleKey, user['role'] ?? '');
-  await prefs.setString(_userNameKey, user['name'] ?? '');
-  await prefs.setString(_userEmailKey, user['email'] ?? '');
-  await prefs.setString(_userPhoneKey, user['phone'] ?? '');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tokenKey, token);
+    // Backend returns Prisma id as 'id'. Fallback to Mongo-style '_id' if present.
+    await prefs.setString(
+        _userIdKey, (user['id'] ?? user['_id'] ?? '').toString());
+    await prefs.setString(_userRoleKey, user['role'] ?? '');
+    await prefs.setString(_userNameKey, user['name'] ?? '');
+    await prefs.setString(_userEmailKey, user['email'] ?? '');
+    await prefs.setString(_userPhoneKey, user['phone'] ?? '');
 
-  print("✅ Token saved: $token");
-  print("✅ User saved: $user");
-}
-
+    print("✅ Token saved: $token");
+    print("✅ User saved: $user");
+  }
 
   /// Get token
   Future<String?> getToken() async {

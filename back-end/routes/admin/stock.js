@@ -13,7 +13,7 @@ const stockController = require('../../controllers/stockController');
  */
 
 router.use(authenticate);
-router.use(authorizeRoles('Admin'));
+router.use(authorizeRoles('Admin',"SalesManager"));
 
 /**
  * @swagger

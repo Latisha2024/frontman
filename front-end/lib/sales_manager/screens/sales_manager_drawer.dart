@@ -8,13 +8,14 @@ import '../../admin/screens/manage_products.dart';
 import '../../admin/screens/send_notifications.dart';
 import '../../admin/screens/warranty_database.dart';
 import '../../constants/colors.dart';
- 
 import '../../admin/screens/manage_users.dart';
 import '../../admin/screens/invoices.dart';
 import '../../admin/screens/order_summary.dart';
 import 'approve_dvr_reports.dart';
 import 'assign_tasks.dart';
 import 'gps_tracking.dart';
+import '../../admin/screens/shift_alerts.dart';
+import '../../admin/screens/stock_management.dart';
 
 class SalesManagerDrawer extends StatelessWidget {
   const SalesManagerDrawer({super.key});
@@ -52,7 +53,7 @@ class SalesManagerDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.gps_fixed),
-            title: const Text('Track Field Executive GPS'),
+            title: const Text('Location'),
             onTap: () {
               Navigator.push(
                 context,
@@ -82,18 +83,6 @@ class SalesManagerDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => SalesManagerApproveDvrReportsScreen(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Manage Users'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ManageUsersScreen(role: "manager"),
                 ),
               );
             },
@@ -136,12 +125,36 @@ class SalesManagerDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.bar_chart),
-            title: const Text('Generate Reports'),
+            title: const Text('Reports'),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => GenerateReportsScreen(role: "manager"),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.crisis_alert_sharp),
+            title: const Text('Shift Alerts'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ShiftAlertsScreen(role: "manager"),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.inventory),
+            title: const Text('Manage Stocks'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StockManagementScreen(role: "manager"),
                 ),
               );
             },
