@@ -5,7 +5,7 @@ import 'dart:convert';
 class AuthService {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'http://10.0.2.2:5001/',
+      baseUrl: 'http://localhost:5001',
     ),
   );
 
