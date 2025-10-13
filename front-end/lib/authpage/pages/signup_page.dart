@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:dio/dio.dart';
 import '../../authpage/pages/auth_services.dart';
 import '../../admin/screens/admin_dashboard.dart';
@@ -26,19 +27,29 @@ class _SignUpPageState extends State<SignUpPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _roleController = TextEditingController();
+
+  String _fullPhoneNumber = '';
+  String? _selectedRole;
   bool _isLoading = false;
   bool _obscurePassword = true;
-  bool _isRegister = true; // Start in register mode
+  bool _isRegister = true;
+
+  // Use a Map to separate display values from backend values
+  final Map<String, String> _userRoles = {
+    'Admin': 'Admin',
+    'SalesManager': 'Sales Manager',
+    'Plumber': 'Plumber',
+    'Accountant': 'Accountant',
+    'Distributor': 'Distributor',
+    'FieldExecutive': 'Field Executive',
+    'Worker': 'Worker',
+  };
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _phoneController.dispose();
-    _roleController.dispose();
     super.dispose();
   }
 
@@ -46,10 +57,8 @@ class _SignUpPageState extends State<SignUpPage> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-    
-    // *** FIX: Use the shared Dio instance from your AuthService ***
-    final dio = AuthService().dio;
 
+    final dio = AuthService().dio;
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -57,20 +66,17 @@ class _SignUpPageState extends State<SignUpPage> {
       Response response;
       if (_isRegister) {
         final name = _nameController.text.trim();
-        final phone = _phoneController.text.trim();
-        final role =
-            _roleController.text.trim();
 
         response = await dio.post('/auth/register', data: {
           'name': name,
           'email': email,
           'password': password,
-          'phone': phone,
-          'role': role,
+          'phone': _fullPhoneNumber,
+          'role': _selectedRole, // This already holds the correct backend value
         });
 
         print('Register response: ${response.data}');
-        setState(() => _isRegister = false); // Switch to login view after successful registration
+        setState(() => _isRegister = false);
         _showDialog('Registration successful! Please login.');
       } else {
         response = await dio.post('/auth/login', data: {
@@ -82,9 +88,8 @@ class _SignUpPageState extends State<SignUpPage> {
         final token = response.data['token'];
         final user = response.data['user'];
 
-        // *** This now also automatically sets the token for all future API calls ***
         await AuthService().setToken(token, user);
-        
+
         Widget homeScreen;
         switch (user['role']) {
           case 'Admin':
@@ -122,15 +127,12 @@ class _SignUpPageState extends State<SignUpPage> {
     } on DioException catch (e) {
       String errorMessage = 'Operation failed';
       if (e.response != null) {
-        print('Dio error response: ${e.response?.data}');
         errorMessage = e.response?.data['message'] ?? errorMessage;
       } else {
-        print('Dio error: $e');
         errorMessage = 'Operation failed: ${e.message}';
       }
       _showDialog(errorMessage);
     } catch (e) {
-      print('Unexpected error: $e');
       _showDialog('Unexpected error: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -170,6 +172,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     const SizedBox(height: 40),
                     const Center(child: LogoWidget()),
                     const SizedBox(height: 48),
+
                     if (_isRegister)
                       CustomTextField(
                         label: 'Name',
@@ -177,52 +180,71 @@ class _SignUpPageState extends State<SignUpPage> {
                         keyboardType: TextInputType.name,
                         prefixIcon: const Icon(Icons.person_outline),
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Enter your name';
+                          }
                           return null;
                         },
                       ),
                     if (_isRegister) const SizedBox(height: 16),
+                    
                     if (_isRegister)
-                      CustomTextField(
-                        label: 'Phone',
-                        controller: _phoneController,
-                        keyboardType: TextInputType.phone,
-                        prefixIcon: const Icon(Icons.phone),
-                        validator: (value) {
-                          if (value == null || value.isEmpty)
-                            return 'Enter your phone';
-                          return null;
+                      IntlPhoneField(
+                        decoration: const InputDecoration(
+                          labelText: 'Phone Number',
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(),
+                          ),
+                        ),
+                        initialCountryCode: 'IN',
+                        onChanged: (phone) {
+                          _fullPhoneNumber = phone.completeNumber;
                         },
                       ),
+
                     if (_isRegister) const SizedBox(height: 16),
+                    
                     if (_isRegister)
-                      CustomTextField(
-                        label: 'Role',
-                        controller: _roleController,
-                        keyboardType: TextInputType.text,
-                        prefixIcon: const Icon(Icons.badge_outlined),
-                        validator: (value) {
-                          if (value == null || value.isEmpty)
-                            return 'Enter your role';
-                          return null;
+                      DropdownButtonFormField<String>(
+                        value: _selectedRole,
+                        decoration: const InputDecoration(
+                          labelText: 'Select Role',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.badge_outlined),
+                        ),
+                        items: _userRoles.entries.map((entry) {
+                          return DropdownMenuItem<String>(
+                            value: entry.key, // Save the backend value
+                            child: Text(entry.value), // Show the display value
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() => _selectedRole = newValue);
                         },
+                        validator: (value) =>
+                            value == null ? 'Please select a role' : null,
                       ),
+
                     if (_isRegister) const SizedBox(height: 16),
+
                     CustomTextField(
                       label: 'Email',
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: const Icon(Icons.email_outlined),
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Enter your email';
+                        }
                         if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                            .hasMatch(value)) return 'Enter a valid email';
+                            .hasMatch(value)) {
+                          return 'Enter a valid email';
+                        }
                         return null;
                       },
                     ),
                     const SizedBox(height: 24),
+
                     CustomTextField(
                       label: 'Password',
                       controller: _passwordController,
@@ -232,24 +254,30 @@ class _SignUpPageState extends State<SignUpPage> {
                         icon: Icon(_obscurePassword
                             ? Icons.visibility
                             : Icons.visibility_off),
-                        onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword),
+                        onPressed: () =>
+                            setState(() => _obscurePassword = !_obscurePassword),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Enter your password';
-                        if (value.length < 6)
+                        }
+                        if (value.length < 6) {
                           return 'Password must be at least 6 characters';
+                        }
                         return null;
                       },
                     ),
+
                     const SizedBox(height: 32),
+
                     CustomButton(
                       text: _isRegister ? 'Register' : 'Login',
                       onPressed: _handleSubmit,
                       isLoading: _isLoading,
                     ),
+
                     const SizedBox(height: 24),
+
                     TextButton(
                       onPressed: () =>
                           setState(() => _isRegister = !_isRegister),

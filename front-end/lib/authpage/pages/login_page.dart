@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../admin/screens/company_selection.dart';
 import '../../authpage/pages/auth_services.dart';
 import '../../plumber/screens/plumber_dashboard.dart';
@@ -26,8 +27,20 @@ class _LoginPageState extends State<LoginPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _roleController = TextEditingController();
+
+  // ADDED: State variables for new phone and role inputs
+  String _fullPhoneNumber = '';
+  String? _selectedRole;
+  final Map<String, String> _userRoles = {
+    'Admin': 'Admin',
+    'SalesManager': 'Sales Manager',
+    'Plumber': 'Plumber',
+    'Accountant': 'Accountant',
+    'Distributor': 'Distributor',
+    'FieldExecutive': 'Field Executive',
+    'Worker': 'Worker',
+  };
+
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _isRegister = false;
@@ -37,8 +50,6 @@ class _LoginPageState extends State<LoginPage> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _phoneController.dispose();
-    _roleController.dispose();
     super.dispose();
   }
 
@@ -48,7 +59,6 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     final dio = AuthService().dio;
-
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -56,15 +66,14 @@ class _LoginPageState extends State<LoginPage> {
       Response response;
       if (_isRegister) {
         final name = _nameController.text.trim();
-        final phone = _phoneController.text.trim();
-        final role = _roleController.text.trim();
 
+        // UPDATED: Use the new state variables for phone and role
         response = await dio.post('/auth/register', data: {
           'name': name,
           'email': email,
           'password': password,
-          'phone': phone,
-          'role': role,
+          'phone': _fullPhoneNumber,
+          'role': _selectedRole,
         });
 
         setState(() => _isRegister = false);
@@ -169,48 +178,66 @@ class _LoginPageState extends State<LoginPage> {
                         keyboardType: TextInputType.name,
                         prefixIcon: const Icon(Icons.person_outline),
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Enter your name';
+                          }
                           return null;
                         },
                       ),
                     if (_isRegister) const SizedBox(height: 16),
+
+                    // --- REPLACED PHONE FIELD ---
                     if (_isRegister)
-                      CustomTextField(
-                        label: 'Phone',
-                        controller: _phoneController,
-                        keyboardType: TextInputType.phone,
-                        prefixIcon: const Icon(Icons.phone),
-                        validator: (value) {
-                          if (value == null || value.isEmpty)
-                            return 'Enter your phone';
-                          return null;
+                      IntlPhoneField(
+                        decoration: const InputDecoration(
+                          labelText: 'Phone Number',
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(),
+                          ),
+                        ),
+                        initialCountryCode: 'IN',
+                        onChanged: (phone) {
+                          _fullPhoneNumber = phone.completeNumber;
                         },
                       ),
                     if (_isRegister) const SizedBox(height: 16),
+
+                    // --- REPLACED ROLE FIELD ---
                     if (_isRegister)
-                      CustomTextField(
-                        label: 'Role',
-                        controller: _roleController,
-                        keyboardType: TextInputType.text,
-                        prefixIcon: const Icon(Icons.badge_outlined),
-                        validator: (value) {
-                          if (value == null || value.isEmpty)
-                            return 'Enter your role';
-                          return null;
+                      DropdownButtonFormField<String>(
+                        value: _selectedRole,
+                        decoration: const InputDecoration(
+                          labelText: 'Select Role',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.badge_outlined),
+                        ),
+                        items: _userRoles.entries.map((entry) {
+                          return DropdownMenuItem<String>(
+                            value: entry.key, // Backend value (e.g., SalesManager)
+                            child: Text(entry.value), // Display value (e.g., Sales Manager)
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() => _selectedRole = newValue);
                         },
+                        validator: (value) =>
+                            value == null ? 'Please select a role' : null,
                       ),
                     if (_isRegister) const SizedBox(height: 16),
+                    
                     CustomTextField(
                       label: 'Email',
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: const Icon(Icons.email_outlined),
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Enter your email';
+                        }
                         if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                            .hasMatch(value)) return 'Enter a valid email';
+                            .hasMatch(value)) {
+                          return 'Enter a valid email';
+                        }
                         return null;
                       },
                     ),
@@ -228,10 +255,12 @@ class _LoginPageState extends State<LoginPage> {
                             () => _obscurePassword = !_obscurePassword),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Enter your password';
-                        if (value.length < 6)
+                        }
+                        if (value.length < 6) {
                           return 'Password must be at least 6 characters';
+                        }
                         return null;
                       },
                     ),
