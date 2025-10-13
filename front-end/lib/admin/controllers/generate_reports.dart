@@ -12,7 +12,7 @@ class ReportData {
   final DateTime date;
   final String? userId; // For individual user reports
   final String? userName; // For individual user reports
-  final Map<String, dynamic> details;
+  final dynamic details; // Map or List depending on API
 
   ReportData({
     required this.type,
@@ -88,6 +88,19 @@ class AdminGenerateReportsController extends ChangeNotifier {
   void selectType(String type) {
     selectedType = type;
     notifyListeners();
+    // Auto-refresh data when type changes. For 'individual', only auto-fetch if user is provided.
+    if (type == 'individual') {
+      if (individualUserIdController.text.trim().isNotEmpty) {
+        // Fire and forget; isLoading & state updates handled inside
+        fetchIndividualReport();
+      }
+    } else if (type == 'sales') {
+      fetchSalesReport();
+    } else if (type == 'inventory') {
+      fetchInventoryReport();
+    } else if (type == 'performance') {
+      fetchPerformanceReport();
+    }
   }
 
   List<ReportData> get filteredReports => reports
@@ -104,9 +117,24 @@ class AdminGenerateReportsController extends ChangeNotifier {
           return sum + ((v is num) ? v.toDouble() : 0.0);
         });
       case 'inventory':
+        // Backend returns a List of products for inventory. Sum stockQuantity.
         return filteredReports.fold(0.0, (sum, report) {
-          final v = report.details['totalValue'];
-          return sum + ((v is num) ? v.toDouble() : 0.0);
+          final details = report.details;
+          if (details is List) {
+            final totalQty = details.fold<num>(0, (s, item) {
+              if (item is Map) {
+                final q = item['stockQuantity'];
+                return s + ((q is num) ? q : 0);
+              }
+              return s;
+            });
+            return sum + totalQty.toDouble();
+          }
+          if (details is Map) {
+            final v = details['totalValue'];
+            return sum + ((v is num) ? v.toDouble() : 0.0);
+          }
+          return sum;
         });
       case 'performance':
         return filteredReports.fold(0.0, (sum, report) {

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:role_based_app/admin/screens/warranty_database.dart';
 import 'admin_drawer.dart';
 import '../../constants/colors.dart';
+import 'company_selection.dart';
 import 'generate_reports.dart';
 import 'manage_products.dart';
 import 'manage_users.dart';
+import '../widgets/company_performance_card.dart';
+import '../widgets/admin_appbar_title.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({Key? key}) : super(key: key);
@@ -13,7 +16,8 @@ class AdminDashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        title: const AdminAppBarTitle(pageTitle: 'Dashboard'),
+        centerTitle: false,
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -27,6 +31,8 @@ class AdminDashboardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildWelcomeCard(),
+              const SizedBox(height: 24),
+              const CompanyPerformanceCard(),
               const SizedBox(height: 24),
               _buildQuickActions(context),
             ],
@@ -123,6 +129,19 @@ class AdminDashboardScreen extends StatelessWidget {
               children: [
                 _buildActionButton(
                   context,
+                  icon: Icons.verified_user,
+                  label: 'Add/Select\n Company',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CompanySelectionScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _buildActionButton(
+                  context,
                   icon: Icons.people,
                   label: 'Manage Users',
                   onPressed: () {
@@ -144,19 +163,6 @@ class AdminDashboardScreen extends StatelessWidget {
                       builder: (context) => const ManageProductsScreen(role: "admin"),
                     ),
                   ),
-                ),
-                _buildActionButton(
-                  context,
-                  icon: Icons.verified_user,
-                  label: 'Manage Warranty',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const WarrantyDatabaseScreen(role: "admin"),
-                      ),
-                    );
-                  },
                 ),
                 _buildActionButton(
                   context,
@@ -195,14 +201,12 @@ class AdminDashboardScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Flexible(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
             ),
           ],

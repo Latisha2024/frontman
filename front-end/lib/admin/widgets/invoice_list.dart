@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
 import '../controllers/invoices.dart';
+import '../screens/invoice_detail.dart';
 
 class InvoiceList extends StatefulWidget {
   final AdminInvoicesController controller;
@@ -176,24 +177,33 @@ class _InvoiceListState extends State<InvoiceList> {
   }
 
   Widget buildInvoiceCard(BuildContext context, Invoice invoice) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blueGrey.withOpacity(0.15),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => InvoiceDetailScreen(invoiceId: invoice.id),
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blueGrey.withOpacity(0.15),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // Header Row
             Row(
               children: [
@@ -236,11 +246,10 @@ class _InvoiceListState extends State<InvoiceList> {
             buildDetailRow(Icons.calendar_today, 'Issued', '${invoice.issueDate.day}/${invoice.issueDate.month}/${invoice.issueDate.year}'),
             buildDetailRow(Icons.receipt, 'Reference', invoice.reference),
             const SizedBox(height: 16),
-            // Read-only: no actions
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget buildDetailRow(IconData icon, String label, String value) {

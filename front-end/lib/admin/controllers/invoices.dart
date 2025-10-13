@@ -108,6 +108,7 @@ class AdminInvoicesController extends ChangeNotifier {
   String? error;
   String? successMessage;
   String searchQuery = '';
+  Invoice? lastFetchedInvoice;
 
   // Base URL for API calls - update this to match your backend
   static const String baseUrl = BaseUrl.b_url; // Update with your actual backend URL
@@ -152,6 +153,45 @@ class AdminInvoicesController extends ChangeNotifier {
     invoices = [];
     filteredInvoices = [];
     notifyListeners();
+  }
+
+  // Fetch a single invoice by ID from backend and map to model
+  Future<Invoice?> fetchInvoiceById(String id) async {
+    try {
+      isLoading = true;
+      error = null;
+      successMessage = null;
+      notifyListeners();
+
+      final response = await _dio.get('/admin/invoices/$id');
+      if (response.statusCode == 200) {
+        final data = response.data is Map<String, dynamic>
+            ? response.data as Map<String, dynamic>
+            : Map<String, dynamic>.from(response.data);
+        final inv = _mapBackendInvoiceToModel(data);
+        lastFetchedInvoice = inv;
+        successMessage = 'Invoice loaded';
+        _scheduleAutoHideMessages();
+        notifyListeners();
+        return inv;
+      } else {
+        error = 'Failed to fetch invoice: ${response.statusCode}';
+        _scheduleAutoHideMessages();
+        notifyListeners();
+        return null;
+      }
+    } on DioException catch (e) {
+      _handleDioError(e);
+      return null;
+    } catch (e) {
+      error = 'Unexpected error: $e';
+      _scheduleAutoHideMessages();
+      notifyListeners();
+      return null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   void _scheduleAutoHideMessages() {
