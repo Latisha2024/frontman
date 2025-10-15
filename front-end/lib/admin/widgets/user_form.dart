@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:role_based_app/admin/widgets/user_list.dart';
 import '../controllers/manage_users.dart';
 import '../../constants/colors.dart';
 
 class UserForm extends StatelessWidget {
   final AdminManageUsersController controller;
-  const UserForm({super.key, required this.controller});
+  final VoidCallback onCancel;
+  const UserForm({super.key, required this.controller, required this.onCancel});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,6 @@ class UserForm extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 26),
-
               buildTextField(
                 controller: controller.nameController,
                 label: 'Full Name',
@@ -45,7 +46,6 @@ class UserForm extends StatelessWidget {
                 isRequired: true,
               ),
               const SizedBox(height: 16),
-              
               buildTextField(
                 controller: controller.emailController,
                 label: 'Email Address',
@@ -54,7 +54,6 @@ class UserForm extends StatelessWidget {
                 isRequired: true,
               ),
               const SizedBox(height: 16),
-              
               buildTextField(
                 controller: controller.phoneController,
                 label: 'Phone Number',
@@ -63,7 +62,6 @@ class UserForm extends StatelessWidget {
                 isRequired: true,
               ),
               const SizedBox(height: 16),
-              
               buildTextField(
                 controller: controller.addressController,
                 label: 'Address (Optional)',
@@ -71,17 +69,16 @@ class UserForm extends StatelessWidget {
                 maxLines: 2,
               ),
               const SizedBox(height: 16),
-              
               buildTextField(
                 controller: controller.passwordController,
-                label: controller.isEditMode ? 'Password (leave empty to keep current)' : 'Password',
+                label: controller.isEditMode
+                    ? 'Password (leave empty to keep current)'
+                    : 'Password',
                 icon: Icons.lock,
                 obscureText: true,
                 isRequired: !controller.isEditMode,
               ),
               const SizedBox(height: 16),
-              
-
               buildDropdown(
                 value: controller.selectedUserRole,
                 items: controller.availableRoles.map((role) {
@@ -99,7 +96,6 @@ class UserForm extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 16),
-              
               buildDropdown(
                 value: controller.selectedUserStatus,
                 items: controller.availableStatuses.map((status) {
@@ -117,19 +113,20 @@ class UserForm extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 16),
-              
               const SizedBox(height: 24),
               Row(
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: controller.isLoading ? null : () {
-                        if (controller.isEditMode) {
-                          controller.updateUser();
-                        } else {
-                          controller.addUser();
-                        }
-                      },
+                      onPressed: controller.isLoading
+                          ? null
+                          : () {
+                              if (controller.isEditMode) {
+                                controller.updateUser();
+                              } else {
+                                controller.addUser();
+                              }
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.buttonPrimary,
                         foregroundColor: Colors.white,
@@ -148,15 +145,18 @@ class UserForm extends StatelessWidget {
                               ),
                             )
                           : Text(
-                              controller.isEditMode ? 'Update User' : 'Add User',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              controller.isEditMode
+                                  ? 'Update User'
+                                  : 'Add User',
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => controller.clearForm(),
+                      onPressed: onCancel,
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.textSecondary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -166,7 +166,10 @@ class UserForm extends StatelessWidget {
                       ),
                       child: const Text(
                         'Cancel',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: AppColors.textSecondary),
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textSecondary),
                       ),
                     ),
                   ),
@@ -195,7 +198,6 @@ class UserForm extends StatelessWidget {
                   ),
                 ),
               ],
-              
             ],
           ),
         );
@@ -226,7 +228,8 @@ class UserForm extends StatelessWidget {
           labelText: isRequired ? '$label *' : label,
           prefixIcon: Icon(icon, color: AppColors.secondaryBlue),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           labelStyle: TextStyle(color: AppColors.textSecondary),
         ),
       ),
@@ -253,7 +256,8 @@ class UserForm extends StatelessWidget {
           labelText: label,
           prefixIcon: Icon(icon, color: AppColors.secondaryBlue),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           labelStyle: TextStyle(color: AppColors.textSecondary),
         ),
         dropdownColor: Colors.white,
@@ -261,4 +265,4 @@ class UserForm extends StatelessWidget {
       ),
     );
   }
-} 
+}

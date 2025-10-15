@@ -11,8 +11,8 @@ class WorkerManageStockController {
 
   WorkerManageStockController() {
     dio = Dio(BaseOptions(
-      baseUrl: "http://localhost:5000", // Android emulator
-      // Use http://localhost:5000 for web
+      baseUrl: "http://localhost:5001", // Android emulator
+      // Use http://localhost:5001 for web
       // Or machine IP for physical device
     ));
   }

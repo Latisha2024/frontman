@@ -58,7 +58,7 @@
 //       if (token == null || token.isEmpty) throw Exception('Auth token not found');
 
 //       dio = Dio(BaseOptions(
-//         baseUrl: 'http://localhost:5000', // replace with your backend
+//         baseUrl: 'http://localhost:5001', // replace with your backend
 //         headers: {'Authorization': 'Bearer $token'},
 //       ));
 
@@ -210,7 +210,7 @@ class AttendanceController extends ChangeNotifier {
         throw Exception('Auth token not found');
 
       dio = Dio(BaseOptions(
-        baseUrl: 'http://localhost:5000', // replace with your backend
+        baseUrl: 'http://localhost:5001', // replace with your backend
         headers: {'Authorization': 'Bearer $token'},
       ));
 

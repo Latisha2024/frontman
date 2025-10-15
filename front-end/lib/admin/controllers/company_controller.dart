@@ -25,7 +25,8 @@ class Company {
 
   factory Company.fromJson(Map<String, dynamic> json) {
     bool parseIsActive(dynamic v) {
-      if (v == null) return true; // Default to true when field is missing in list API
+      if (v == null)
+        return true; // Default to true when field is missing in list API
       if (v is bool) return v;
       return v.toString().toLowerCase() == 'true';
     }
@@ -36,14 +37,18 @@ class Company {
       description: (json['description'] ?? '').toString(),
       logoUrl: json['logoUrl']?.toString(),
       isActive: parseIsActive(json['isActive']),
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'].toString()) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'].toString()) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'].toString())
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'].toString())
+          : null,
     );
   }
 }
 
 class CompanyController {
-  static const String baseUrl = '${BaseUrl.b_url}admin/companies';
+  static const String baseUrl = '${BaseUrl.b_url}/admin/companies';
 
   static Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -56,19 +61,26 @@ class CompanyController {
       Uri.parse(baseUrl),
       headers: {
         'Content-Type': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer ' + token,
+        if (token != null && token.isNotEmpty)
+          'Authorization': 'Bearer ' + token,
       },
     );
 
     if (response.statusCode == 200) {
       final dynamic body = json.decode(response.body);
-      final List<dynamic> data = body is List ? body : (body['data'] as List? ?? body as List? ?? []);
-      return data.map((e) => Company.fromJson(e as Map<String, dynamic>)).toList();
+      final List<dynamic> data =
+          body is List ? body : (body['data'] as List? ?? body as List? ?? []);
+      return data
+          .map((e) => Company.fromJson(e as Map<String, dynamic>))
+          .toList();
     }
 
     try {
       final err = json.decode(response.body);
-      final msg = err['message'] ?? err['error'] ?? response.reasonPhrase ?? 'Unknown error';
+      final msg = err['message'] ??
+          err['error'] ??
+          response.reasonPhrase ??
+          'Unknown error';
       throw Exception('Failed to load companies: $msg');
     } catch (_) {
       throw Exception('Failed to load companies: ${response.statusCode}');
@@ -81,16 +93,17 @@ class CompanyController {
       Uri.parse('$baseUrl/current'),
       headers: {
         'Content-Type': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer ' + token,
+        if (token != null && token.isNotEmpty)
+          'Authorization': 'Bearer ' + token,
       },
     );
 
     if (response.statusCode == 200) {
       final dynamic body = json.decode(response.body);
-      final Map<String, dynamic> companyJson =
-          body is Map<String, dynamic> && body['company'] is Map<String, dynamic>
-              ? body['company'] as Map<String, dynamic>
-              : (body as Map<String, dynamic>);
+      final Map<String, dynamic> companyJson = body is Map<String, dynamic> &&
+              body['company'] is Map<String, dynamic>
+          ? body['company'] as Map<String, dynamic>
+          : (body as Map<String, dynamic>);
       return Company.fromJson(companyJson);
     }
 
@@ -104,7 +117,8 @@ class CompanyController {
       Uri.parse('$baseUrl/$companyId/switch'),
       headers: {
         'Content-Type': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer ' + token,
+        if (token != null && token.isNotEmpty)
+          'Authorization': 'Bearer ' + token,
       },
     );
 
@@ -114,7 +128,10 @@ class CompanyController {
 
     try {
       final err = json.decode(response.body);
-      final msg = err['message'] ?? err['error'] ?? response.reasonPhrase ?? 'Unknown error';
+      final msg = err['message'] ??
+          err['error'] ??
+          response.reasonPhrase ??
+          'Unknown error';
       throw Exception('Failed to switch company: $msg');
     } catch (_) {
       throw Exception('Failed to switch company: ${response.statusCode}');
@@ -128,7 +145,8 @@ class CompanyController {
       Uri.parse('$baseUrl/$id'),
       headers: {
         'Content-Type': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer ' + token,
+        if (token != null && token.isNotEmpty)
+          'Authorization': 'Bearer ' + token,
       },
     );
 
@@ -140,7 +158,10 @@ class CompanyController {
 
     try {
       final err = json.decode(response.body);
-      final msg = err['message'] ?? err['error'] ?? response.reasonPhrase ?? 'Unknown error';
+      final msg = err['message'] ??
+          err['error'] ??
+          response.reasonPhrase ??
+          'Unknown error';
       throw Exception('Failed to fetch company: $msg');
     } catch (_) {
       throw Exception('Failed to fetch company: ${response.statusCode}');
@@ -158,7 +179,8 @@ class CompanyController {
       Uri.parse(baseUrl),
       headers: {
         'Content-Type': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer ' + token,
+        if (token != null && token.isNotEmpty)
+          'Authorization': 'Bearer ' + token,
       },
       body: json.encode({
         'name': name.trim(),
@@ -175,7 +197,10 @@ class CompanyController {
 
     try {
       final err = json.decode(response.body);
-      final msg = err['message'] ?? err['error'] ?? response.reasonPhrase ?? 'Unknown error';
+      final msg = err['message'] ??
+          err['error'] ??
+          response.reasonPhrase ??
+          'Unknown error';
       throw Exception('Failed to create company: $msg');
     } catch (_) {
       throw Exception('Failed to create company: ${response.statusCode}');
@@ -201,7 +226,8 @@ class CompanyController {
       Uri.parse('$baseUrl/$id'),
       headers: {
         'Content-Type': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer ' + token,
+        if (token != null && token.isNotEmpty)
+          'Authorization': 'Bearer ' + token,
       },
       body: json.encode(payload),
     );
@@ -214,7 +240,10 @@ class CompanyController {
 
     try {
       final err = json.decode(response.body);
-      final msg = err['message'] ?? err['error'] ?? response.reasonPhrase ?? 'Unknown error';
+      final msg = err['message'] ??
+          err['error'] ??
+          response.reasonPhrase ??
+          'Unknown error';
       throw Exception('Failed to update company: $msg');
     } catch (_) {
       throw Exception('Failed to update company: ${response.statusCode}');
@@ -228,7 +257,8 @@ class CompanyController {
       Uri.parse('$baseUrl/$id'),
       headers: {
         'Content-Type': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer ' + token,
+        if (token != null && token.isNotEmpty)
+          'Authorization': 'Bearer ' + token,
       },
     );
 
@@ -238,7 +268,10 @@ class CompanyController {
 
     try {
       final err = json.decode(response.body);
-      final msg = err['message'] ?? err['error'] ?? response.reasonPhrase ?? 'Unknown error';
+      final msg = err['message'] ??
+          err['error'] ??
+          response.reasonPhrase ??
+          'Unknown error';
       throw Exception('Failed to delete company: $msg');
     } catch (_) {
       throw Exception('Failed to delete company: ${response.statusCode}');
@@ -255,7 +288,8 @@ class CompanyController {
       Uri.parse('$baseUrl/$companyId/assign-admin'),
       headers: {
         'Content-Type': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer ' + token,
+        if (token != null && token.isNotEmpty)
+          'Authorization': 'Bearer ' + token,
       },
       body: json.encode({'adminId': adminId.trim()}),
     );
@@ -266,7 +300,10 @@ class CompanyController {
 
     try {
       final err = json.decode(response.body);
-      final msg = err['message'] ?? err['error'] ?? response.reasonPhrase ?? 'Unknown error';
+      final msg = err['message'] ??
+          err['error'] ??
+          response.reasonPhrase ??
+          'Unknown error';
       throw Exception('Failed to assign admin: $msg');
     } catch (_) {
       throw Exception('Failed to assign admin: ${response.statusCode}');
