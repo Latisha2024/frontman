@@ -460,11 +460,43 @@ const salesExecutiveController = {
   //   }
   // },
 
-   createVisitReport: async (req, res) => {
-    try {
-      const { id } = req.params; // customer ID from route
-      const {
-        visitDate,
+createVisitReport: async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      visitDate,
+      location,
+      peoplePresent,
+      productsDiscussed,
+      reasonForVisit,
+      customerConcerns,
+      investigationStatus,
+      rootCause,
+      correctiveAction,
+      recommendations,
+      feedback,
+      reportCompletedBy
+    } = req.body;
+
+    if (!visitDate || !location) {
+      return res.status(400).json({ message: "Visit date and location are required" });
+    }
+
+    const userId = req.user.id;
+
+    const fieldExec = await prisma.fieldExecutive.findUnique({ where: { userId } });
+    if (!fieldExec) return res.status(403).json({ message: 'Not a Field Executive' });
+
+    const customer = await prisma.customer.findFirst({
+      where: { id, assignedTo: fieldExec.id }
+    });
+    if (!customer) return res.status(404).json({ message: 'Customer not found or not assigned to you' });
+
+    const visit = await prisma.customerVisit.create({
+      data: {
+        customerId: id,
+        executiveId: fieldExec.id,
+        visitDate: new Date(visitDate),
         location,
         peoplePresent,
         productsDiscussed,
@@ -474,52 +506,18 @@ const salesExecutiveController = {
         rootCause,
         correctiveAction,
         recommendations,
-        feedback
-      } = req.body;
-
-      const userId = req.user.id;
-
-      const fieldExec = await prisma.fieldExecutive.findUnique({
-        where: { userId }
-      });
-
-      if (!fieldExec) {
-        return res.status(403).json({ message: 'Not a Field Executive' });
+        feedback,
+        reportCompletedBy: reportCompletedBy || req.user.name
       }
+    });
 
-      const customer = await prisma.customer.findFirst({
-        where: { id, assignedTo: fieldExec.id }
-      });
+    res.status(201).json({ message: 'Visit report created successfully', visit });
+  } catch (err) {
+    console.error('Error in createVisitReport:', err.message);
+    res.status(500).json({ message: 'Failed to create visit report' });
+  }
+},
 
-      if (!customer) {
-        return res.status(404).json({ message: 'Customer not found or not assigned to you' });
-      }
-
-      const visit = await prisma.customerVisit.create({
-        data: {
-          customerId: id,
-          executiveId: fieldExec.id,
-          visitDate: new Date(visitDate),
-          location,
-          peoplePresent,
-          productsDiscussed,
-          reasonForVisit,
-          customerConcerns,
-          investigationStatus,
-          rootCause,
-          correctiveAction,
-          recommendations,
-          feedback,
-          reportCompletedBy: req.user.name
-        }
-      });
-
-      res.status(201).json({ message: 'Visit report created successfully', visit });
-    } catch (err) {
-      console.error('Error in createVisitReport:', err);
-      res.status(500).json({ message: 'Failed to create visit report' });
-    }
-  },
   // getVisitReports: async (req, res) => {
   //   try {
   //     const userId = req.user.id;

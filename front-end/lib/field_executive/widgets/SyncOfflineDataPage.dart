@@ -181,7 +181,7 @@ class SyncOfflineDataPage extends StatefulWidget {
 }
 
 class _SyncOfflineDataPageState extends State<SyncOfflineDataPage> {
-  final Dio dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
+  final Dio dio = Dio(BaseOptions(baseUrl: "http://localhost:5001"));
   List<Map<String, dynamic>> offlineData = [];
   bool loading = false;
   String? message;
@@ -237,6 +237,7 @@ class _SyncOfflineDataPageState extends State<SyncOfflineDataPage> {
         options: Options(headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
         }),
       );
 
@@ -308,8 +309,7 @@ class _SyncOfflineDataPageState extends State<SyncOfflineDataPage> {
                 child: Text(
                   message!,
                   style: TextStyle(
-                    color:
-                        message!.contains("✅") ? Colors.green : Colors.red,
+                    color: message!.contains("✅") ? Colors.green : Colors.red,
                   ),
                 ),
               ),
