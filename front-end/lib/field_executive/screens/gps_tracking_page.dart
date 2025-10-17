@@ -97,9 +97,6 @@ class _GpsTrackingPageState extends State<GpsTrackingPage> {
   void navigateTo(String title) {
     Widget page;
     switch (title) {
-      case "Status":
-        page = const UpdateLocationPage();
-        break;
       case "Tasks":
         page = const AddTaskPage();
         break;
@@ -162,7 +159,7 @@ class _GpsTrackingPageState extends State<GpsTrackingPage> {
               leading: const Icon(Icons.location_on, color: AuthColors.primaryBlue, size: 30),
               title: const Text("Status"),
               subtitle: const Text("View status and latest location data"),
-              onTap: () => navigateTo("Status_page"),
+              onTap: () => navigateTo("location_page"),
             ),
           ),
           const SizedBox(height: 16),
