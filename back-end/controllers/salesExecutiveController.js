@@ -364,37 +364,35 @@ const salesExecutiveController = {
   // },
 
   getCustomerById: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const userId = req.user.id;
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
 
-      const fieldExec = await prisma.fieldExecutive.findUnique({
-        where: { userId }
-      });
+    // Find Field Executive linked to this user
+    const fieldExec = await prisma.fieldExecutive.findUnique({
+      where: { userId }
+    });
 
-      if (!fieldExec) {
-        return res.status(403).json({ message: 'Not a Field Executive' });
-      }
+    if (!fieldExec) return res.status(403).json({ message: '❌ Not a Field Executive' });
 
-      const customer = await prisma.customer.findFirst({
-        where: { id, assignedTo: fieldExec.id },
-        include: {
-          visits: {
-            orderBy: { visitDate: 'desc' }
-          }
+    // Fetch customer if assigned to this field executive
+    const customer = await prisma.customer.findFirst({
+      where: { id, assignedTo: fieldExec.id },
+      include: {
+        visits: {
+          orderBy: { visitDate: 'desc' }
         }
-      });
-
-      if (!customer) {
-        return res.status(404).json({ message: 'Customer not found' });
       }
+    });
 
-      res.json(customer);
-    } catch (err) {
-      console.error('Error in getCustomerById:', err);
-      res.status(500).json({ message: 'Failed to fetch customer' });
-    }
-  },
+    if (!customer) return res.status(404).json({ message: '❌ Customer not found or not assigned to you' });
+
+    res.json(customer);
+  } catch (err) {
+    console.error('Error in getCustomerById:', err);
+    res.status(500).json({ message: '❌ Failed to fetch customer' });
+  }
+},
 
 
   // Customer Visit Reports
@@ -478,20 +476,32 @@ createVisitReport: async (req, res) => {
       reportCompletedBy
     } = req.body;
 
-    if (!visitDate || !location) {
-      return res.status(400).json({ message: "Visit date and location are required" });
+    // Validate required fields
+    if (!id || !visitDate || !location || !reportCompletedBy) {
+      return res.status(400).json({
+        message: "⚠️ Customer ID, Visit Date, Location & Report Completed By are required"
+      });
     }
 
     const userId = req.user.id;
 
-    const fieldExec = await prisma.fieldExecutive.findUnique({ where: { userId } });
-    if (!fieldExec) return res.status(403).json({ message: 'Not a Field Executive' });
+    // Find Field Executive linked to this user
+    const fieldExec = await prisma.fieldExecutive.findUnique({
+      where: { userId }
+    });
 
+    if (!fieldExec) return res.status(403).json({ message: '❌ Not a Field Executive' });
+
+    // Ensure customer exists and is assigned to this Field Executive
     const customer = await prisma.customer.findFirst({
       where: { id, assignedTo: fieldExec.id }
     });
-    if (!customer) return res.status(404).json({ message: 'Customer not found or not assigned to you' });
 
+    if (!customer) return res.status(404).json({
+      message: '❌ Customer not found or not assigned to you'
+    });
+
+    // Create the visit report
     const visit = await prisma.customerVisit.create({
       data: {
         customerId: id,
@@ -511,10 +521,10 @@ createVisitReport: async (req, res) => {
       }
     });
 
-    res.status(201).json({ message: 'Visit report created successfully', visit });
+    res.status(201).json({ message: '✅ Visit report created successfully', visit });
   } catch (err) {
     console.error('Error in createVisitReport:', err.message);
-    res.status(500).json({ message: 'Failed to create visit report' });
+    res.status(500).json({ message: '❌ Failed to create visit report' });
   }
 },
 
@@ -580,6 +590,7 @@ createVisitReport: async (req, res) => {
       res.json(visits);
     } catch (err) {
       console.error('Error in getVisitReports:', err);
+      console.log("error");
       res.status(500).json({ message: 'Failed to fetch visit reports' });
     }
   },

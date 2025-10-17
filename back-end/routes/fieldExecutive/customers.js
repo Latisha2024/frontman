@@ -225,11 +225,6 @@ router.get('/visits', salesExecutiveController.getVisitReports);
  *       500:
  *         description: Server error
  */
-router.get(':id/', salesExecutiveController.getCustomerById);
-
-
-
-
-
+router.get('/:id', salesExecutiveController.getCustomerById);
 
 module.exports = router;
