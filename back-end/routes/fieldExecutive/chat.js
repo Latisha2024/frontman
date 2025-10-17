@@ -1,16 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const authorizeRoles = require('../../middlewares/roleCheck');
 const authenticate = require('../../middlewares/auth');
-const chatController = require('../../controllers/chatController');
+const authorizeRoles = require('../../middlewares/roleCheck');
+const salesExecutiveController = require('../../controllers/salesExecutiveController');
 
 /**
  * @swagger
  * tags:
  *   name: Field Executive Chat
- *   description: Chat functionality for Field Executives
+ *   description: "Chat functionality for Field Executives"
  */
 
+// Apply authentication and role-based access to all chat routes
 router.use(authenticate);
 router.use(authorizeRoles('FieldExecutive'));
 
@@ -18,25 +19,33 @@ router.use(authorizeRoles('FieldExecutive'));
  * @swagger
  * /fieldExecutive/chat/messages:
  *   get:
- *     summary: Get all chat messages for the field executive
+ *     summary: "Retrieve all chat messages for the logged-in Field Executive"
  *     tags: [Field Executive Chat]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: receiverId
+ *         in: query
+ *         schema:
+ *           type: string
+ *         description: "Optional receiver ID to filter messages by a specific user"
  *     responses:
  *       200:
- *         description: List of messages
+ *         description: "Successfully retrieved messages"
  *       401:
- *         description: Unauthorized
+ *         description: "Unauthorized access"
+ *       403:
+ *         description: "Not a Field Executive"
  *       500:
- *         description: Server error
+ *         description: "Server error"
  */
-router.get('/messages', chatController.getMessages);
+router.get('/messages', salesExecutiveController.getMessages);
 
 /**
  * @swagger
  * /fieldExecutive/chat/send:
  *   post:
- *     summary: Send a new chat message
+ *     summary: "Send a new chat message"
  *     tags: [Field Executive Chat]
  *     security:
  *       - bearerAuth: []
@@ -51,20 +60,22 @@ router.get('/messages', chatController.getMessages);
  *             properties:
  *               content:
  *                 type: string
- *                 description: Message content
- *               recipientId:
+ *                 description: "Message text"
+ *               receiverId:
  *                 type: string
- *                 description: ID of the recipient (optional for broadcast)
+ *                 description: "Optional recipient ID (for direct messages)"
  *     responses:
  *       201:
- *         description: Message sent successfully
+ *         description: "Message sent successfully"
  *       400:
- *         description: Invalid input data
+ *         description: "Invalid or missing fields"
  *       401:
- *         description: Unauthorized
+ *         description: "Unauthorized"
+ *       403:
+ *         description: "Not a Field Executive"
  *       500:
- *         description: Server error
+ *         description: "Internal server error"
  */
-router.post('/send', chatController.sendMessage);
+router.post('/send', salesExecutiveController.sendMessage);
 
 module.exports = router;

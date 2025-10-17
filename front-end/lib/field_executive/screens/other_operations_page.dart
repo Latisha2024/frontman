@@ -87,7 +87,7 @@ class OtherOperationsPage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const SyncOfflinePage(),)
+                        MaterialPageRoute(builder: (_) => const SyncOfflineDataPage(),)
                       );
                     },
                   ),

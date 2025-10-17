@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:role_based_app/authpage/config/app_colors.dart';
+import 'package:role_based_app/field_executive/widgets/location.dart';
 import '../../constants/colors.dart';
 
 // Import the separate navigation pages
-import '../widgets/status_page.dart';
+//import '../widgets/location.dart';
 import '../widgets/tasks_page.dart';
 import '../widgets/chat_page.dart';
 import '../widgets/camera_page.dart';
@@ -97,10 +98,10 @@ class _GpsTrackingPageState extends State<GpsTrackingPage> {
     Widget page;
     switch (title) {
       case "Status":
-        page = const StatusPage();
+        page = const UpdateLocationPage();
         break;
       case "Tasks":
-        page = const TasksPage();
+        page = const AddTaskPage();
         break;
       case "Chat":
         page = const ChatPage();

@@ -1,37 +1,40 @@
 const express = require('express');
 const router = express.Router();
-
 const authenticate = require('../../middlewares/auth');
 const authorizeRoles = require('../../middlewares/roleCheck');
 const taskController = require('../../controllers/taskController');
+
+router.use(authenticate);
 
 /**
  * @swagger
  * tags:
  *   name: Tasks
- *   description: Field Executive Task Management
+ *   description: Task management for Field Executives
  */
-
-router.use(authenticate);
-router.use(authorizeRoles('FieldExecutive',"SalesManager"));
 
 /**
  * @swagger
  * /field-executive/tasks:
  *   get:
- *     summary: Get all tasks for the logged-in Field Executive
+ *     summary: Get tasks
  *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: executiveUserId
+ *         schema:
+ *           type: integer
+ *         required: false
+ *         description: "For Admin/Manager: fetch tasks of a specific Field Executive"
  *     responses:
  *       200:
  *         description: List of tasks
- *       403:
- *         description: Not authorized as Field Executive
  *       500:
- *         description: Server error
+ *         description: Failed to fetch tasks
  */
-router.get('/', taskController.getTasks);
+router.get('/', authorizeRoles('FieldExecutive'), taskController.getTasks);
 
 /**
  * @swagger
@@ -42,6 +45,7 @@ router.get('/', taskController.getTasks);
  *     security:
  *       - bearerAuth: []
  *     requestBody:
+ *       description: "Task details"
  *       required: true
  *       content:
  *         application/json:
@@ -50,43 +54,44 @@ router.get('/', taskController.getTasks);
  *             properties:
  *               title:
  *                 type: string
- *                 example: "Visit Client X"
  *               description:
  *                 type: string
- *                 example: "Meet with Client X to discuss new products"
  *               status:
  *                 type: string
  *                 enum: [Pending, InProgress, Completed]
- *                 example: "Pending"
  *               dueDate:
  *                 type: string
- *                 format: date-time
- *                 example: "2023-12-31T12:00:00Z"
+ *                 format: date
+ *               executiveUserId:
+ *                 type: integer
+ *                 description: "Only Admin/Manager can assign task to a specific executive"
  *     responses:
  *       201:
  *         description: Task created
- *       403:
- *         description: Not authorized as Field Executive
+ *       400:
+ *         description: Invalid executiveUserId
  *       500:
- *         description: Server error
+ *         description: Failed to create task
  */
-router.post('/', taskController.createTask);
+router.post('/', authorizeRoles('FieldExecutive'), taskController.createTask);
 
 /**
  * @swagger
  * /field-executive/tasks/{id}:
  *   put:
- *     summary: Update a task
+ *     summary: Update task details
  *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
- *         required: true
  *         schema:
- *           type: string
+ *           type: integer
+ *         required: true
+ *         description: "Task ID"
  *     requestBody:
+ *       description: "Task data to update"
  *       required: true
  *       content:
  *         application/json:
@@ -99,34 +104,34 @@ router.post('/', taskController.createTask);
  *                 type: string
  *               dueDate:
  *                 type: string
- *                 format: date-time
+ *                 format: date
  *     responses:
  *       200:
  *         description: Task updated
- *       403:
- *         description: Not authorized as Field Executive
  *       404:
  *         description: Task not found
  *       500:
- *         description: Server error
+ *         description: Failed to update task
  */
-router.put('/:id', taskController.updateTask);
+router.put('/:id', authorizeRoles('FieldExecutive'), taskController.updateTask);
 
 /**
  * @swagger
  * /field-executive/tasks/{id}/status:
  *   patch:
- *     summary: Update task status
+ *     summary: Update task status only
  *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
- *         required: true
  *         schema:
- *           type: string
+ *           type: integer
+ *         required: true
+ *         description: "Task ID"
  *     requestBody:
+ *       description: "New task status"
  *       required: true
  *       content:
  *         application/json:
@@ -139,14 +144,12 @@ router.put('/:id', taskController.updateTask);
  *     responses:
  *       200:
  *         description: Task status updated
- *       403:
- *         description: Not authorized as Field Executive
  *       404:
  *         description: Task not found
  *       500:
- *         description: Server error
+ *         description: Failed to update status
  */
-router.patch('/:id/status', taskController.updateTaskStatus);
+router.patch('/:id/status', authorizeRoles('FieldExecutive'), taskController.updateTaskStatus);
 
 /**
  * @swagger
@@ -159,19 +162,18 @@ router.patch('/:id/status', taskController.updateTaskStatus);
  *     parameters:
  *       - in: path
  *         name: id
- *         required: true
  *         schema:
- *           type: string
+ *           type: integer
+ *         required: true
+ *         description: "Task ID"
  *     responses:
  *       200:
  *         description: Task deleted
- *       403:
- *         description: Not authorized as Field Executive
  *       404:
  *         description: Task not found
  *       500:
- *         description: Server error
+ *         description: Failed to delete task
  */
-router.delete('/:id', taskController.deleteTask);
+router.delete('/:id', authorizeRoles('FieldExecutive'), taskController.deleteTask);
 
 module.exports = router;

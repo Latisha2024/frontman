@@ -140,7 +140,7 @@ class _CustomerVisitsPageState extends State<CustomerVisitsPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const AssignedCustomersPage()),
+                        MaterialPageRoute(builder: (_) => const FieldExecutiveCustomersPage()),
                       );
                     },
                   ),
@@ -151,7 +151,7 @@ class _CustomerVisitsPageState extends State<CustomerVisitsPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const CustomerVisitReportFormPage()),
+                        MaterialPageRoute(builder: (_) => const CustomerVisitPage()),
                       );
                     },
                   ),
@@ -162,7 +162,7 @@ class _CustomerVisitsPageState extends State<CustomerVisitsPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const SubmitDvrPage()),
+                        MaterialPageRoute(builder: (_) => const DVRPage()),
                       );
                     },
                   ),

@@ -80,7 +80,7 @@ class OrderManagementPage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const PlaceOrderPage()),
+                        MaterialPageRoute(builder: (_) => const FieldExecutivePlaceOrderPage()),
                       );
                     },
                   ),
@@ -91,7 +91,7 @@ class OrderManagementPage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const GetProductDetailsPage()),
+                        MaterialPageRoute(builder: (_) => const MyOrdersPage()),
                       );
                     },
                   ),
@@ -102,7 +102,7 @@ class OrderManagementPage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const CheckStockPage()),
+                        MaterialPageRoute(builder: (_) => const StockPage()),
                       );
                     },
                   ),

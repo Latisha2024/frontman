@@ -4,6 +4,10 @@ const cameraController = {
   // POST /fieldExecutive/camera/upload
   uploadImage: async (req, res) => {
     try {
+      console.log("📸 Incoming upload request:");
+      console.log("Body:", req.body);
+      console.log("File:", req.file);
+
       const { latitude, longitude, description } = req.body;
       const image = req.file; // From multer
       const userId = req.user.id; // From auth middleware
