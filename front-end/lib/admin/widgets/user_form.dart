@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:role_based_app/admin/widgets/user_list.dart';
 import '../controllers/manage_users.dart';
 import '../../constants/colors.dart';
 
 class UserForm extends StatelessWidget {
   final AdminManageUsersController controller;
-  const UserForm({super.key, required this.controller});
+  final VoidCallback onCancel;
+  const UserForm({super.key, required this.controller, required this.onCancel});
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +158,7 @@ class UserForm extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => controller.clearForm(),
+                      onPressed: onCancel,
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.textSecondary,
                         padding: const EdgeInsets.symmetric(vertical: 16),

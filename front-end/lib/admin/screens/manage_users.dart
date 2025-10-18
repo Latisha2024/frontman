@@ -187,7 +187,15 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
   Widget buildFormView() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
-      child: UserForm(controller: controller),
+      child: UserForm(
+        controller: controller,
+        onCancel: () {
+          setState(() {
+            showForm = false;
+            controller.clearForm();
+          });
+        },
+      ),
 
     );
   }
