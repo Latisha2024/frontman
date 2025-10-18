@@ -34,7 +34,7 @@ router.use(authenticate);
  *       500:
  *         description: Failed to fetch tasks
  */
-router.get('/', authorizeRoles('FieldExecutive'), taskController.getTasks);
+router.get('/', authorizeRoles('FieldExecutive', 'SalesManager', 'Admin'), taskController.getTasks);
 
 /**
  * @swagger
@@ -73,7 +73,7 @@ router.get('/', authorizeRoles('FieldExecutive'), taskController.getTasks);
  *       500:
  *         description: Failed to create task
  */
-router.post('/', authorizeRoles('FieldExecutive'), taskController.createTask);
+router.post('/', authorizeRoles('FieldExecutive', 'SalesManager', 'Admin'), taskController.createTask);
 
 /**
  * @swagger
@@ -113,7 +113,7 @@ router.post('/', authorizeRoles('FieldExecutive'), taskController.createTask);
  *       500:
  *         description: Failed to update task
  */
-router.put('/:id', authorizeRoles('FieldExecutive'), taskController.updateTask);
+router.put('/:id', authorizeRoles('FieldExecutive', 'SalesManager', 'Admin'), taskController.updateTask);
 
 /**
  * @swagger
@@ -149,7 +149,7 @@ router.put('/:id', authorizeRoles('FieldExecutive'), taskController.updateTask);
  *       500:
  *         description: Failed to update status
  */
-router.patch('/:id/status', authorizeRoles('FieldExecutive'), taskController.updateTaskStatus);
+router.patch('/:id/status', authorizeRoles('FieldExecutive', 'SalesManager', 'Admin'), taskController.updateTaskStatus);
 
 /**
  * @swagger
@@ -174,6 +174,6 @@ router.patch('/:id/status', authorizeRoles('FieldExecutive'), taskController.upd
  *       500:
  *         description: Failed to delete task
  */
-router.delete('/:id', authorizeRoles('FieldExecutive'), taskController.deleteTask);
+router.delete('/:id', authorizeRoles('FieldExecutive', 'SalesManager', 'Admin'), taskController.deleteTask);
 
 module.exports = router;

@@ -6,7 +6,7 @@ import '../url.dart';
 
 class StockController {
   // BaseUrl.b_url already ends with a trailing slash; avoid double slashes in the final URL
-  static const String baseUrl = '${BaseUrl.b_url}admin/stock';
+  static const String baseUrl = '${BaseUrl.b_url}/admin/stock';
 
   // GET /admin/stock - Get all stock entries
   static Future<List<Map<String, dynamic>>> getAllStock() async {

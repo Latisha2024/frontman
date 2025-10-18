@@ -259,6 +259,9 @@ model DVR {
   executiveId    String   @db.ObjectId
   feedback       String
   location       String
+  status         String   @default("Pending")
+  approvedBy     String?  @db.ObjectId
+  approvedAt     DateTime?
 
   executive      FieldExecutive @relation(fields: [executiveId], references: [id])
 }
