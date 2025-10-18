@@ -14,7 +14,7 @@ class _CartPageState extends State<CartPage> {
   final TextEditingController productIdController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController itemIdController = TextEditingController();
-  final dio = Dio(BaseOptions(baseUrl: "https://frontman-backend-2.onrender.com/"));
+  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
 
   bool loading = false;
   String? message;

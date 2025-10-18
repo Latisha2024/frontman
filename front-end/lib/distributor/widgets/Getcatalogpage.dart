@@ -13,7 +13,7 @@ class GetCatalogPage extends StatefulWidget {
 }
 
 class _GetCatalogPageState extends State<GetCatalogPage> {
-  final dio = Dio(BaseOptions(baseUrl: "https://frontman-backend-2.onrender.com/"));
+  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
 
   List<Map<String, dynamic>> catalogItems = [];
   bool loading = false;

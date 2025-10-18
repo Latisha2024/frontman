@@ -12,7 +12,7 @@ class StockManagementScreen extends StatefulWidget {
 
 class _StockManagementScreenState extends State<StockManagementScreen>
     with SingleTickerProviderStateMixin {
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5000"));
+  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
 
   bool loading = false;
   String? message;
