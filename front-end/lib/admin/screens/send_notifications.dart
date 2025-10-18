@@ -202,7 +202,6 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
   Widget _buildManageNotificationsTab() {
     return Column(
       children: [
-        // Fixed filters/search/actions
         Container(
           padding: const EdgeInsets.all(16),
           color: Colors.white,
@@ -268,7 +267,6 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
             ],
           ),
         ),
-        // Scrollable content with banners + list
         Expanded(
           child: controller.isLoading
               ? const Center(child: CircularProgressIndicator())

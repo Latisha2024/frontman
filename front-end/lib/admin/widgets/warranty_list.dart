@@ -75,7 +75,6 @@ class _WarrantyListState extends State<WarrantyList> {
     final controller = widget.controller;
     return Column(
       children: [
-        // Search Bar
         TextField(
           onChanged: controller.searchWarranties,
           decoration: InputDecoration(
@@ -97,7 +96,6 @@ class _WarrantyListState extends State<WarrantyList> {
           ),
         ),
         const SizedBox(height: 12),
-        // Find by ID row
         Row(
           children: [
             Expanded(
@@ -138,7 +136,6 @@ class _WarrantyListState extends State<WarrantyList> {
           ],
         ),
         const SizedBox(height: 16),
-        // List with loading state
         Expanded(
           child: controller.isLoading
               ? const Center(

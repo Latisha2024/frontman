@@ -34,7 +34,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
       builder: (context, _) {
         return Column(
           children: [
-            // Tab Bar
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -60,7 +59,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
               ),
             ),
             const SizedBox(height: 16),
-            // Tab Views
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -126,7 +124,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
                 ],
               ),
             ),
-          // User ID Field
           _buildTextField(
             controller: widget.controller.userIdController,
             label: 'User Name',
@@ -141,7 +138,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
             ),
           ),
           const SizedBox(height: 16),
-          // Show user's current points
           if (widget.controller.userTotalPoints != null)
             Container(
               padding: const EdgeInsets.all(16),
@@ -166,7 +162,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
               ),
             ),
           const SizedBox(height: 16),
-          // Points to adjust
           _buildTextField(
             controller: widget.controller.pointsController,
             label: 'Points to Adjust (+ or -)',
@@ -175,7 +170,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
             hintText: 'Enter positive or negative number',
           ),
           const SizedBox(height: 16),
-          // Reason
           _buildTextField(
             controller: widget.controller.reasonController,
             label: 'Reason for Adjustment',
@@ -183,7 +177,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
             maxLines: 3,
           ),
           const SizedBox(height: 24),
-          // Adjust Button
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryBlue,
@@ -215,14 +208,12 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // User ID Field
           _buildTextField(
             controller: widget.controller.userIdController,
             label: 'User Name',
             icon: Icons.person,
           ),
           const SizedBox(height: 16),
-          // Points to convert
           _buildTextField(
             controller: widget.controller.pointsController,
             label: 'Points to Convert',
@@ -230,7 +221,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 16),
-          // Conversion rate
           _buildTextField(
             controller: widget.controller.conversionRateController,
             label: 'Conversion Rate (e.g., 0.01)',
@@ -239,7 +229,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
             hintText: 'Enter positive decimal rate',
           ),
           const SizedBox(height: 16),
-          // Reason (optional)
           _buildTextField(
             controller: widget.controller.reasonController,
             label: 'Reason (optional)',
@@ -247,7 +236,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
             maxLines: 2,
           ),
           const SizedBox(height: 24),
-          // Convert Button
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.buttonPrimary,
@@ -270,7 +258,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
                 : const Text('Convert to Cash', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 24),
-          // Conversion Result
           if (widget.controller.convertedAmount != null)
             Container(
               padding: const EdgeInsets.all(16),
@@ -306,7 +293,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
   Widget _buildTransactionsTab() {
     return Column(
       children: [
-        // Search and type filter
         Row(
           children: [
             Expanded(
@@ -335,7 +321,6 @@ class _ConvertPointsToCashFormState extends State<ConvertPointsToCashForm> with 
           ],
         ),
         const SizedBox(height: 16),
-        // Transactions List
         Expanded(
           child: widget.controller.isLoading
               ? const Center(child: CircularProgressIndicator())

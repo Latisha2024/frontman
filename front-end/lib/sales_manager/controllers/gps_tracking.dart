@@ -5,10 +5,6 @@ import '../../admin/user_lookup.dart';
 import '../../admin/url.dart';
 
 class SalesManagerGpsTrackingController extends ChangeNotifier {
-  // Backend base URL (align with other controllers)
-  // Android Emulator: http://10.0.2.2:5000
-  // iOS Simulator/Web: http://localhost:5000
-  // Physical device: http://<your-PC-LAN-IP>:5000
   static const String baseUrl = BaseUrl.b_url;
 
   final Dio _dio = Dio(BaseOptions(
@@ -20,7 +16,6 @@ class SalesManagerGpsTrackingController extends ChangeNotifier {
     },
   ));
 
-  // Convenience: accept a user name, resolve to userId, then fetch
   Future<void> fetchLocationsByName(String userName) async {
     final resolved = await UserLookup.resolveUserIdByName(userName.trim());
     if (resolved == null) {
@@ -31,7 +26,6 @@ class SalesManagerGpsTrackingController extends ChangeNotifier {
     await fetchLocations(resolved);
   }
 
-  // List of location history entries for a selected user
   List<Map<String, dynamic>> locations = [];
   bool isLoading = false;
   String? error;
@@ -44,11 +38,9 @@ class SalesManagerGpsTrackingController extends ChangeNotifier {
         _dio.options.headers['Authorization'] = 'Bearer $token';
       }
     } catch (_) {
-      // Ignore token errors; proceed without auth header
     }
   }
 
-  // GET /admin/location?userId=... - fetch location history for a specific user
   Future<void> fetchLocations(String userId) async {
     try {
       isLoading = true;
@@ -58,7 +50,6 @@ class SalesManagerGpsTrackingController extends ChangeNotifier {
       await _attachAuthHeader();
 
       if (userId.trim().isEmpty) {
-        // No user selected yet; do not treat as an error
         isLoading = false;
         notifyListeners();
         return;
@@ -70,7 +61,6 @@ class SalesManagerGpsTrackingController extends ChangeNotifier {
       );
       final data = response.data;
 
-      // Backend returns array of { id, userId, latitude, longitude, timeStamp }
       if (data is List) {
         locations = data.map<Map<String, dynamic>>((item) {
           final map = item as Map<String, dynamic>;

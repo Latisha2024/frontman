@@ -38,19 +38,16 @@ class _CompanySelectionScreenState extends State<CompanySelectionScreen> {
       });
       final data = await CompanyController.getCompanies();
 
-      // Try to ensure we also show the current or last selected company even if inactive
       Company? current;
       try {
         current = await CompanyController.getCurrentCompany();
       } catch (_) {}
 
       final merged = [...data];
-      // Merge current company if not in list
       if (current != null && !merged.any((c) => c.id == current!.id)) {
         merged.insert(0, current);
       }
 
-      // Also merge last selected company if available and not in list
       final lastSelected = CompanySelection.selectedCompany;
       if (lastSelected != null && !merged.any((c) => c.id == lastSelected.id)) {
         try {
@@ -82,7 +79,6 @@ class _CompanySelectionScreenState extends State<CompanySelectionScreen> {
         currentCompany = c;
       });
     } catch (e) {
-      // It's fine if current company is not set
     }
   }
 
@@ -473,14 +469,12 @@ class _CompanySelectionScreenState extends State<CompanySelectionScreen> {
   }
 
   Future<void> _showCreateOrEditDialog({Company? existing}) async {
-    // Initialize with provided values
     final nameController = TextEditingController(text: existing?.name ?? '');
     final descController = TextEditingController(text: existing?.description ?? '');
     final logoController = TextEditingController(text: existing?.logoUrl ?? '');
     final formKey = GlobalKey<FormState>();
     bool isActive = existing?.isActive ?? true;
 
-    // If editing, try to hydrate from backend to avoid stale values (especially isActive)
     if (existing != null) {
       try {
         final latest = await CompanyController.getCompanyById(existing.id);
@@ -489,7 +483,6 @@ class _CompanySelectionScreenState extends State<CompanySelectionScreen> {
         logoController.text = latest.logoUrl ?? '';
         isActive = latest.isActive;
       } catch (_) {
-        // fallback to existing values if fetch fails
       }
     }
 
@@ -726,7 +719,6 @@ class _CompanySelectionScreenState extends State<CompanySelectionScreen> {
   }
 
   Future<void> _showViewDialog(Company company) async {
-    // Optionally fetch latest details by ID
     Company detailed = company;
     try {
       detailed = await CompanyController.getCompanyById(company.id);

@@ -82,7 +82,6 @@ class AdminAssignIncentiveController extends ChangeNotifier {
     });
   }
 
-  // GET /admin/incentives - Fetch all incentives
   Future<void> fetchAllIncentives() async {
     try {
       isLoading = true;
@@ -112,13 +111,11 @@ class AdminAssignIncentiveController extends ChangeNotifier {
     }
   }
 
-  // Filter incentives by user (removed backend filter; now a no-op that resets to full list)
   Future<void> filterIncentivesByUser(String userId) async {
     filteredIncentives = List.from(incentives);
     notifyListeners();
   }
 
-  // POST /admin/incentives - Assign new incentive
   Future<void> assignIncentive() async {
     final userInput = userIdController.text.trim();
     final points = int.tryParse(pointsController.text.trim());
@@ -136,7 +133,6 @@ class AdminAssignIncentiveController extends ChangeNotifier {
       error = null;
       notifyListeners();
 
-      // Resolve username to userId if needed
       String resolvedUserId = userInput;
       final lookedUp = await UserLookup.resolveUserIdByName(resolvedUserId);
       if (lookedUp != null) {
@@ -152,7 +148,7 @@ class AdminAssignIncentiveController extends ChangeNotifier {
       if (response.statusCode == 201) {
         successMessage = 'Incentive assigned successfully!';
         clearForm();
-        await fetchAllIncentives(); // Refresh the list
+        await fetchAllIncentives();
         _scheduleAutoHideMessages();
       }
     } on DioException catch (e) {

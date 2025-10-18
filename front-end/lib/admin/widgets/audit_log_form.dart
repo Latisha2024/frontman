@@ -31,7 +31,7 @@ class _AuditLogFormState extends State<AuditLogForm> {
         resource: _resourceController.text,
         details: _detailsController.text.isNotEmpty ? _detailsController.text : null,
       );
-      Navigator.of(context).pop(); // Close the dialog on submit
+      Navigator.of(context).pop();
     }
   }
 

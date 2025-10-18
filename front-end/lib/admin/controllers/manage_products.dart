@@ -75,25 +75,20 @@ class AdminManageProductsController extends ChangeNotifier {
   String? successMessage;
   late final Dio _dio;
 
-  // Search and filter
   String searchQuery = '';
 
-  // Form controllers
   final nameController = TextEditingController();
-  // Removed description, backend does not use it
   final priceController = TextEditingController();
   final stockController = TextEditingController();
   final warrantyController = TextEditingController();
 
-  // Edit mode
   Product? _editingProduct;
   bool _isEditMode = false;
 
-  // Getters
+
   Product? get editingProduct => _editingProduct;
   bool get isEditMode => _isEditMode;
 
-  // Base URL - configure based on your backend
   static const String baseUrl = BaseUrl.b_url;
 
   AdminManageProductsController() {
@@ -105,7 +100,6 @@ class AdminManageProductsController extends ChangeNotifier {
         'Content-Type': 'application/json',
       },
     ));
-    // Attach Authorization header for every request if token exists
     _dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) async {
       try {
         final prefs = await SharedPreferences.getInstance();
@@ -114,7 +108,6 @@ class AdminManageProductsController extends ChangeNotifier {
           options.headers['Authorization'] = 'Bearer ' + token;
         }
       } catch (_) {
-        // If SharedPreferences fails, proceed without auth header
       }
       return handler.next(options);
     }));
@@ -132,7 +125,6 @@ class AdminManageProductsController extends ChangeNotifier {
   }
 
 
-  // GET /admin/products
   Future<void> fetchProducts() async {
     try {
       isLoading = true;
@@ -175,7 +167,6 @@ class AdminManageProductsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // POST /admin/products/create
   Future<void> addProduct() async {
     if (!validateForm()) return;
 
@@ -199,7 +190,7 @@ class AdminManageProductsController extends ChangeNotifier {
       final responseData = response.data;
       successMessage = responseData['message'] ?? 'Product created successfully';
       clearForm();
-      await fetchProducts(); // Refresh the list
+      await fetchProducts();
       _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
@@ -229,7 +220,6 @@ class AdminManageProductsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // PUT /admin/products/:id
   Future<void> updateProduct() async {
     if (_editingProduct == null) return;
     if (!validateForm()) return;
@@ -254,7 +244,7 @@ class AdminManageProductsController extends ChangeNotifier {
       final responseData = response.data;
       successMessage = responseData['message'] ?? 'Product updated successfully';
       clearForm();
-      await fetchProducts(); // Refresh the list
+      await fetchProducts();
       _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
@@ -273,7 +263,6 @@ class AdminManageProductsController extends ChangeNotifier {
     }
   }
 
-  // DELETE /admin/products/:id
   Future<void> deleteProduct(String productId) async {
     try {
       isLoading = true;
@@ -284,7 +273,7 @@ class AdminManageProductsController extends ChangeNotifier {
 
       final responseData = response.data;
       successMessage = responseData['message'] ?? 'Product deleted successfully';
-      await fetchProducts(); // Refresh the list
+      await fetchProducts();
       _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
@@ -303,7 +292,6 @@ class AdminManageProductsController extends ChangeNotifier {
     }
   }
 
-  // GET /admin/products/:id
   Future<Product?> getProductById(String productId) async {
     try {
       final response = await _dio.get('/admin/products/$productId');
@@ -325,7 +313,6 @@ class AdminManageProductsController extends ChangeNotifier {
     }
   }
 
-  // POST /admin/products/import
   Future<void> importProducts() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -346,10 +333,9 @@ class AdminManageProductsController extends ChangeNotifier {
         final response = await _dio.post('/admin/products/import', data: formData);
 
         successMessage = response.data['message'] ?? 'Products imported successfully';
-        await fetchProducts(); // Refresh the product list
+        await fetchProducts();
         _scheduleAutoHideMessages();
       } else {
-        // User canceled the picker
         successMessage = 'File import canceled.';
         _scheduleAutoHideMessages();
       }
@@ -365,18 +351,15 @@ class AdminManageProductsController extends ChangeNotifier {
     }
   }
 
-  // GET /admin/products/export
   Future<void> exportProducts() async {
     try {
       isLoading = true;
       notifyListeners();
       final response = await _dio.get(
         '/admin/products/export',
-        options: Options(responseType: ResponseType.bytes), // Important for file downloads
+        options: Options(responseType: ResponseType.bytes),
       );
 
-      // In a real app, you'd use a package like 'path_provider' and 'open_file'
-      // to save and open the file. This is a simplified placeholder.
       successMessage = 'Products exported successfully. Check your downloads folder.';
       _scheduleAutoHideMessages();
 
@@ -438,7 +421,6 @@ class AdminManageProductsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // GET /admin/search/products - Search products with query (API)
   Future<List<Product>> searchProductsApi(String query, {double? minPrice, double? maxPrice, int? minStock}) async {
     try {
       isLoading = true;

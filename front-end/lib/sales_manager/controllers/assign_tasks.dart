@@ -35,18 +35,14 @@ class SalesManagerAssignTasksController extends ChangeNotifier {
     }
   }
 
-  /// Posts a task to backend using executive name. Resolves name -> userId, then
-  /// calls /fieldExecutive/task with { title, description, dueDate, executiveUserId }.
   Future<void> submitTaskByExecutiveName({
     required String executiveName,
     required String title,
     required String description,
     required DateTime dueDate,
   }) async {
-    // Resolve executive name -> userId
     final userId = await UserLookup.resolveUserIdByName(executiveName);
     if (userId == null) {
-      // Friendly error for UI
       throw Exception('The given user name was not a Field Executive');
     }
 
@@ -63,7 +59,6 @@ class SalesManagerAssignTasksController extends ChangeNotifier {
     try {
       final resp = await dio.post('/fieldExecutive/task', data: body);
       if (resp.statusCode != 201) {
-        // Non-201 -> generic failure with status code
         throw Exception('Failed to create task');
       }
     } on DioException catch (e) {
@@ -74,11 +69,9 @@ class SalesManagerAssignTasksController extends ChangeNotifier {
       if (status == 400 && (serverMsg?.contains('Invalid executiveUserId') ?? false)) {
         throw Exception('The given user name was not a Field Executive');
       }
-      // Re-throw a concise message
       throw Exception(serverMsg ?? 'Failed to create task');
     }
 
-    // Reflect change locally for UX continuity
     addTask(
       executiveId: userId,
       title: title,
@@ -86,7 +79,6 @@ class SalesManagerAssignTasksController extends ChangeNotifier {
       dueDate: dueDate,
     );
   }
-    /// Loads all tasks (Sales Manager/Admin view) using GET /fieldExecutive/task with no filters
   Future<void> loadAllTasks() async {
     final dio = _buildDio();
     await _attachAuth(dio);
@@ -116,7 +108,6 @@ class SalesManagerAssignTasksController extends ChangeNotifier {
     }
   }
 
-    /// Updates a task on the backend and reflects it locally.
   Future<void> updateTaskRemote({
     required String taskId,
     required String title,
@@ -149,7 +140,6 @@ class SalesManagerAssignTasksController extends ChangeNotifier {
     }
   }
 
-  /// Deletes a task on the backend and removes it locally.
   Future<void> deleteTaskRemote(String taskId) async {
     final dio = _buildDio();
     await _attachAuth(dio);
@@ -162,8 +152,6 @@ class SalesManagerAssignTasksController extends ChangeNotifier {
     }
   }
 
-  /// Loads tasks for a given executive (looked up by display name) using
-  /// GET /fieldExecutive/task?executiveUserId=<resolvedUserId>
   Future<void> loadTasksByExecutiveName(String executiveName) async {
     final userId = await UserLookup.resolveUserIdByName(executiveName);
     if (userId == null) {

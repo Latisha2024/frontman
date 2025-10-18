@@ -65,7 +65,6 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
                       child: ListView(
                         padding: const EdgeInsets.all(16),
                         children: [
-                          // Summary
                           _section(
                             'Summary',
                             Column(
@@ -80,7 +79,6 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          // Line Items
                           _section(
                             'Items',
                             Column(
@@ -117,7 +115,6 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          // Totals
                           _section(
                             'Totals',
                             Column(

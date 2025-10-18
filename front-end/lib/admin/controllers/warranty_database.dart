@@ -49,19 +49,14 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
   String searchQuery = '';
   final productController = TextEditingController();
 
-  // Base URL for API calls - update this to match your backend
-  static const String baseUrl = BaseUrl.b_url; // Update with your actual backend URL
-  
-  // Dio instance for HTTP requests
+  static const String baseUrl = BaseUrl.b_url;
   late final Dio _dio;
   
-  // Safely convert dynamic to String
   String _asString(dynamic v) {
     if (v == null) return '';
     if (v is String) return v;
     if (v is num || v is bool) return v.toString();
     if (v is Map) {
-      // Try common string fields
       for (final key in const ['name', 'title', 'label', 'value', 'id', '_id']) {
         if (v[key] is String) return v[key] as String;
       }
@@ -69,19 +64,16 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
     return v.toString();
   }
 
-  // Safely parse date from various formats
   DateTime _asDate(dynamic v) {
     if (v is DateTime) return v;
     if (v is String) return DateTime.parse(v);
     if (v is Map) {
-      // Try common date keys
       for (final key in const ['date', 'iso', '\$date']) {
         final val = v[key];
         if (val is String) return DateTime.parse(val);
         if (val is int) return DateTime.fromMillisecondsSinceEpoch(val);
       }
     }
-    // Fallback to toString parse
     return DateTime.parse(v.toString());
   }
   
@@ -106,7 +98,6 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
       },
     ));
     
-    // Add interceptors for logging and error handling
     _dio.interceptors.add(LogInterceptor(
       requestBody: true,
       responseBody: true,
@@ -115,10 +106,8 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
   }
 
   AdminWarrantyDatabaseController() {
-    // Initialize Dio
     _initializeDio();
     
-    // Initialize with empty warranty data - will be loaded from API
     warranties = [];
     filteredWarranties = [];
     notifyListeners();
@@ -237,7 +226,6 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // GET /admin/warranty-cards - Fetch all warranty cards
   Future<List<Warranty>> fetchWarrantyCards() async {
     try {
       isLoading = true;
@@ -300,7 +288,6 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
     }
   }
   
-  // GET /admin/warranty-cards/{id} - Fetch specific warranty card by ID
   Future<Warranty?> fetchWarrantyCardById(String id) async {
     try {
       isLoading = true;
@@ -363,7 +350,6 @@ class AdminWarrantyDatabaseController extends ChangeNotifier {
     }
   }
   
-  // Helper method to refresh warranty cards from API
   Future<void> refreshWarrantyCards() async {
     await fetchWarrantyCards();
   }

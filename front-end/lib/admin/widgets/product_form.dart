@@ -38,7 +38,6 @@ class ProductForm extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 26),
-                // Name
                 buildTextField(
                   controller: controller.nameController,
                   label: 'Product Name',
@@ -46,7 +45,6 @@ class ProductForm extends StatelessWidget {
                   isRequired: true,
                 ),
                 const SizedBox(height: 16),
-                // Price
                 buildTextField(
                   controller: controller.priceController,
                   label: 'Price',
@@ -55,7 +53,6 @@ class ProductForm extends StatelessWidget {
                   isRequired: true,
                 ),
                 const SizedBox(height: 16),
-                // Stock Quantity
                 buildTextField(
                   controller: controller.stockController,
                   label: 'Stock Quantity',
@@ -64,7 +61,6 @@ class ProductForm extends StatelessWidget {
                   isRequired: true,
                 ),
                 const SizedBox(height: 16),
-                // Warranty Period (Months)
                 buildTextField(
                   controller: controller.warrantyController,
                   label: 'Warranty Period (Months)',
@@ -73,7 +69,6 @@ class ProductForm extends StatelessWidget {
                   isRequired: true,
                 ),
                 const SizedBox(height: 24),
-                // Action Buttons
                 Row(
                   children: [
                     Expanded(
@@ -127,7 +122,6 @@ class ProductForm extends StatelessWidget {
                     ),
                   ],
                 ),
-                // Error and Success Messages
                 if (controller.error != null) ...[
                   const SizedBox(height: 16),
                   Container(

@@ -67,10 +67,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Keep ONLY search and filter fixed
                 buildSearchAndFilter(),
                 const SizedBox(height: 20),
-                // Everything else scrolls beneath
                 Expanded(
                   child: controller.isLoading
                       ? const Center(child: CircularProgressIndicator())
@@ -122,10 +120,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                               ),
                               const SizedBox(height: 16),
                             ],
-                            // Stats should scroll as content
                             buildStatsHeader(),
                             const SizedBox(height: 20),
-                            // Orders list
                             if (controller.filteredOrders.isEmpty)
                               SizedBox(
                                 height: 300,

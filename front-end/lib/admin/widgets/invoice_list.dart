@@ -204,11 +204,8 @@ class _InvoiceListState extends State<InvoiceList> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            // Header Row
             Row(
               children: [
-                // Removed CircleAvatar
-                // const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

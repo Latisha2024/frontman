@@ -52,7 +52,6 @@ class ProductList extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Search Bar
           TextField(
             onChanged: controller.searchProducts,
             decoration: InputDecoration(

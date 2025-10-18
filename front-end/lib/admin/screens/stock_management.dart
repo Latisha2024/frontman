@@ -26,7 +26,6 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
   final TextEditingController _locationController = TextEditingController();
 
   final List<String> statusOptions = [
-    // Restricted to backend-supported enum values
     'Available',
     'Moved',
     'Missing'
@@ -39,7 +38,6 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
   }
 
   Future<void> _deleteStock(String id) async {
-    // Optimistic update: remove immediately, revert on error
     final previous = List<Map<String, dynamic>>.from(stockEntries);
     setState(() {
       stockEntries = stockEntries.where((e) => e['id'] != id).toList();
@@ -53,7 +51,6 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
       });
       _scheduleAutoHideMessages();
     } catch (e) {
-      // Revert list and show error
       setState(() {
         stockEntries = previous;
         error = 'Error deleting stock: $e';
@@ -398,7 +395,6 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
                       ),
                     ),
                   if (successMessage != null) const SizedBox(height: 16),
-                  // Summary Cards
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(

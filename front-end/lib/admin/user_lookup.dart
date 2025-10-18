@@ -22,8 +22,6 @@ class UserLookup {
     }
   }
 
-  // Resolves a username (display name) to userId by querying /admin/search/users?q=
-  // Returns null if not found or on error.
   static Future<String?> resolveUserIdByName(String name) async {
     if (name.trim().isEmpty) return null;
     final dio = _buildDio();
@@ -33,7 +31,6 @@ class UserLookup {
       if (resp.data is List) {
         final List list = resp.data as List;
         if (list.isEmpty) return null;
-        // Prefer exact (case-insensitive) name match; fallback to first result
         final lower = name.toLowerCase();
         final exact = list.cast<Map>().firstWhere(
           (u) => (u['name']?.toString().toLowerCase() ?? '') == lower,
@@ -42,7 +39,6 @@ class UserLookup {
         return exact['id']?.toString();
       }
     } catch (_) {
-      // ignore
     }
     return null;
   }

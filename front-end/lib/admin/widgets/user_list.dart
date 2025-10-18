@@ -14,7 +14,6 @@ class UserList extends StatelessWidget {
       builder: (context, _) {
         return Column(
           children: [
-            // Search and Filter Section
             buildSearchAndFilter(),
             const SizedBox(height: 20),
             if (controller.successMessage != null) ...[
@@ -42,7 +41,6 @@ class UserList extends StatelessWidget {
               const SizedBox(height: 12),
             ],
             
-            // Users List
             Expanded(
               child: controller.isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -78,7 +76,6 @@ class UserList extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Search Bar
           TextField(
             onChanged: controller.searchUsers,
             decoration: InputDecoration(
@@ -101,7 +98,6 @@ class UserList extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           
-          // Filter Row 1
           Row(
             children: [
               Expanded(
@@ -186,7 +182,6 @@ class UserList extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Row
             Row(
               children: [
                 CircleAvatar(
@@ -236,7 +231,6 @@ class UserList extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             
-            // User Details
             buildDetailRow(Icons.work, 'Role', user.role),
             if (user.phone != null) buildDetailRow(Icons.phone, 'Phone', user.phone!),
             if (user.address != null) buildDetailRow(Icons.location_on, 'Address', user.address!),
@@ -244,7 +238,6 @@ class UserList extends StatelessWidget {
             
             const SizedBox(height: 16),
             
-            // Action Buttons
             Row(
               children: [
                 Expanded(

@@ -37,7 +37,6 @@ class _AssignIncentiveFormState extends State<AssignIncentiveForm>
       builder: (context, _) {
         return Column(
           children: [
-            // Tab Bar
             Container(
               decoration: BoxDecoration(
                 color: AppColors.backgroundGray,
@@ -71,7 +70,6 @@ class _AssignIncentiveFormState extends State<AssignIncentiveForm>
             ),
             const SizedBox(height: 20),
             
-            // Tab Views
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -139,7 +137,6 @@ class _AssignIncentiveFormState extends State<AssignIncentiveForm>
   Widget _buildViewIncentivesTab() {
     return Column(
       children: [
-        // Search and Filter
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -165,7 +162,6 @@ class _AssignIncentiveFormState extends State<AssignIncentiveForm>
         ),
         const SizedBox(height: 16),
         
-        // Incentives List
         Expanded(
           child: widget.controller.isLoading
               ? const Center(child: CircularProgressIndicator())

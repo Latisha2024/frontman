@@ -26,7 +26,7 @@ class Company {
   factory Company.fromJson(Map<String, dynamic> json) {
     bool parseIsActive(dynamic v) {
       if (v == null)
-        return true; // Default to true when field is missing in list API
+        return true;
       if (v is bool) return v;
       return v.toString().toLowerCase() == 'true';
     }
@@ -107,7 +107,6 @@ class CompanyController {
       return Company.fromJson(companyJson);
     }
 
-    // It's okay if not set
     return null;
   }
 
@@ -138,7 +137,6 @@ class CompanyController {
     }
   }
 
-  // GET /admin/companies/:id - Get company by ID
   static Future<Company> getCompanyById(String id) async {
     final token = await _getToken();
     final response = await http.get(
@@ -168,7 +166,6 @@ class CompanyController {
     }
   }
 
-  // POST /admin/companies - Create new company
   static Future<Company> createCompany({
     required String name,
     String description = '',
@@ -207,7 +204,6 @@ class CompanyController {
     }
   }
 
-  // PUT /admin/companies/:id - Update company
   static Future<Company> updateCompany({
     required String id,
     String? name,
@@ -250,7 +246,6 @@ class CompanyController {
     }
   }
 
-  // DELETE /admin/companies/:id - Soft delete company
   static Future<void> deleteCompany(String id) async {
     final token = await _getToken();
     final response = await http.delete(
@@ -278,7 +273,6 @@ class CompanyController {
     }
   }
 
-  // POST /admin/companies/:id/assign-admin - Assign admin to company
   static Future<void> assignAdminToCompany({
     required String companyId,
     required String adminId,

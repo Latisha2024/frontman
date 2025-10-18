@@ -281,6 +281,4 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
       builder: (context) => AuditLogForm(controller: controller),
     );
   }
-
-  // Legacy banner removed; using inline dismissible banners aligned with invoice UI
 }

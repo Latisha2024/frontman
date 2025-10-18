@@ -110,10 +110,7 @@ class AdminInvoicesController extends ChangeNotifier {
   String searchQuery = '';
   Invoice? lastFetchedInvoice;
 
-  // Base URL for API calls - update this to match your backend
-  static const String baseUrl = BaseUrl.b_url; // Update with your actual backend URL
-
-  // Dio instance for HTTP requests
+  static const String baseUrl = BaseUrl.b_url;
   late final Dio _dio;
 
   void _initializeDio() {
@@ -137,7 +134,6 @@ class AdminInvoicesController extends ChangeNotifier {
       },
     ));
 
-    // Add interceptors for logging and error handling
     _dio.interceptors.add(LogInterceptor(
       requestBody: true,
       responseBody: true,
@@ -146,16 +142,13 @@ class AdminInvoicesController extends ChangeNotifier {
   }
 
   AdminInvoicesController() {
-    // Initialize Dio
     _initializeDio();
 
-    // Initialize with empty invoice data - will be loaded from API
     invoices = [];
     filteredInvoices = [];
     notifyListeners();
   }
 
-  // Fetch a single invoice by ID from backend and map to model
   Future<Invoice?> fetchInvoiceById(String id) async {
     try {
       isLoading = true;
@@ -204,7 +197,6 @@ class AdminInvoicesController extends ChangeNotifier {
     });
   }
 
-  // Form controllers
   final invoiceNumberController = TextEditingController();
   final issueDateController = TextEditingController();
   final dueDateController = TextEditingController();
@@ -217,11 +209,9 @@ class AdminInvoicesController extends ChangeNotifier {
   Invoice? editingInvoice;
   bool isEditMode = false;
 
-  // Filters removed as per requirement; keeping controllers for compatibility if UI still references them
   final orderIdFilterController = TextEditingController();
   final userIdFilterController = TextEditingController();
 
-  // Filters removed: simply refetch all invoices
   Future<void> applyFilters() async {
     await fetchInvoices();
   }
@@ -329,7 +319,6 @@ class AdminInvoicesController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // GET /admin/invoices - Fetch all invoices (filters removed)
   Future<List<Invoice>> fetchInvoices() async {
     try {
       isLoading = true;
@@ -369,12 +358,10 @@ class AdminInvoicesController extends ChangeNotifier {
     }
   }
 
-  // Helper method to refresh invoices from API
   Future<void> refreshInvoices() async {
     await fetchInvoices();
   }
 
-  // Generate invoice from existing order (Admin allowed to call accountant endpoint)
   Future<Invoice?> generateInvoiceFromOrder(String orderId) async {
     if (orderId.trim().isEmpty) {
       error = 'Please enter a valid order ID.';
@@ -428,7 +415,6 @@ class AdminInvoicesController extends ChangeNotifier {
     }
   }
 
-  // Create manual invoice
   Future<Invoice?> createManualInvoice({
     required String userId,
     required List<LineItem> items,
@@ -454,9 +440,7 @@ class AdminInvoicesController extends ChangeNotifier {
         return null;
       }
 
-      // Resolve username to userId if needed
       String resolvedUserId = userId.trim();
-      // Attempt resolving if value doesn't look like an ID pattern (always safe to try)
       final lookedUp = await UserLookup.resolveUserIdByName(resolvedUserId);
       if (lookedUp != null) {
         resolvedUserId = lookedUp;
@@ -511,7 +495,6 @@ class AdminInvoicesController extends ChangeNotifier {
     }
   }
 
-  // Local search support
   void searchInvoices(String query) {
     searchQuery = query;
     _applyLocalSearch();
@@ -533,7 +516,6 @@ class AdminInvoicesController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Map backend invoice data to frontend model
   Invoice _mapBackendInvoiceToModel(Map<String, dynamic> data) {
     final orderItems = data['order']?['orderItems'] as List<dynamic>? ?? [];
     final items = orderItems.map((item) => LineItem(
@@ -541,7 +523,7 @@ class AdminInvoicesController extends ChangeNotifier {
       quantity: item['quantity'] ?? 1,
       unitPrice: (item['unitPrice'] ?? item['product']?['price'] ?? 0.0).toDouble(),
       amount: ((item['unitPrice'] ?? 0.0) * (item['quantity'] ?? 1)).toDouble(),
-      gstRate: 18.0, // Default GST rate
+      gstRate: 18.0,
     )).toList();
     
     return Invoice(
@@ -561,7 +543,6 @@ class AdminInvoicesController extends ChangeNotifier {
     );
   }
   
-  // Handle Dio errors
   void _handleDioError(DioException e) {
     if (e.type == DioExceptionType.connectionTimeout) {
       error = 'Connection timeout. Please check your internet connection.';

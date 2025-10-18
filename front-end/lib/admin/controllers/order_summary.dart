@@ -30,7 +30,6 @@ class Order {
         .map((item) => OrderItem.fromJson(item))
         .toList();
     
-    // Calculate total amount from order items
     final total = orderItems.fold<double>(0.0, (sum, item) => sum + (item.unitPrice * item.quantity));
     
     return Order(
@@ -129,7 +128,6 @@ class AdminOrderSummaryController extends ChangeNotifier {
     });
   }
 
-  // GET /admin/orders - Fetch all orders
   Future<void> fetchAllOrders() async {
     try {
       isLoading = true;
@@ -159,7 +157,6 @@ class AdminOrderSummaryController extends ChangeNotifier {
     }
   }
 
-  // GET /admin/orders with filters (userId removed as per requirement)
   Future<void> fetchOrdersWithFilters({String? status}) async {
     try {
       isLoading = true;
@@ -189,7 +186,6 @@ class AdminOrderSummaryController extends ChangeNotifier {
     }
   }
 
-  // GET /admin/orders/:id - Get specific order
   Future<Order?> fetchOrderById(String orderId) async {
     try {
       isLoading = true;
@@ -224,14 +220,12 @@ class AdminOrderSummaryController extends ChangeNotifier {
 
   void filterByStatus(String status) {
     selectedStatus = status;
-    // Use backend filtering for better performance
     fetchOrdersWithFilters(
       status: status,
     );
   }
 
   void filterByUserId() {
-    // userId filter removed; simply refresh with current status only
     filterUserId = '';
     filterUserIdController.clear();
     fetchOrdersWithFilters(
@@ -265,7 +259,6 @@ class AdminOrderSummaryController extends ChangeNotifier {
     fetchAllOrders();
   }
 
-  // GET /admin/search/orders - Search orders with query (API)
   Future<List<Order>> searchOrdersApi(String query, {String? status, String? startDate, String? endDate}) async {
     try {
       isLoading = true;

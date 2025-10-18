@@ -23,15 +23,12 @@ class SalesManagerAssignTasksScreenState extends State<SalesManagerAssignTasksSc
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController dueDateController = TextEditingController();
   final TextEditingController searchController = TextEditingController();
-  // No extra fields like priority/status per backend
 
   @override
   void initState() {
     super.initState();
     controller = SalesManagerAssignTasksController();
-    // Rebuild UI when the search query changes
     searchController.addListener(() => setState(() {}));
-    // Auto-load all tasks when page opens
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await onRefresh();
     });

@@ -22,7 +22,6 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
     controller = AdminGenerateReportsController();
   }
 
-  // Render a structured, line-by-line view of the report details (Map/List/primitive)
   Widget _buildDetailsSection(dynamic data, {int indent = 0}) {
     if (data == null) {
       return const Text('No details available');
@@ -63,7 +62,6 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
 
     if (data is List) {
       if (data.isEmpty) return const Text('—');
-      // If list of maps, render each item as a card-like block
       final isListOfMaps = data.every((el) => el is Map);
       if (isListOfMaps) {
         return Column(
@@ -83,7 +81,6 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
           }),
         );
       }
-      // Otherwise render as bullet list
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: data.map<Widget>((el) {
@@ -101,7 +98,6 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
       );
     }
 
-    // Primitive
     return Text(_primitiveToString(data));
   }
 
@@ -173,7 +169,6 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Report type selector and total amount
                 Row(
                   children: [
                     const Text('Report Type:', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -215,7 +210,6 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Individual report filters
                 if (controller.selectedType == 'individual')
                   Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -224,7 +218,6 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                       children: [
                         Row(
                           children: [
-                            // User ID
                             Expanded(
                               child: TextField(
                                 controller: controller.individualUserIdController,
@@ -235,7 +228,6 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            // Report type
                             DropdownButton<String>(
                               value: controller.individualReportType,
                               items: const [
@@ -266,12 +258,10 @@ class _GenerateReportsScreenState extends State<GenerateReportsScreen> {
                     ),
                   ),
                 const SizedBox(height: 16),
-                // Loading/Error
                 if (controller.isLoading)
                   const Center(child: CircularProgressIndicator()),
                 if (controller.error != null)
                   Center(child: Text(controller.error!, style: const TextStyle(color: Colors.red))),
-                // Reports List
                 if (!controller.isLoading && controller.error == null)
                   Expanded(
                     child: controller.filteredReports.isEmpty

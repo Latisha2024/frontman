@@ -5,10 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../url.dart';
 
 class StockController {
-  // BaseUrl.b_url already ends with a trailing slash; avoid double slashes in the final URL
   static const String baseUrl = '${BaseUrl.b_url}/admin/stock';
 
-  // GET /admin/stock - Get all stock entries
   static Future<List<Map<String, dynamic>>> getAllStock() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -39,7 +37,6 @@ class StockController {
     }
   }
 
-  // POST /admin/stock - Create new stock entry
   static Future<Map<String, dynamic>> createStock({
     required String productId,
     required String status,
@@ -79,7 +76,6 @@ class StockController {
     }
   }
 
-  // PUT /admin/stock/{id} - Update stock entry
   static Future<Map<String, dynamic>> updateStock({
     required String id,
     required String status,
@@ -118,7 +114,6 @@ class StockController {
     }
   }
 
-  // DELETE /admin/stock/{id} - Delete a stock entry by ID
   static Future<Map<String, dynamic>> deleteStock({
     required String id,
   }) async {
@@ -152,7 +147,6 @@ class StockController {
     }
   }
 
-  // DELETE /admin/stock/cleanup-broken - Cleanup broken stock entries
   static Future<Map<String, dynamic>> cleanupBrokenStock() async {
     try {
       final prefs = await SharedPreferences.getInstance();

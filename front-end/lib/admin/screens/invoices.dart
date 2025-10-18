@@ -16,13 +16,11 @@ class AdminInvoicesScreen extends StatefulWidget {
 
 class _AdminInvoicesScreenState extends State<AdminInvoicesScreen> {
   late AdminInvoicesController controller;
-  // Read-only screen: no form toggle
 
   @override
   void initState() {
     super.initState();
     controller = AdminInvoicesController();
-    // Load invoices from API on initialization
     _loadInvoices();
   }
 

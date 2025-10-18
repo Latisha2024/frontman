@@ -151,7 +151,7 @@ class AdminAuditLogsController extends ChangeNotifier {
       });
       if (response.statusCode == 201) {
         successMessage = 'Audit log created successfully.';
-        fetchAuditLogs(); // Refresh the list
+        fetchAuditLogs();
         _scheduleAutoHideMessages();
       }
     } on DioException catch (e) {

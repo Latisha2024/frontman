@@ -24,7 +24,6 @@ class SalesManagerApproveDvrReportsController extends ChangeNotifier {
     }
   }
 
-  /// Loads all DVR reports available to Sales Manager (or Admin)
   Future<void> loadAllReports() async {
     final dio = _buildDio();
     await _attachAuth(dio);
@@ -52,7 +51,6 @@ class SalesManagerApproveDvrReportsController extends ChangeNotifier {
     }
   }
 
-  /// Loads DVRs for a specific executive by display name (optional utility)
   Future<void> loadReportsByExecutiveName(String executiveName) async {
     final userId = await UserLookup.resolveUserIdByName(executiveName);
     if (userId == null) {
@@ -85,7 +83,6 @@ class SalesManagerApproveDvrReportsController extends ChangeNotifier {
     }
   }
 
-  /// Approve DVR via backend and update local list
   Future<void> approveReportRemote(String id) async {
     final dio = _buildDio();
     await _attachAuth(dio);
@@ -103,7 +100,6 @@ class SalesManagerApproveDvrReportsController extends ChangeNotifier {
     }
   }
 
-  /// Reject DVR via backend and update local list
   Future<void> rejectReportRemote(String id) async {
     final dio = _buildDio();
     await _attachAuth(dio);

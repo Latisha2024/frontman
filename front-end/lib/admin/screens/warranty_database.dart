@@ -20,7 +20,6 @@ class _WarrantyDatabaseScreenState extends State<WarrantyDatabaseScreen> {
   void initState() {
     super.initState();
     controller = AdminWarrantyDatabaseController();
-    // Load warranty cards from API on initialization
     _loadWarrantyCards();
   }
   
@@ -88,7 +87,6 @@ class _WarrantyDatabaseScreenState extends State<WarrantyDatabaseScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Error message display
                 if (controller.error != null)
                   Container(
                     width: double.infinity,
@@ -121,7 +119,6 @@ class _WarrantyDatabaseScreenState extends State<WarrantyDatabaseScreen> {
                       ],
                     ),
                   ),
-                // Success message display
                 if (controller.successMessage != null)
                   Container(
                     width: double.infinity,

@@ -29,7 +29,6 @@ class _ShiftAlertsScreenState extends State<ShiftAlertsScreen> {
     super.dispose();
   }
 
-  // Date/Time pickers removed – backend expects only userId and message
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +72,6 @@ class _ShiftAlertsScreenState extends State<ShiftAlertsScreen> {
                   ],
                 ),
               ),
-              // message banners
               Column(
                 children: [
                   if (controller.error != null)

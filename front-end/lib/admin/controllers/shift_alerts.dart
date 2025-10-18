@@ -50,17 +50,14 @@ class AdminShiftAlertsController extends ChangeNotifier {
   String? successMessage;
   late final Dio _dio;
 
-  // Form controllers
   final userIdController = TextEditingController();
   final messageController = TextEditingController();
 
-  // Listing state (mirrors notifications)
   List<AlertModel> alerts = [];
   List<AlertModel> filteredAlerts = [];
-  String selectedFilter = 'All'; // All, Acked, Unacked
+  String selectedFilter = 'All';
   String searchQuery = '';
 
-  // Base URL - configure based on your backend
   static const String baseUrl = BaseUrl.b_url;
 
   AdminShiftAlertsController() {
@@ -82,7 +79,6 @@ class AdminShiftAlertsController extends ChangeNotifier {
         return handler.next(options);
       },
     ));
-    // Preload list
     fetchAlerts();
   }
 
@@ -96,7 +92,6 @@ class AdminShiftAlertsController extends ChangeNotifier {
     });
   }
 
-  // GET /admin/shift-alerts (front-end wiring; backend can be added later)
   Future<void> fetchAlerts() async {
     try {
       isLoading = true;
@@ -104,7 +99,6 @@ class AdminShiftAlertsController extends ChangeNotifier {
       notifyListeners();
 
       final response = await _dio.get('/admin/shift-alerts');
-      // Accept either array or {data: []}
       final body = response.data;
       final List<dynamic> list = body is List ? body : (body['data'] as List? ?? []);
       alerts = list.map((e) => AlertModel.fromJson(e as Map<String, dynamic>)).toList();
@@ -112,7 +106,6 @@ class AdminShiftAlertsController extends ChangeNotifier {
       successMessage = 'Shift alerts loaded';
       _scheduleAutoHideMessages();
     } on DioException catch (e) {
-      // Graceful message until backend implements GET
       error = e.response?.data is Map && (e.response!.data['message'] != null)
           ? e.response!.data['message'].toString()
           : 'Failed to fetch shift alerts';
@@ -126,7 +119,6 @@ class AdminShiftAlertsController extends ChangeNotifier {
     }
   }
 
-  // POST /admin/shift-alerts
   Future<void> createShiftAlert() async {
     if (!validateForm()) return;
 
@@ -135,7 +127,6 @@ class AdminShiftAlertsController extends ChangeNotifier {
       error = null;
       notifyListeners();
 
-      // Resolve username to userId if needed
       String resolvedUserId = userIdController.text.trim();
       final lookedUp = await UserLookup.resolveUserIdByName(resolvedUserId);
       if (lookedUp != null) {
@@ -180,7 +171,7 @@ class AdminShiftAlertsController extends ChangeNotifier {
   }
 
   void filterAlerts(String filter) {
-    selectedFilter = filter; // All, Acked, Unacked
+    selectedFilter = filter;
     applyFilters();
   }
 

@@ -20,9 +20,7 @@ class _SalesManagerGpsTrackingScreenState extends State<SalesManagerGpsTrackingS
   void initState() {
     super.initState();
     controller = SalesManagerGpsTrackingController();
-    // Do not auto-fetch without userId; let user input a userId and tap search
     userIdController.addListener(() {
-      // Rebuild to enable/disable actions based on input
       if (mounted) setState(() {});
     });
   }
@@ -87,7 +85,6 @@ class _SalesManagerGpsTrackingScreenState extends State<SalesManagerGpsTrackingS
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // Search bar
               Row(
                 children: [
                   Expanded(

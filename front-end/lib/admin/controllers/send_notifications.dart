@@ -25,7 +25,6 @@ class NotificationModel {
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
-    // Support both possible keys from backend: 'isRead' (current) and 'read' (legacy)
     final dynamic readValue = json.containsKey('isRead') ? json['isRead'] : json['read'];
     bool toBool(dynamic v) {
       if (v is bool) return v;
@@ -48,7 +47,6 @@ class NotificationModel {
       type: (json['type'] ?? 'info').toString(),
       message: (json['message'] ?? '').toString(),
       userId: json['userId']?.toString(),
-      // Default to false if missing/null or not coercible
       read: toBool(readValue),
       createdAt: toDate(json['createdAt']),
       updatedAt: toDate(json['updatedAt']),
@@ -79,7 +77,7 @@ class AdminSendNotificationsController extends ChangeNotifier {
 
   List<NotificationModel> notifications = [];
   List<NotificationModel> filteredNotifications = [];
-  String selectedFilter = 'All'; // All, Read, Unread
+  String selectedFilter = 'All';
   String searchQuery = '';
   String selectedNotificationType = 'info';
 
@@ -182,7 +180,6 @@ class AdminSendNotificationsController extends ChangeNotifier {
       successMessage = null;
       notifyListeners();
 
-      // Resolve username to userId if provided
       String? resolvedUserId;
       if (userInput.isNotEmpty) {
         resolvedUserId = await UserLookup.resolveUserIdByName(userInput) ?? userInput;
@@ -202,7 +199,7 @@ class AdminSendNotificationsController extends ChangeNotifier {
       final responseData = response.data;
       successMessage = responseData['message'] ?? 'Notification sent successfully!';
       clearForm();
-      await fetchNotifications(); // Refresh the list
+      await fetchNotifications();
       _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
@@ -231,7 +228,6 @@ class AdminSendNotificationsController extends ChangeNotifier {
         '/admin/notifications/$notificationId/read',
       );
 
-      // Update local notification
       final index = notifications.indexWhere((n) => n.id == notificationId);
       if (index != -1) {
         notifications[index] = notifications[index].copyWith(read: true);
@@ -266,7 +262,6 @@ class AdminSendNotificationsController extends ChangeNotifier {
         '/admin/notifications/read-all',
       );
 
-      // Update all local notifications to read
       notifications = notifications.map((n) => n.copyWith(read: true)).toList();
       applyFilters();
       successMessage = 'All notifications marked as read';
@@ -311,7 +306,6 @@ class AdminSendNotificationsController extends ChangeNotifier {
       return matchesSearch && matchesFilter;
     }).toList();
 
-    // Sort by creation date (newest first)
     filteredNotifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     notifyListeners();
   }

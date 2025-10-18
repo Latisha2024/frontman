@@ -58,7 +58,6 @@ class AdminConvertPointsController extends ChangeNotifier {
   int? get userTotalPoints => _userTotalPoints;
   late final Dio _dio;
 
-  // Base URL - configure based on your backend
   static const String baseUrl = BaseUrl.b_url;
 
   AdminConvertPointsController() {
@@ -93,7 +92,6 @@ class AdminConvertPointsController extends ChangeNotifier {
     });
   }
 
-  // GET /admin/points - Fetch all point transactions (userId filter removed)
   Future<void> fetchAllTransactions({String? type}) async {
     try {
       isLoading = true;
@@ -125,7 +123,6 @@ class AdminConvertPointsController extends ChangeNotifier {
     }
   }
 
-  // Local search API for transactions
   void searchTransactions(String query) {
     searchQuery = query;
     _applyLocalSearch();
@@ -148,19 +145,15 @@ class AdminConvertPointsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // GET user points total by calculating from transactions
-  // Accepts username or userId; resolves username to id before computing.
   Future<void> fetchUserPoints(String userInput) async {
     try {
       isLoading = true;
       error = null;
       notifyListeners();
 
-      // Reuse loaded transactions; if empty, load all and then filter locally
       if (_transactions.isEmpty) {
         await fetchAllTransactions();
       }
-      // Resolve username to userId if possible
       String resolved = userInput.trim();
       final lookedUp = await UserLookup.resolveUserIdByName(resolved);
       if (lookedUp != null) {
@@ -168,7 +161,6 @@ class AdminConvertPointsController extends ChangeNotifier {
       }
       final userTransactions = _transactions.where((t) => t.userId == resolved).toList();
       
-      // Calculate total points for user
       _userTotalPoints = userTransactions.fold<int>(0, (sum, txn) => sum + txn.points);
       successMessage = 'User points fetched successfully';
       _scheduleAutoHideMessages();
@@ -188,7 +180,6 @@ class AdminConvertPointsController extends ChangeNotifier {
     }
   }
 
-  // POST /admin/points/adjust - Adjust user points
   Future<void> adjustPoints() async {
     if (!validateAdjustForm()) return;
 
@@ -197,7 +188,6 @@ class AdminConvertPointsController extends ChangeNotifier {
       error = null;
       notifyListeners();
 
-      // Resolve username to userId if needed
       String resolvedUserId = userIdController.text.trim();
       final lookedUp = await UserLookup.resolveUserIdByName(resolvedUserId);
       if (lookedUp != null) {
@@ -214,7 +204,7 @@ class AdminConvertPointsController extends ChangeNotifier {
       final responseData = response.data;
       successMessage = responseData['message'] ?? 'Points adjusted successfully';
       clearForm();
-      await fetchAllTransactions(); // Refresh the list
+      await fetchAllTransactions(); 
       _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
@@ -247,7 +237,6 @@ class AdminConvertPointsController extends ChangeNotifier {
       final parsedRate = double.parse(conversionRateController.text.trim());
       final reason = reasonController.text.trim();
 
-      // Resolve username to userId if needed
       String resolvedUserId = userIdController.text.trim();
       final lookedUp = await UserLookup.resolveUserIdByName(resolvedUserId);
       if (lookedUp != null) {
@@ -261,16 +250,13 @@ class AdminConvertPointsController extends ChangeNotifier {
       };
       if (reason.isNotEmpty) payload['reason'] = reason;
 
-      // Expected backend route
       final response = await _dio.post('/admin/points/convert', data: payload);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data is Map<String, dynamic> ? response.data as Map<String, dynamic> : <String, dynamic>{};
-        // Backend returns cashAmount
         final amt = data['cashAmount'] ?? data['convertedAmount'] ?? data['amount'] ?? data['creditAmount'];
         convertedAmount = (amt is num) ? amt.toDouble() : null;
         successMessage = data['message'] ?? 'Points converted successfully!';
-        // Refresh transactions to reflect the conversion entry
         await fetchAllTransactions();
         _scheduleAutoHideMessages();
       } else {

@@ -55,7 +55,6 @@ class UserForm extends StatelessWidget {
                 isRequired: true,
               ),
               const SizedBox(height: 16),
-              // Phone with country code and live validation
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,

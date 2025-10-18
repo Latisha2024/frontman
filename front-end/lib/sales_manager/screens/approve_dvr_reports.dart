@@ -16,7 +16,6 @@ class _SalesManagerApproveDvrReportsScreenState extends State<SalesManagerApprov
   @override
   void initState() {
     super.initState();
-    // auto-load when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _onRefresh();
     });

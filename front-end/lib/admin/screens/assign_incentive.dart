@@ -62,7 +62,6 @@ class _AssignIncentiveScreenState extends State<AssignIncentiveScreen> {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                // Error/Success Messages
                 if (controller.error != null) ...[
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -110,7 +109,6 @@ class _AssignIncentiveScreenState extends State<AssignIncentiveScreen> {
                   const SizedBox(height: 16),
                 ],
                 
-                // Main Content
                 Expanded(
                   child: AssignIncentiveForm(controller: controller),
                 ),

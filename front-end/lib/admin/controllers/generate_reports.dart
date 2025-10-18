@@ -10,9 +10,9 @@ class ReportData {
   final String title;
   final String description;
   final DateTime date;
-  final String? userId; // For individual user reports
-  final String? userName; // For individual user reports
-  final dynamic details; // Map or List depending on API
+  final String? userId;
+  final String? userName;
+  final dynamic details;
 
   ReportData({
     required this.type,
@@ -35,13 +35,11 @@ class AdminGenerateReportsController extends ChangeNotifier {
   late final Dio _dio;
   final String baseUrl = BaseUrl.b_url;
 
-  // Individual report inputs
   final TextEditingController individualUserIdController = TextEditingController();
-  String individualReportType = 'performance'; // sales | attendance | points | performance
+  String individualReportType = 'performance';
   DateTime? individualStartDate;
   DateTime? individualEndDate;
 
-  // Sales report filters
   DateTime? salesStartDate;
   DateTime? salesEndDate;
 
@@ -69,13 +67,11 @@ class AdminGenerateReportsController extends ChangeNotifier {
       responseBody: true,
       logPrint: (obj) => print(obj),
     ));
-    // Load reports from backend on initialization
     loadAllReports();
   }
 
   void _scheduleAutoHideMessages() {
     Future.delayed(const Duration(seconds: 3), () {
-      // Only clear if still set
       if (error != null || successMessage != null) {
         error = null;
         successMessage = null;
@@ -88,10 +84,8 @@ class AdminGenerateReportsController extends ChangeNotifier {
   void selectType(String type) {
     selectedType = type;
     notifyListeners();
-    // Auto-refresh data when type changes. For 'individual', only auto-fetch if user is provided.
     if (type == 'individual') {
       if (individualUserIdController.text.trim().isNotEmpty) {
-        // Fire and forget; isLoading & state updates handled inside
         fetchIndividualReport();
       }
     } else if (type == 'sales') {
@@ -117,7 +111,6 @@ class AdminGenerateReportsController extends ChangeNotifier {
           return sum + ((v is num) ? v.toDouble() : 0.0);
         });
       case 'inventory':
-        // Backend returns a List of products for inventory. Sum stockQuantity.
         return filteredReports.fold(0.0, (sum, report) {
           final details = report.details;
           if (details is List) {
@@ -161,7 +154,6 @@ class AdminGenerateReportsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Load all reports based on selected type
   Future<void> loadAllReports() async {
     switch (selectedType) {
       case 'sales':
@@ -179,7 +171,6 @@ class AdminGenerateReportsController extends ChangeNotifier {
     }
   }
 
-  // GET /admin/reports/sales
   Future<void> fetchSalesReport() async {
     isLoading = true;
     error = null;
@@ -215,7 +206,6 @@ class AdminGenerateReportsController extends ChangeNotifier {
     }
   }
 
-  // GET /admin/reports/inventory
   Future<void> fetchInventoryReport() async {
     isLoading = true;
     error = null;
@@ -248,7 +238,6 @@ class AdminGenerateReportsController extends ChangeNotifier {
     }
   }
 
-  // GET /admin/reports/performance
   Future<void> fetchPerformanceReport() async {
     isLoading = true;
     error = null;
@@ -281,7 +270,6 @@ class AdminGenerateReportsController extends ChangeNotifier {
     }
   }
 
-  // GET /admin/reports/individual
   Future<void> fetchIndividualReport({
     String? userId,
     String? reportType,
@@ -301,7 +289,6 @@ class AdminGenerateReportsController extends ChangeNotifier {
         return;
       }
 
-      // Resolve a provided username to userId if possible
       final lookedUp = await UserLookup.resolveUserIdByName(uid);
       if (lookedUp != null) {
         uid = lookedUp;
@@ -323,7 +310,6 @@ class AdminGenerateReportsController extends ChangeNotifier {
       
       if (response.statusCode == 200) {
         final data = response.data;
-        // Pick the relevant details block based on reportType for a cleaner UI
         Map<String, dynamic> detailsBlock;
         String title;
         String description;

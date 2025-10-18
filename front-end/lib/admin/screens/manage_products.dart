@@ -110,7 +110,6 @@ class ManageProductsScreenState extends State<ManageProductsScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Show error or success messages
                 if (controller.error != null)
                   Container(
                     width: double.infinity,
@@ -165,7 +164,6 @@ class ManageProductsScreenState extends State<ManageProductsScreen> {
                       ],
                     ),
                   ),
-                // Main content
                 Expanded(
                   child: (showForm || controller.isEditMode)
                       ? ProductForm(controller: controller)

@@ -87,7 +87,6 @@ class AdminManageUsersController extends ChangeNotifier {
   String _searchQuery = '';
   String selectedRole = 'All';
   String selectedStatus = 'All';
-  // Validation regex
   final RegExp _phoneRegex = RegExp(r'^(\+91\d{10}|\d{10})$');
   final RegExp _strongPassword = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$');
   
@@ -96,33 +95,27 @@ class AdminManageUsersController extends ChangeNotifier {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  // Live field errors
   String? phoneError;
   String? passwordError;
-  // Full E.164 phone (e.g., +911234567890) when using IntlPhoneField
   String _fullPhoneE164 = '';
   
   User? _editingUser;
   bool _isEditMode = false;
-  // Getters
   List<User> get users => _users;
   bool get isEditMode => _isEditMode;
   
   List<User> get filteredUsers {
     List<User> filtered = _users;
     
-    // Filter by role
     if (selectedRole != 'All') {
       filtered = filtered.where((user) => user.role == selectedRole).toList();
     }
     
-    // Filter by status
     if (selectedStatus != 'All') {
       filtered = filtered.where((user) => user.status == selectedStatus).toList();
     }
     
     
-    // Filter by search query
     if (_searchQuery.isNotEmpty) {
       filtered = filtered.where((user) {
         return user.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -147,7 +140,6 @@ class AdminManageUsersController extends ChangeNotifier {
 
   List<String> get availableStatuses => ['active', 'inactive', 'suspended', 'pending'];
 
-  // Base URL - configure based on your backend
   static const String baseUrl = BaseUrl.b_url;
 
   AdminManageUsersController() {
@@ -171,12 +163,11 @@ class AdminManageUsersController extends ChangeNotifier {
     ));
     fetchUsers();
 
-    // Live validation listeners
 
     passwordController.addListener(() {
       final pwd = passwordController.text;
       if (pwd.isEmpty) {
-        passwordError = null; // optional on update
+        passwordError = null;
       } else {
         passwordError = _strongPassword.hasMatch(pwd)
             ? null
@@ -186,7 +177,6 @@ class AdminManageUsersController extends ChangeNotifier {
     });
   }
 
-  // Called by form when IntlPhoneField changes
 
 
   void _scheduleAutoHideMessages() {
@@ -199,7 +189,6 @@ class AdminManageUsersController extends ChangeNotifier {
     });
   }
 
-  // GET /admin/users
   Future<void> fetchUsers({String? role}) async {
     try {
       isLoading = true;
@@ -252,7 +241,6 @@ class AdminManageUsersController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // POST /admin/users
   Future<void> addUser() async {
     if (nameController.text.isEmpty || emailController.text.isEmpty || passwordController.text.isEmpty) {
       error = 'Name, email, and password are required';
@@ -260,11 +248,9 @@ class AdminManageUsersController extends ChangeNotifier {
       _scheduleAutoHideMessages();
       return;
     }
-    // Prefer IntlPhoneField value if present
     final phone = _fullPhoneE164.isNotEmpty ? _fullPhoneE164 : phoneController.text.trim();
     final pwd = passwordController.text.trim();
     if (phone.isEmpty) { error = 'Phone number is required'; notifyListeners(); _scheduleAutoHideMessages(); return; }
-    // Accept either +<country>... or 10-digit (legacy)
     final phoneOk = phone.startsWith('+')
         ? RegExp(r'^\+\d{6,15}$').hasMatch(phone)
         : _phoneRegex.hasMatch(phone);
@@ -281,10 +267,8 @@ class AdminManageUsersController extends ChangeNotifier {
       error = null;
       notifyListeners();
 
-      // Enforce unique user name (case-insensitive)
       final newName = nameController.text.trim();
       final newNameLower = newName.toLowerCase();
-      // Check locally first
       final localDuplicate = _users.any((u) => u.name.toLowerCase() == newNameLower);
       if (localDuplicate) {
         error = 'User name already exists. Please choose a different name.';
@@ -295,7 +279,6 @@ class AdminManageUsersController extends ChangeNotifier {
         return;
       }
 
-      // Double-check via backend search to avoid race conditions
       try {
         final resp = await _dio.get(
           '/admin/search/users',
@@ -318,7 +301,6 @@ class AdminManageUsersController extends ChangeNotifier {
           }
         }
       } catch (_) {
-        // If search endpoint fails, proceed to creation; backend should still enforce if supported
       }
 
       final userData = {
@@ -339,7 +321,7 @@ class AdminManageUsersController extends ChangeNotifier {
       final responseData = response.data;
       successMessage = responseData['message'] ?? 'User created successfully';
       clearForm();
-      await fetchUsers(); // Refresh the list
+      await fetchUsers();
       _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
@@ -366,13 +348,12 @@ class AdminManageUsersController extends ChangeNotifier {
     addressController.text = user.address ?? '';
     selectedUserRole = user.role;
     selectedUserStatus = user.status;
-    passwordController.clear(); // Don't pre-fill password for security
+    passwordController.clear();
     _isEditMode = true;
     clearMessages();
     notifyListeners();
   }
 
-  // PUT /admin/users/:id
   Future<void> updateUser() async {
     if (_editingUser == null) return;
     
@@ -416,7 +397,6 @@ class AdminManageUsersController extends ChangeNotifier {
         'status': selectedUserStatus,
       };
       
-      // Only include password if it's provided
       if (pwd.isNotEmpty) {
         updateData['password'] = pwd;
       }
@@ -429,7 +409,7 @@ class AdminManageUsersController extends ChangeNotifier {
       final responseData = response.data;
       successMessage = responseData['message'] ?? 'User updated successfully';
       clearForm();
-      await fetchUsers(); // Refresh the list
+      await fetchUsers();
       _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
@@ -448,7 +428,6 @@ class AdminManageUsersController extends ChangeNotifier {
     }
   }
 
-  // DELETE /admin/users/:id
   Future<void> deleteUser(String userId) async {
     try {
       isLoading = true;
@@ -460,7 +439,7 @@ class AdminManageUsersController extends ChangeNotifier {
 
       final responseData = response.data;
       successMessage = responseData['message'] ?? 'User deleted successfully';
-      await fetchUsers(); // Refresh the list
+      await fetchUsers();
       _scheduleAutoHideMessages();
     } on DioException catch (e) {
       if (e.response != null) {
@@ -496,7 +475,6 @@ class AdminManageUsersController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // GET /admin/search/users - Search users with query
   Future<List<User>> searchUsersApi(String query, {String? role, String? status}) async {
     try {
       isLoading = true;

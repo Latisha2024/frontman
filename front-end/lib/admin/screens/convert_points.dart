@@ -59,7 +59,6 @@ class ConvertPointsToCashScreenState extends State<ConvertPointsToCashScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Main content
                 Expanded(
                   child: ConvertPointsToCashForm(controller: controller),
                 ),

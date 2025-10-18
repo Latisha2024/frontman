@@ -13,10 +13,8 @@ class InvoiceForm extends StatefulWidget {
 
 class _InvoiceFormState extends State<InvoiceForm> {
   AdminInvoicesController get controller => widget.controller;
-  // Controller for generating invoice by Order ID
   final orderIdController = TextEditingController();
 
-  // Controllers for manual invoice creation
   final userIdController = TextEditingController();
   final productNameController = TextEditingController();
   final quantityController = TextEditingController();
@@ -61,7 +59,6 @@ class _InvoiceFormState extends State<InvoiceForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Generate by Order ID section (Admin uses Accountant endpoint)
               const Text(
                 'Generate Invoice by Order ID',
                 style: TextStyle(
@@ -200,7 +197,6 @@ class _InvoiceFormState extends State<InvoiceForm> {
               const Divider(),
               const SizedBox(height: 12),
 
-              // Manual Invoice Creation Section
               const Text(
                 'Create Manual Invoice',
                 style: TextStyle(
@@ -328,7 +324,6 @@ class _InvoiceFormState extends State<InvoiceForm> {
                         );
 
                         if (created != null) {
-                          // Clear local fields
                           userIdController.clear();
                           productNameController.clear();
                           quantityController.clear();
