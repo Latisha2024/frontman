@@ -1,42 +1,62 @@
 const express = require('express');
 const router = express.Router();
-
 const authenticate = require('../../middlewares/auth');
 const authorizeRoles = require('../../middlewares/roleCheck');
 const followupController = require('../../controllers/followupController');
 
+router.use(authenticate);
+
 /**
  * @swagger
  * tags:
- *   name: Follow-Ups
- *   description: Manage customer follow-ups by Field Executives
+ *   name: FollowUps
+ *   description: Field Executive Follow-up management
  */
-
-router.use(authenticate);
-router.use(authorizeRoles('FieldExecutive'));
 
 /**
  * @swagger
- * /field-executive/followups:
+ * /fieldExecutive/followUp:
  *   get:
- *     summary: Get all follow-ups for the Field Executive
- *     tags: [Follow-Ups]
+ *     summary: Get all follow-ups for logged-in Field Executive
+ *     tags: [FollowUps]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of follow-ups
- *       500:
- *         description: Failed to fetch follow-ups
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   executiveId:
+ *                     type: integer
+ *                   customerName:
+ *                     type: string
+ *                   contactDetails:
+ *                     type: string
+ *                   feedback:
+ *                     type: string
+ *                   status:
+ *                     type: string
+ *                   nextFollowUpDate:
+ *                     type: string
+ *                     format: date
+ *       401:
+ *         description: Unauthorized
  */
-router.get('/', followupController.getFollowUps);
+router.get('/', authorizeRoles('FieldExecutive'), followupController.getFollowUps);
 
 /**
  * @swagger
- * /field-executive/followups:
+ * /fieldExecutive/followUp:
  *   post:
  *     summary: Create a new follow-up
- *     tags: [Follow-Ups]
+ *     tags: [FollowUps]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -45,42 +65,47 @@ router.get('/', followupController.getFollowUps);
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - customerName
+ *               - contactDetails
+ *               - feedback
+ *               - status
+ *               - nextFollowUpDate
  *             properties:
  *               customerName:
  *                 type: string
- *                 example: "Jane Doe"
- *               purpose:
+ *               contactDetails:
  *                 type: string
- *                 example: "Product discussion"
- *               followUpDate:
+ *               feedback:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *               nextFollowUpDate:
  *                 type: string
  *                 format: date
- *                 example: "2025-07-31"
  *     responses:
  *       201:
- *         description: Follow-up created successfully
- *       400:
- *         description: Invalid input
+ *         description: Follow-up created
  *       500:
  *         description: Failed to create follow-up
  */
-router.post('/', followupController.createFollowUp);
+router.post('/', authorizeRoles('FieldExecutive'), followupController.createFollowUp);
 
 /**
  * @swagger
- * /field-executive/followups/{id}:
+ * /fieldExecutive/followUp/{id}:
  *   put:
- *     summary: Update a follow-up by ID
- *     tags: [Follow-Ups]
+ *     summary: Update follow-up details
+ *     tags: [FollowUps]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: Follow-up ID
  *         schema:
- *           type: string
+ *           type: integer
+ *         description: Follow-up ID
  *     requestBody:
  *       required: true
  *       content:
@@ -90,9 +115,11 @@ router.post('/', followupController.createFollowUp);
  *             properties:
  *               customerName:
  *                 type: string
- *               purpose:
+ *               contactDetails:
  *                 type: string
- *               followUpDate:
+ *               feedback:
+ *                 type: string
+ *               nextFollowUpDate:
  *                 type: string
  *                 format: date
  *     responses:
@@ -100,26 +127,24 @@ router.post('/', followupController.createFollowUp);
  *         description: Follow-up updated
  *       404:
  *         description: Follow-up not found
- *       500:
- *         description: Failed to update follow-up
  */
-router.put('/:id', followupController.updateFollowUp);
+router.put('/:id', authorizeRoles('FieldExecutive'), followupController.updateFollowUp);
 
 /**
  * @swagger
- * /field-executive/followups/{id}/status:
+ * /fieldExecutive/followUp/{id}/status:
  *   patch:
- *     summary: Update the status of a follow-up (e.g., completed, postponed)
- *     tags: [Follow-Ups]
+ *     summary: Update follow-up status only
+ *     tags: [FollowUps]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: Follow-up ID
  *         schema:
- *           type: string
+ *           type: integer
+ *         description: Follow-up ID
  *     requestBody:
  *       required: true
  *       content:
@@ -129,16 +154,12 @@ router.put('/:id', followupController.updateFollowUp);
  *             properties:
  *               status:
  *                 type: string
- *                 enum: [Completed, Postponed]
- *                 example: "Completed"
  *     responses:
  *       200:
  *         description: Follow-up status updated
  *       404:
  *         description: Follow-up not found
- *       500:
- *         description: Failed to update status
  */
-router.patch('/:id/status', followupController.updateFollowUpStatus);
+router.patch('/:id/status', authorizeRoles('FieldExecutive'), followupController.updateFollowUpStatus);
 
 module.exports = router;

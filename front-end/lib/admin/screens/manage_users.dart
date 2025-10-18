@@ -53,7 +53,8 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
             elevation: 0,
             actions: [
               IconButton(
-                onPressed: controller.isLoading ? null : () => controller.fetchUsers(),
+                onPressed:
+                    controller.isLoading ? null : () => controller.fetchUsers(),
                 icon: const Icon(Icons.refresh, color: Colors.white),
                 tooltip: 'Refresh Users',
               ),
@@ -74,7 +75,7 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
               ),
             ],
           ),
-          drawer:const AdminDrawer(),
+          drawer: const AdminDrawer(),
           body: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               SliverToBoxAdapter(
@@ -120,12 +121,18 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
               ),
               buildStatCard(
                 'Admin',
-                controller.users.where((u) => u.role == 'Admin').length.toString(),
+                controller.users
+                    .where((u) => u.role == 'Admin')
+                    .length
+                    .toString(),
                 Icons.admin_panel_settings,
               ),
               buildStatCard(
                 'Workers',
-                controller.users.where((u) => u.role == 'Worker').length.toString(),
+                controller.users
+                    .where((u) => u.role == 'Worker')
+                    .length
+                    .toString(),
                 Icons.work,
               ),
             ],
@@ -136,12 +143,19 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
             children: [
               buildStatCard(
                 'Sales',
-                controller.users.where((u) => u.role == 'SalesManager').length.toString(),
+                controller.users
+                    .where((u) => u.role == 'SalesManager')
+                    .length
+                    .toString(),
                 Icons.sell,
               ),
               buildStatCard(
                 'Others',
-                controller.users.where((u) => !['Admin', 'Worker', 'SalesManager'].contains(u.role)).length.toString(),
+                controller.users
+                    .where((u) =>
+                        !['Admin', 'Worker', 'SalesManager'].contains(u.role))
+                    .length
+                    .toString(),
                 Icons.group,
               ),
             ],
@@ -196,7 +210,6 @@ class ManageUsersScreenState extends State<ManageUsersScreen> {
           });
         },
       ),
-
     );
   }
 

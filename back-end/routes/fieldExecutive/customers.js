@@ -112,34 +112,6 @@ router.use(authorizeRoles('FieldExecutive'));
  */
 router.get('/', salesExecutiveController.getAssignedCustomers);
 
-/**
- * @swagger
- * /fieldExecutive/customers/{id}:
- *   get:
- *     summary: Get customer by ID with visit history
- *     tags: [Field Executive Customers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Customer ID
- *     responses:
- *       200:
- *         description: Customer retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Customer'
- *       404:
- *         description: Customer not found
- *       500:
- *         description: Server error
- */
-router.get('/:id', salesExecutiveController.getCustomerById);
 
 /**
  * @swagger
@@ -198,7 +170,6 @@ router.get('/:id', salesExecutiveController.getCustomerById);
  *         description: Server error
  */
 router.post('/:id/visits', salesExecutiveController.createVisitReport);
-
 /**
  * @swagger
  * /fieldExecutive/customers/visits:
@@ -226,5 +197,34 @@ router.post('/:id/visits', salesExecutiveController.createVisitReport);
  *         description: Server error
  */
 router.get('/visits', salesExecutiveController.getVisitReports);
+
+/**
+ * @swagger
+ * /fieldExecutive/customers/{id}:
+ *   get:
+ *     summary: Get customer by ID with visit history
+ *     tags: [Field Executive Customers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Customer ID
+ *     responses:
+ *       200:
+ *         description: Customer retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Customer'
+ *       404:
+ *         description: Customer not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/:id', salesExecutiveController.getCustomerById);
 
 module.exports = router;

@@ -11,13 +11,14 @@ const { swaggerUi, swaggerSpec } = require('./swagger');
 dotenv.config();
 
 const corsOptions = {
-  origin: 'http://localhost:3000', // Your fixed frontend port
+  origin: '*', // Your fixed frontend port
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"]
 };
 app.options(/.*/, cors(corsOptions));
 app.use(cors(corsOptions));
 app.use(express.json());
+app.disable('etag'); // put this in your main app.js
 
 // Rate-Limiters
 app.use(helmet());

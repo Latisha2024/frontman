@@ -15,7 +15,7 @@
 //   bool? success;
 //   String? qrCodeData;
 
-//   final Dio _dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:5000'));
+//   final Dio _dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:5001'));
 
 //   // 👆 Use 10.0.2.2 for Android Emulator
 

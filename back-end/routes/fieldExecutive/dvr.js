@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-
 const authenticate = require('../../middlewares/auth');
 const authorizeRoles = require('../../middlewares/roleCheck');
 const dvrController = require('../../controllers/dvrController');
@@ -8,19 +7,19 @@ const dvrController = require('../../controllers/dvrController');
 /**
  * @swagger
  * tags:
- *   name: DVR Reports
- *   description: Daily Visit Reports by Field Executives
+ *   name: Field Executive DVR
+ *   description: DVR (Daily Visit Report) management for Field Executives
  */
 
+// Auth middleware
 router.use(authenticate);
-router.use(authorizeRoles('FieldExecutive', 'SalesManager', 'Admin'));
 
 /**
  * @swagger
  * /fieldExecutive/dvr:
  *   post:
- *     summary: Submit a Daily Visit Report (DVR)
- *     tags: [DVR Reports]
+ *     summary: Create a new DVR (Field Executive)
+ *     tags: [Field Executive DVR]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -29,48 +28,106 @@ router.use(authorizeRoles('FieldExecutive', 'SalesManager', 'Admin'));
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - feedback
+ *               - location
  *             properties:
- *               date:
+ *               feedback:
  *                 type: string
- *                 format: date
- *                 example: "2025-07-29"
- *               clientName:
+ *               location:
  *                 type: string
- *                 example: "Acme Corp"
- *               purpose:
- *                 type: string
- *                 example: "Product demo and follow-up"
- *               outcome:
- *                 type: string
- *                 example: "Client interested in pricing proposal"
  *     responses:
  *       201:
  *         description: DVR submitted successfully
  *       400:
  *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
-router.post('/', dvrController.createDVR);
+router.post('/', authorizeRoles('FieldExecutive'), dvrController.createDVR);
 
 /**
  * @swagger
  * /fieldExecutive/dvr:
  *   get:
- *     summary: Fetch all submitted DVRs for the logged-in Field Executive
- *     tags: [DVR Reports]
+ *     summary: Get DVRs (Field Executive sees own DVRs, Manager/Admin can filter)
+ *     tags: [Field Executive DVR]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: executiveUserId
+ *         in: query
+ *         schema:
+ *           type: string
+ *         description: (Optional) Field Executive's userId to filter (for Manager/Admin)
  *     responses:
  *       200:
  *         description: List of DVRs
+ *       401:
+ *         description: Unauthorized
  *       500:
- *         description: Failed to fetch DVRs
+ *         description: Server error
  */
 router.get('/', dvrController.getMyDVRs);
 
-// SalesManager/Admin-only actions
+/**
+ * @swagger
+ * /fieldExecutive/dvr/{id}/approve:
+ *   patch:
+ *     summary: Approve a DVR (SalesManager/Admin only)
+ *     tags: [Field Executive DVR]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: DVR ID
+ *     responses:
+ *       200:
+ *         description: DVR approved
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: DVR not found
+ *       500:
+ *         description: Server error
+ */
 router.patch('/:id/approve', authorizeRoles('SalesManager', 'Admin'), dvrController.approveDVR);
+
+/**
+ * @swagger
+ * /fieldExecutive/dvr/{id}/reject:
+ *   patch:
+ *     summary: Reject a DVR (SalesManager/Admin only)
+ *     tags: [Field Executive DVR]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: DVR ID
+ *     responses:
+ *       200:
+ *         description: DVR rejected
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: DVR not found
+ *       500:
+ *         description: Server error
+ */
 router.patch('/:id/reject', authorizeRoles('SalesManager', 'Admin'), dvrController.rejectDVR);
 
 module.exports = router;

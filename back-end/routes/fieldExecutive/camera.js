@@ -1,22 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const authorizeRoles = require('../../middlewares/roleCheck');
-const authenticate = require('../../middlewares/auth');
-const cameraController = require('../../controllers/cameraController');
 const multer = require('multer');
+const authenticate = require('../../middlewares/auth');
+const authorizeRoles = require('../../middlewares/roleCheck');
+const cameraController = require('../../controllers/cameraController');
 
-// Configure multer for file uploads
+// Configure multer for image upload
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
-  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed'), false);
-    }
+    if (file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('Only image files allowed'), false);
   },
 });
 
@@ -24,7 +19,7 @@ const upload = multer({
  * @swagger
  * tags:
  *   name: Field Executive Camera
- *   description: Camera functionality for Field Executives
+ *   description: Image upload and retrieval for field executives
  */
 
 router.use(authenticate);
@@ -34,7 +29,7 @@ router.use(authorizeRoles('FieldExecutive'));
  * @swagger
  * /fieldExecutive/camera/upload:
  *   post:
- *     summary: Upload an image with GPS location
+ *     summary: Upload a new image with GPS coordinates
  *     tags: [Field Executive Camera]
  *     security:
  *       - bearerAuth: []
@@ -61,12 +56,12 @@ router.use(authorizeRoles('FieldExecutive'));
  *               image:
  *                 type: string
  *                 format: binary
- *                 description: Image file
+ *                 description: The image file
  *     responses:
  *       201:
  *         description: Image uploaded successfully
  *       400:
- *         description: Invalid input data
+ *         description: Invalid data or missing fields
  *       401:
  *         description: Unauthorized
  *       500:
@@ -78,13 +73,13 @@ router.post('/upload', upload.single('image'), cameraController.uploadImage);
  * @swagger
  * /fieldExecutive/camera/images:
  *   get:
- *     summary: Get all images uploaded by the field executive
+ *     summary: Get all uploaded images by the field executive
  *     tags: [Field Executive Camera]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of images
+ *         description: List of uploaded images
  *       401:
  *         description: Unauthorized
  *       500:

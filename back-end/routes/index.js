@@ -46,6 +46,7 @@ router.use('/fieldExecutive/location', require('./fieldExecutive/location'));
 router.use('/fieldExecutive/customers', require('./fieldExecutive/customers'));
 router.use('/fieldExecutive/orders', require('./fieldExecutive/orders'));
 router.use('/fieldExecutive/operations', require('./fieldExecutive/operations'));
+router.use('/fieldExecutive/stock', require('./fieldExecutive/stock'));
 
 router.use('/user/incentives', require('./plumber/incentive'));
 router.use('/user/points', require('./plumber/points'));

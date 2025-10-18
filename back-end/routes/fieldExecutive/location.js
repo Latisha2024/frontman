@@ -1,43 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const salesExecutiveController = require('../../controllers/salesExecutiveController');
-const auth = require('../../middlewares/auth');
+const authenticate = require('../../middlewares/auth');
 const authorizeRoles = require('../../middlewares/roleCheck');
+const locationController = require('../../controllers/locationController');
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     Location:
- *       type: object
- *       required:
- *         - latitude
- *         - longitude
- *       properties:
- *         latitude:
- *           type: number
- *           description: Latitude coordinate
- *         longitude:
- *           type: number
- *           description: Longitude coordinate
- */
+router.use(authenticate);
+router.get('/', locationController.getLocationByUser);
 
 /**
  * @swagger
  * tags:
- *   name: Field Executive Location
- *   description: GPS location tracking for Field Executives
+ *   name: FieldExecutiveLocations
+ *   description: Field Executive location management
  */
-
-router.use(auth);
-router.use(authorizeRoles('FieldExecutive'));
 
 /**
  * @swagger
  * /fieldExecutive/location:
  *   post:
- *     summary: Submit GPS location
- *     tags: [Field Executive Location]
+ *     summary: Field Executive submits current location
+ *     tags: [FieldExecutiveLocations]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -52,40 +34,32 @@ router.use(authorizeRoles('FieldExecutive'));
  *             properties:
  *               latitude:
  *                 type: number
- *                 example: 28.6139
  *               longitude:
  *                 type: number
- *                 example: 77.2090
  *     responses:
  *       201:
- *         description: Location recorded successfully
+ *         description: Location recorded
  *       400:
- *         description: Invalid coordinates
+ *         description: Latitude and longitude required
  *       500:
- *         description: Server error
+ *         description: Failed to record location
  */
-router.post('/', salesExecutiveController.submitLocation);
+router.post('/', authorizeRoles('FieldExecutive'), locationController.submitLocation);
 
 /**
  * @swagger
  * /fieldExecutive/location:
  *   get:
- *     summary: Get my location history
- *     tags: [Field Executive Location]
+ *     summary: Get logged-in Field Executive's location history
+ *     tags: [FieldExecutiveLocations]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Location history retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Location'
+ *         description: List of locations
  *       500:
- *         description: Server error
+ *         description: Failed to fetch location history
  */
-router.get('/', salesExecutiveController.getMyLocationHistory);
+router.get('/', authorizeRoles('FieldExecutive'), locationController.getMyLocationHistory);
 
 module.exports = router;

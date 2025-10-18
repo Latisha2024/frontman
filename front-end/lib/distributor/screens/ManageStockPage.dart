@@ -1,85 +1,36 @@
-// stock_page.dart
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../../authpage/pages/auth_services.dart';
+import '../../constants/colors.dart';
 
-class StockPage extends StatefulWidget {
-  const StockPage({super.key});
+class StockManagementScreen extends StatefulWidget {
+  const StockManagementScreen({super.key});
 
   @override
-  State<StockPage> createState() => _StockPageState();
+  State<StockManagementScreen> createState() => _StockManagementScreenState();
 }
 
-class _StockPageState extends State<StockPage> {
-  // Controllers for adding/updating a new product
+class _StockManagementScreenState extends State<StockManagementScreen>
+    with SingleTickerProviderStateMixin {
+  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5000"));
+
+  bool loading = false;
+  String? message;
+  List<dynamic> stockList = [];
+
+  // Controllers
   final TextEditingController nameController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController stockQuantityController = TextEditingController();
   final TextEditingController warrantyPeriodController = TextEditingController();
   final TextEditingController categoryIdController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
-
-  // Controller for updating/deleting existing stock items
   final TextEditingController stockItemIdController = TextEditingController();
   final TextEditingController updateStatusController = TextEditingController();
-
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
-
-  bool loading = false;
-  String? message;
-  List<dynamic> stockList = []; // To store the fetched stock items
 
   Future<String?> _getToken() async {
     final authService = AuthService();
     return await authService.getToken();
-  }
-
-  Future<void> _addStockItem() async {
-    setState(() {
-      loading = true;
-      message = null;
-    });
-
-    try {
-      final token = await _getToken();
-      if (token == null) {
-        setState(() => message = "⚠️ Please login again.");
-        return;
-      }
-
-      final response = await dio.post(
-        "/distributor/stock/items",
-        data: {
-          "name": nameController.text,
-          "price": double.tryParse(priceController.text) ?? 0,
-          "stockQuantity": int.tryParse(stockQuantityController.text) ?? 0,
-          "warrantyPeriodInMonths": int.tryParse(warrantyPeriodController.text) ?? 0,
-          "categoryId": categoryIdController.text.isNotEmpty ? categoryIdController.text : null,
-          "location": locationController.text.isNotEmpty ? locationController.text : null,
-        },
-        options: Options(headers: {"Authorization": "Bearer $token"}),
-      );
-
-      setState(() {
-        message = "✅ Stock item added successfully!";
-        // Clear text fields after successful creation
-        nameController.clear();
-        priceController.clear();
-        stockQuantityController.clear();
-        warrantyPeriodController.clear();
-        categoryIdController.clear();
-        locationController.clear();
-      });
-      _getAssignedStock(); // Refresh the list
-    } catch (e) {
-      String errorMessage = "❌ Error adding stock item. Please check your input.";
-      if (e is DioError && e.response != null) {
-        errorMessage = "❌ Error: ${e.response!.data['message'] ?? e.response!.statusMessage}";
-      }
-      setState(() => message = errorMessage);
-    } finally {
-      setState(() => loading = false);
-    }
   }
 
   Future<void> _getAssignedStock() async {
@@ -97,22 +48,61 @@ class _StockPageState extends State<StockPage> {
         });
         return;
       }
-
       final response = await dio.get(
         "/distributor/stock",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
-
       setState(() {
         stockList = response.data;
         message = "📦 ${stockList.length} stock items found.";
       });
     } catch (e) {
-      String errorMessage = "❌ Error fetching stock.";
-      if (e is DioError && e.response != null) {
-        errorMessage = "❌ Error: ${e.response!.data['message'] ?? e.response!.statusMessage}";
+      setState(() => message = "❌ Error fetching stock.");
+    } finally {
+      setState(() => loading = false);
+    }
+  }
+
+  Future<void> _addStockItem() async {
+    setState(() {
+      loading = true;
+      message = null;
+    });
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        setState(() => message = "⚠️ Please login again.");
+        return;
       }
-      setState(() => message = errorMessage);
+      await dio.post(
+        "/distributor/stock/items",
+        data: {
+          "name": nameController.text,
+          "price": double.tryParse(priceController.text) ?? 0,
+          "stockQuantity": int.tryParse(stockQuantityController.text) ?? 0,
+          "warrantyPeriodInMonths":
+              int.tryParse(warrantyPeriodController.text) ?? 0,
+          "categoryId": categoryIdController.text.isNotEmpty
+              ? categoryIdController.text
+              : null,
+          "location": locationController.text.isNotEmpty
+              ? locationController.text
+              : null,
+        },
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+      setState(() {
+        message = "✅ Stock item added successfully!";
+        nameController.clear();
+        priceController.clear();
+        stockQuantityController.clear();
+        warrantyPeriodController.clear();
+        categoryIdController.clear();
+        locationController.clear();
+      });
+      _getAssignedStock();
+    } catch (e) {
+      setState(() => message = "❌ Error adding stock item.");
     } finally {
       setState(() => loading = false);
     }
@@ -129,27 +119,19 @@ class _StockPageState extends State<StockPage> {
         setState(() => message = "⚠️ Please login again.");
         return;
       }
-
-      final response = await dio.put(
+      await dio.put(
         "/distributor/stock/${stockItemIdController.text}",
-        data: {
-          "status": updateStatusController.text,
-        },
+        data: {"status": updateStatusController.text},
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
-
       setState(() {
         message = "🔄 Stock status updated successfully!";
         updateStatusController.clear();
         stockItemIdController.clear();
       });
-      _getAssignedStock(); // Refresh the list
+      _getAssignedStock();
     } catch (e) {
-      String errorMessage = "❌ Error updating status. Please check the Item ID and status.";
-      if (e is DioError && e.response != null) {
-        errorMessage = "❌ Error: ${e.response!.data['message'] ?? e.response!.statusMessage}";
-      }
-      setState(() => message = errorMessage);
+      setState(() => message = "❌ Error updating status.");
     } finally {
       setState(() => loading = false);
     }
@@ -166,23 +148,17 @@ class _StockPageState extends State<StockPage> {
         setState(() => message = "⚠️ Please login again.");
         return;
       }
-
-      final response = await dio.delete(
+      await dio.delete(
         "/distributor/stock/items/${stockItemIdController.text}",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
-
       setState(() {
         message = "🗑️ Stock item deleted successfully!";
         stockItemIdController.clear();
       });
-      _getAssignedStock(); // Refresh the list
+      _getAssignedStock();
     } catch (e) {
-      String errorMessage = "❌ Error removing stock item. Please check the Item ID.";
-      if (e is DioError && e.response != null) {
-        errorMessage = "❌ Error: ${e.response!.data['message'] ?? e.response!.statusMessage}";
-      }
-      setState(() => message = errorMessage);
+      setState(() => message = "❌ Error removing stock item.");
     } finally {
       setState(() => loading = false);
     }
@@ -191,88 +167,166 @@ class _StockPageState extends State<StockPage> {
   @override
   void initState() {
     super.initState();
-    _getAssignedStock(); // Fetch stock on page load
+    _getAssignedStock();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Distributor Stock Management")),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (loading) const LinearProgressIndicator(),
-            if (message != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Text(message!, style: const TextStyle(fontSize: 16, color: Colors.red)),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundGray,
+        appBar: AppBar(
+          title: const Text("Stock Management"),
+          backgroundColor: AppColors.primaryBlue,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh, color: Colors.white),
+              onPressed: _getAssignedStock,
+            )
+          ],
+          bottom: const TabBar(
+            indicatorColor: Colors.white,
+            tabs: [
+              Tab(text: "Manage Stock", icon: Icon(Icons.inventory)),
+              Tab(text: "Add Stock", icon: Icon(Icons.add_box)),
+            ],
+          ),
+        ),
+        body: loading
+            ? const Center(child: CircularProgressIndicator())
+            : TabBarView(
+                children: [
+                  _buildManageStockTab(),
+                  _buildAddStockTab(),
+                ],
               ),
+      ),
+    );
+  }
 
-            // --- Section for adding a new product/stock item ---
-            const Divider(),
-            const Text("Add New Stock Item", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: "Product Name")),
-            TextField(controller: priceController, decoration: const InputDecoration(labelText: "Price"), keyboardType: TextInputType.number),
-            TextField(controller: stockQuantityController, decoration: const InputDecoration(labelText: "Stock Quantity"), keyboardType: TextInputType.number),
-            TextField(controller: warrantyPeriodController, decoration: const InputDecoration(labelText: "Warranty Period (Months)"), keyboardType: TextInputType.number),
-            TextField(controller: categoryIdController, decoration: const InputDecoration(labelText: "Category ID (Optional)")),
-            TextField(controller: locationController, decoration: const InputDecoration(labelText: "Location (Optional)")),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: loading ? null : _addStockItem,
-              child: const Text("➕ Add Stock Item"),
-            ),
-            
-            // --- Section for updating/deleting existing items ---
-            const Divider(),
-            const Text("Manage Existing Stock Item", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            TextField(controller: stockItemIdController, decoration: const InputDecoration(labelText: "Enter Stock Item ID")),
-            TextField(controller: updateStatusController, decoration: const InputDecoration(labelText: "New Status (e.g., 'Sold', 'Dispatched')")),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+  Widget _buildManageStockTab() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        if (message != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Text(message!,
+                style: const TextStyle(fontSize: 16, color: Colors.red)),
+          ),
+        Card(
+          elevation: 3,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: loading ? null : _updateStockStatus,
-                    child: const Text("🔄 Update Status"),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: loading ? null : _removeStockItem,
-                    child: const Text("🗑️ Remove Item"),
-                  ),
+                TextField(
+                    controller: stockItemIdController,
+                    decoration: const InputDecoration(labelText: "Stock Item ID")),
+                TextField(
+                    controller: updateStatusController,
+                    decoration: const InputDecoration(
+                        labelText: "New Status (e.g. Sold, Dispatched)")),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _updateStockStatus,
+                        icon: const Icon(Icons.update),
+                        label: const Text("Update Status"),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _removeStockItem,
+                        icon: const Icon(Icons.delete),
+                        label: const Text("Remove Item"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            
-            // --- Section for displaying fetched stock ---
-            const Divider(),
-            const Text("Current Assigned Stock", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            if (stockList.isEmpty && !loading) const Text("No stock items found."),
-            ...stockList.map((stock) {
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  title: Text(stock['product']?['name'] ?? 'No Product Name'),
-                  subtitle: Text(
-                    "ID: ${stock['id']}\n"
-                    "Status: ${stock['status']}\n"
-                    "Location: ${stock['location']}\n"
-                    "Price: \$${stock['product']?['price'] ?? 'N/A'}"
-                  ),
-                  isThreeLine: true,
+          ),
+        ),
+        const SizedBox(height: 20),
+        if (stockList.isEmpty)
+          const Center(child: Text("No stock items found"))
+        else
+          ...stockList.map((stock) {
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: ListTile(
+                title: Text(stock['product']?['name'] ?? 'No Product Name'),
+                subtitle: Text(
+                  "ID: ${stock['id']}\n"
+                  "Status: ${stock['status']}\n"
+                  "Location: ${stock['location']}\n"
+                  "Price: \$${stock['product']?['price'] ?? 'N/A'}",
                 ),
-              );
-            }).toList(),
-          ],
+                isThreeLine: true,
+              ),
+            );
+          }),
+      ],
+    );
+  }
+
+  Widget _buildAddStockTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: "Product Name")),
+              TextField(
+                  controller: priceController,
+                  decoration: const InputDecoration(labelText: "Price"),
+                  keyboardType: TextInputType.number),
+              TextField(
+                  controller: stockQuantityController,
+                  decoration:
+                      const InputDecoration(labelText: "Stock Quantity"),
+                  keyboardType: TextInputType.number),
+              TextField(
+                  controller: warrantyPeriodController,
+                  decoration: const InputDecoration(
+                      labelText: "Warranty Period (Months)"),
+                  keyboardType: TextInputType.number),
+              TextField(
+                  controller: categoryIdController,
+                  decoration:
+                      const InputDecoration(labelText: "Category ID (Optional)")),
+              TextField(
+                  controller: locationController,
+                  decoration:
+                      const InputDecoration(labelText: "Location (Optional)")),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _addStockItem,
+                icon: const Icon(Icons.add),
+                label: const Text("Add Stock Item"),
+              ),
+            ],
+          ),
         ),
       ),
     );
