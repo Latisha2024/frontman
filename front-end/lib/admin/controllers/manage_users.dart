@@ -87,12 +87,20 @@ class AdminManageUsersController extends ChangeNotifier {
   String _searchQuery = '';
   String selectedRole = 'All';
   String selectedStatus = 'All';
+  // Validation regex
+  final RegExp _phoneRegex = RegExp(r'^(\+91\d{10}|\d{10})$');
+  final RegExp _strongPassword = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$');
   
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  // Live field errors
+  String? phoneError;
+  String? passwordError;
+  // Full E.164 phone (e.g., +911234567890) when using IntlPhoneField
+  String _fullPhoneE164 = '';
   
   User? _editingUser;
   bool _isEditMode = false;
@@ -162,7 +170,24 @@ class AdminManageUsersController extends ChangeNotifier {
       },
     ));
     fetchUsers();
+
+    // Live validation listeners
+
+    passwordController.addListener(() {
+      final pwd = passwordController.text;
+      if (pwd.isEmpty) {
+        passwordError = null; // optional on update
+      } else {
+        passwordError = _strongPassword.hasMatch(pwd)
+            ? null
+            : 'Password must be 8+ chars incl. upper, lower, number, special';
+      }
+      notifyListeners();
+    });
   }
+
+  // Called by form when IntlPhoneField changes
+
 
   void _scheduleAutoHideMessages() {
     Future.delayed(const Duration(seconds: 3), () {
@@ -235,6 +260,21 @@ class AdminManageUsersController extends ChangeNotifier {
       _scheduleAutoHideMessages();
       return;
     }
+    // Prefer IntlPhoneField value if present
+    final phone = _fullPhoneE164.isNotEmpty ? _fullPhoneE164 : phoneController.text.trim();
+    final pwd = passwordController.text.trim();
+    if (phone.isEmpty) { error = 'Phone number is required'; notifyListeners(); _scheduleAutoHideMessages(); return; }
+    // Accept either +<country>... or 10-digit (legacy)
+    final phoneOk = phone.startsWith('+')
+        ? RegExp(r'^\+\d{6,15}$').hasMatch(phone)
+        : _phoneRegex.hasMatch(phone);
+    if (!phoneOk) { error = 'Phone must be 10 digits or +<code> followed by digits'; notifyListeners(); _scheduleAutoHideMessages(); return; }
+    if (!_strongPassword.hasMatch(pwd)) {
+      error = 'Password must be 8+ chars with upper, lower, number, and special character';
+      notifyListeners();
+      _scheduleAutoHideMessages();
+      return;
+    }
 
     try {
       isLoading = true;
@@ -284,11 +324,11 @@ class AdminManageUsersController extends ChangeNotifier {
       final userData = {
         'name': nameController.text.trim(),
         'email': emailController.text.trim(),
-        'phone': phoneController.text.trim().isNotEmpty ? phoneController.text.trim() : null,
+        'phone': phone,
         'address': addressController.text.trim().isNotEmpty ? addressController.text.trim() : null,
         'role': selectedUserRole,
         'status': selectedUserStatus,
-        'password': passwordController.text.trim(),
+        'password': pwd,
       };
 
       final response = await _dio.post(
@@ -342,6 +382,26 @@ class AdminManageUsersController extends ChangeNotifier {
       _scheduleAutoHideMessages();
       return;
     }
+    final phone = phoneController.text.trim();
+    final pwd = passwordController.text.trim();
+    if (phone.isEmpty) {
+      error = 'Phone number is required';
+      notifyListeners();
+      _scheduleAutoHideMessages();
+      return;
+    }
+    if (!_phoneRegex.hasMatch(phone)) {
+      error = 'Phone must be 10 digits or +91 followed by 10 digits';
+      notifyListeners();
+      _scheduleAutoHideMessages();
+      return;
+    }
+    if (pwd.isNotEmpty && !_strongPassword.hasMatch(pwd)) {
+      error = 'Password must be 8+ chars with upper, lower, number, and special character';
+      notifyListeners();
+      _scheduleAutoHideMessages();
+      return;
+    }
 
     try {
       isLoading = true;
@@ -350,15 +410,15 @@ class AdminManageUsersController extends ChangeNotifier {
       final updateData = {
         'name': nameController.text.trim(),
         'email': emailController.text.trim(),
-        'phone': phoneController.text.trim().isNotEmpty ? phoneController.text.trim() : null,
+        'phone': phone,
         'address': addressController.text.trim().isNotEmpty ? addressController.text.trim() : null,
         'role': selectedUserRole,
         'status': selectedUserStatus,
       };
       
       // Only include password if it's provided
-      if (passwordController.text.trim().isNotEmpty) {
-        updateData['password'] = passwordController.text.trim();
+      if (pwd.isNotEmpty) {
+        updateData['password'] = pwd;
       }
 
       final response = await _dio.put(
@@ -429,6 +489,9 @@ class AdminManageUsersController extends ChangeNotifier {
     selectedUserStatus = 'active';
     _editingUser = null;
     _isEditMode = false;
+    phoneError = null;
+    passwordError = null;
+    _fullPhoneE164 = '';
     clearMessages();
     notifyListeners();
   }

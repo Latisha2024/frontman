@@ -187,7 +187,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         },
                       ),
                     if (_isRegister) const SizedBox(height: 16),
-                    
+
                     if (_isRegister)
                       IntlPhoneField(
                         decoration: const InputDecoration(
@@ -203,7 +203,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
 
                     if (_isRegister) const SizedBox(height: 16),
-                    
+
                     if (_isRegister)
                       DropdownButtonFormField<String>(
                         value: _selectedRole,
@@ -222,7 +222,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           setState(() => _selectedRole = newValue);
                         },
                         validator: (value) =>
-                            value == null ? 'Please select a role' : null,
+                        value == null ? 'Please select a role' : null,
                       ),
 
                     if (_isRegister) const SizedBox(height: 16),
@@ -261,12 +261,36 @@ class _SignUpPageState extends State<SignUpPage> {
                         if (value == null || value.isEmpty) {
                           return 'Enter your password';
                         }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                        final strongPassword = RegExp(
+                            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$');
+                        if (!strongPassword.hasMatch(value)) {
+                          return 'Password must be 8+ chars with upper, lower, number, special';
                         }
                         return null;
                       },
                     ),
+
+                    // Inline password error message (no autovalidate): mirrors Manage Users behavior
+                    if (_isRegister)
+                      ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _passwordController,
+                        builder: (context, value, _) {
+                          final pwd = value.text;
+                          if (pwd.isEmpty) return const SizedBox.shrink();
+                          final ok = RegExp(
+                                  r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$')
+                              .hasMatch(pwd);
+                          return ok
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: const EdgeInsets.only(top: 6.0),
+                                  child: Text(
+                                    'Password must be 8+ chars with upper, lower, number, special',
+                                    style: const TextStyle(color: Colors.red, fontSize: 12),
+                                  ),
+                                );
+                        },
+                      ),
 
                     const SizedBox(height: 32),
 

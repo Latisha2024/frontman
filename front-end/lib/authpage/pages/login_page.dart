@@ -221,10 +221,10 @@ class _LoginPageState extends State<LoginPage> {
                           setState(() => _selectedRole = newValue);
                         },
                         validator: (value) =>
-                            value == null ? 'Please select a role' : null,
+                        value == null ? 'Please select a role' : null,
                       ),
                     if (_isRegister) const SizedBox(height: 16),
-                    
+
                     CustomTextField(
                       label: 'Email',
                       controller: _emailController,
@@ -252,14 +252,16 @@ class _LoginPageState extends State<LoginPage> {
                             ? Icons.visibility
                             : Icons.visibility_off),
                         onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword),
+                                () => _obscurePassword = !_obscurePassword),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Enter your password';
                         }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                         final strongPassword = RegExp(
+                            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$');
+                        if (!strongPassword.hasMatch(value)) {
+                          return 'Password must be 8+ chars with upper, lower, number, special';
                         }
                         return null;
                       },

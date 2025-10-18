@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:role_based_app/admin/widgets/user_list.dart';
 import '../controllers/manage_users.dart';
 import '../../constants/colors.dart';
@@ -54,13 +55,33 @@ class UserForm extends StatelessWidget {
                 isRequired: true,
               ),
               const SizedBox(height: 16),
-              buildTextField(
-                controller: controller.phoneController,
-                label: 'Phone Number',
-                icon: Icons.phone,
-                keyboardType: TextInputType.phone,
-                isRequired: true,
+              // Phone with country code and live validation
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: IntlPhoneField(
+                    initialCountryCode: 'IN',
+                    decoration: const InputDecoration(
+                      labelText: 'Phone Number *',
+                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                    ),
+                    onChanged: (phone) {
+                      controller.phoneController.text = phone.countryCode+phone.number;
+                    },
+                  ),
+                ),
               ),
+              if (controller.phoneError != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  controller.phoneError!,
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ],
               const SizedBox(height: 16),
               buildTextField(
                 controller: controller.addressController,
@@ -78,6 +99,13 @@ class UserForm extends StatelessWidget {
                 obscureText: true,
                 isRequired: !controller.isEditMode,
               ),
+              if (controller.passwordError != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  controller.passwordError!,
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ],
               const SizedBox(height: 16),
               buildDropdown(
                 value: controller.selectedUserRole,
