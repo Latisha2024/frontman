@@ -25,7 +25,7 @@ class _CustomerVisitsPageState extends State<CustomerVisitsPage> {
   Future<void> getAssignedCustomers() async {
     try {
       final response = await http.post(
-        Uri.parse('https://yourapi.com/api/field-executive/customers/assigned'),
+        Uri.parse('https://frontman-1.onrender.com/field-executive/customers/assigned'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"userId": userId}),
       );
@@ -47,7 +47,7 @@ class _CustomerVisitsPageState extends State<CustomerVisitsPage> {
   Future<void> visitCustomer(int customerId) async {
     try {
       final response = await http.post(
-        Uri.parse('https://yourapi.com/api/field-executive/customers/visit'),
+        Uri.parse('https://frontman-1.onrender.com/field-executive/customers/visit'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "customerId": customerId,

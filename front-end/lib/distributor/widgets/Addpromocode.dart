@@ -13,7 +13,7 @@ class PromoCodePage extends StatefulWidget {
 class _PromoCodePageState extends State<PromoCodePage> {
   final TextEditingController promoCodeController = TextEditingController();
   final TextEditingController orderAmountController = TextEditingController();
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
+  final dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com"));
 
   bool loading = false;
   String? message;

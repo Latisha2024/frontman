@@ -13,7 +13,7 @@ class FieldExecutiveCustomersPage extends StatefulWidget {
 
 class _FieldExecutiveCustomersPageState
     extends State<FieldExecutiveCustomersPage> {
-  final Dio dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
+  final Dio dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com"));
 
   bool loading = false;
   String? message;

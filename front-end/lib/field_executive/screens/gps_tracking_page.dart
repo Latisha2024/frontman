@@ -61,7 +61,7 @@ class _GpsTrackingPageState extends State<GpsTrackingPage> {
 
   Future<void> enableGps() async {
     final response = await http.post(
-      Uri.parse('https://yourapi.com/api/field-executive/gps/enable'),
+      Uri.parse('https://frontman-1.onrender.com/field-executive/gps/enable'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({"userId": userId}),
     );
@@ -77,7 +77,7 @@ class _GpsTrackingPageState extends State<GpsTrackingPage> {
 
   Future<void> startLiveTracking() async {
     final response = await http.post(
-      Uri.parse('https://yourapi.com/api/field-executive/gps/start-tracking'),
+      Uri.parse('https://frontman-1.onrender.comfield-executive/gps/start-tracking'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({"userId": userId}),
     );

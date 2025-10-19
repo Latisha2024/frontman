@@ -12,7 +12,7 @@ class CameraPage extends StatefulWidget {
 }
 
 class _CameraPageState extends State<CameraPage> {
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
+  final dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com"));
   final ImagePicker _picker = ImagePicker();
   XFile? _image;
   bool loading = false;

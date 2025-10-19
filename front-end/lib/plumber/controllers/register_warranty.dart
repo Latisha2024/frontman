@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 String _resolveBaseUrl() {
   const lanIpForPhysicalDevice = '';
   if (lanIpForPhysicalDevice.isNotEmpty) return lanIpForPhysicalDevice;
-  return 'https://frontman-backend-2.onrender.com/';
+  return 'https://frontman-1.onrender.com';
 }
 
 class PlumberRegisterWarrantyController extends ChangeNotifier {

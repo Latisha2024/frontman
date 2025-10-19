@@ -12,7 +12,7 @@ class FieldExecutivePlaceOrderPage extends StatefulWidget {
 class _FieldExecutivePlaceOrderPageState extends State<FieldExecutivePlaceOrderPage> {
   final TextEditingController productIdController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001")); // Update baseUrl if needed
+  final dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com")); // Update baseUrl if needed
 
   bool loading = false;
   String? message;

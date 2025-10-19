@@ -61,7 +61,7 @@ class ValidateWarrantyController extends ChangeNotifier {
       }
 
       final response = await _dio.post(
-        'http://localhost:5001/user/validate-warranty',
+        'https://frontman-1.onrender.com/user/validate-warranty',
         data: qrJson, // send scanned QR JSON
         options: Options(
           headers: {

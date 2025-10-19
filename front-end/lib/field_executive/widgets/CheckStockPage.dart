@@ -11,7 +11,7 @@ class StockPage extends StatefulWidget {
 }
 
 class _StockPageState extends State<StockPage> {
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
+  final dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com"));
 
   bool loading = false;
   String? message;

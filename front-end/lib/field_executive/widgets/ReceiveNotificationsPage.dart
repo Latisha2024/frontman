@@ -10,7 +10,7 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
+  final dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com"));
   List<dynamic> notifications = [];
   bool loading = true;
   bool unreadOnly = false;

@@ -210,7 +210,7 @@ class AttendanceController extends ChangeNotifier {
         throw Exception('Auth token not found');
 
       dio = Dio(BaseOptions(
-        baseUrl: 'http://localhost:5001', // replace with your backend
+        baseUrl: 'https://frontman-1.onrender.com', // replace with your backend
         headers: {'Authorization': 'Bearer $token'},
       ));
 

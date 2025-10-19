@@ -10,7 +10,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
+  final dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com"));
   final TextEditingController messageController = TextEditingController();
   final TextEditingController receiverIdController = TextEditingController();
 

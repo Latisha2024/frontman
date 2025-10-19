@@ -12,9 +12,9 @@ String _resolveBaseUrl() {
   const lanIpForPhysicalDevice = '';
   if (lanIpForPhysicalDevice.isNotEmpty) return lanIpForPhysicalDevice;
   if (kIsWeb)
-    return 'https://frontman-backend-2.onrender.com/'; // still supports web builds
-  if (Platform.isAndroid) return 'https://frontman-backend-2.onrender.com/';
-  return 'https://frontman-backend-2.onrender.com/';
+    return 'https://frontman-1.onrender.com/'; // still supports web builds
+  if (Platform.isAndroid) return 'https://frontman-1.onrender.com';
+  return 'https://frontman-1.onrender.com';
 }
 
 class WarrantyInfo {

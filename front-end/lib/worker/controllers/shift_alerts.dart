@@ -47,7 +47,7 @@ class WorkerShiftAlertsController extends ChangeNotifier {
       }
 
       dio = Dio(BaseOptions(
-        baseUrl: 'https://frontman-backend-2.onrender.com', // backend URL
+        baseUrl: 'https://frontman-1.onrender.com', // backend URL
         headers: {'Authorization': 'Bearer $token'},
       ));
 

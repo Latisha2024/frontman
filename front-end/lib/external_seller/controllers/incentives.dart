@@ -7,7 +7,7 @@ class ExternalSellerIncentivesController extends ChangeNotifier {
   String? error;
   List<dynamic>? incentives;
 
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:5001'));
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'https://frontman-1.onrender.com'));
 
   Future<void> fetchIncentives() async {
     final token = AuthService().token;

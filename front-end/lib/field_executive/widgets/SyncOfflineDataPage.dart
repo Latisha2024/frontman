@@ -10,7 +10,7 @@ class SyncOfflineDataPage extends StatefulWidget {
 }
 
 class _SyncOfflineDataPageState extends State<SyncOfflineDataPage> {
-  final Dio dio = Dio(BaseOptions(baseUrl: "http://localhost:5001"));
+  final Dio dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com"));
   List<Map<String, dynamic>> offlineData = [];
   bool loading = false;
   String? message;

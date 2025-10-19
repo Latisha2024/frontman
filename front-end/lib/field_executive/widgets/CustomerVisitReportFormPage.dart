@@ -10,7 +10,7 @@ class CustomerVisitPage extends StatefulWidget {
 }
 
 class _CustomerVisitPageState extends State<CustomerVisitPage> {
-  final dio = Dio(BaseOptions(baseUrl: "http://localhost:5001"));
+  final dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com"));
 
   bool loading = false;
   String? message;

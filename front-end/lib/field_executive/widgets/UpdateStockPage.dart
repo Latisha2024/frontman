@@ -14,7 +14,7 @@ class _UpdateStockPageState extends State<UpdateStockPage> {
   final TextEditingController stockItemIdController = TextEditingController();
   final TextEditingController updateStatusController = TextEditingController();
 
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
+  final dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com"));
 
   bool loading = false;
   String? message;

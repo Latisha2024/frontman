@@ -10,7 +10,7 @@ class AddProductToOrderPage extends StatefulWidget {
 }
 
 class _AddProductToOrderPageState extends State<AddProductToOrderPage> {
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
+  final dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com"));
 
   final TextEditingController orderIdController = TextEditingController();
   final TextEditingController productIdController = TextEditingController();

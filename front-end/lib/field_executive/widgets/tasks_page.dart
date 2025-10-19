@@ -15,7 +15,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   final TextEditingController statusController = TextEditingController();
   DateTime? selectedDueDate;
 
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
+  final dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com"));
   bool loading = false;
   String? message;
 

@@ -13,7 +13,7 @@ class UpdateLocationPage extends StatefulWidget {
 }
 
 class _UpdateLocationPageState extends State<UpdateLocationPage> {
-  final dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:5001"));
+  final dio = Dio(BaseOptions(baseUrl: "https://frontman-1.onrender.com"));
   bool tracking = false;
   String? message;
   Timer? timer;

@@ -31,7 +31,7 @@ class ExternalSellerDeliveryReportController extends ChangeNotifier {
       }
 
       final response = await _dio.post(
-        'http://localhost:5001/user/delivery-report',
+        'https://frontman-1.onrender.com/user/delivery-report',
         data: {
           'product': productController.text,
           'quantity': int.tryParse(quantityController.text) ?? 0,
