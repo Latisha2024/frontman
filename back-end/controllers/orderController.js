@@ -2,74 +2,161 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = require('../prisma/prisma');
 
 const orderController = {
+  // placeOrder: async (req, res) => {
+  //   const userId = req.user.id;
+  //   const { items } = req.body; // [{ productId, quantity }]
+  
+  //   try {
+  //     if (!items || !Array.isArray(items) || items.length === 0) {
+  //       return res.status(400).json({ message: 'No items provided' });
+  //     }
+  
+  //     await prisma.$transaction(async (tx) => {
+  //       const productIds = items.map(item => item.productId);
+  
+  //       const products = await tx.product.findMany({
+  //         where: { id: { in: productIds } }
+  //       });
+  
+  //       const orderItemsData = items.map(item => {
+  //         const product = products.find(p => p.id === item.productId);
+  //         if (!product) throw new Error(`Invalid product ID: ${item.productId}`);
+  
+  //         if (product.stockQuantity < item.quantity) {
+  //           throw new Error(`Not enough stock for ${product.name}`);
+  //         }
+  
+  //         return {
+  //           productId: item.productId,
+  //           quantity: item.quantity,
+  //           unitPrice: product.price
+  //         };
+  //       });
+  
+  //       // Deduct product stock
+  //       for (const item of orderItemsData) {
+  //         await tx.product.update({
+  //           where: { id: item.productId },
+  //           data: {
+  //             stockQuantity: {
+  //               decrement: item.quantity
+  //             }
+  //           }
+  //         });
+  //       }
+  
+  //       // Create order and order items
+  //       const order = await tx.order.create({
+  //         data: {
+  //           userId,
+  //           status: 'Pending',
+  //           orderDate: new Date(),
+  //           orderItems: {
+  //             create: orderItemsData
+  //           }
+  //         },
+  //         include: {
+  //           orderItems: true
+  //         }
+  //       });
+  
+  //       res.status(201).json({ message: 'Order placed', order });
+  //     });
+  //   } catch (err) {
+  //     console.error('Order Error:', err);
+  //     res.status(500).json({ message: 'Order placement failed', error: err.message });
+  //   }
+  // },
   placeOrder: async (req, res) => {
-    const userId = req.user.id;
-    const { items } = req.body; // [{ productId, quantity }]
-  
-    try {
-      if (!items || !Array.isArray(items) || items.length === 0) {
-        return res.status(400).json({ message: 'No items provided' });
-      }
-  
-      await prisma.$transaction(async (tx) => {
-        const productIds = items.map(item => item.productId);
-  
-        const products = await tx.product.findMany({
-          where: { id: { in: productIds } }
-        });
-  
-        const orderItemsData = items.map(item => {
-          const product = products.find(p => p.id === item.productId);
-          if (!product) throw new Error(`Invalid product ID: ${item.productId}`);
-  
-          if (product.stockQuantity < item.quantity) {
-            throw new Error(`Not enough stock for ${product.name}`);
-          }
-  
-          return {
-            productId: item.productId,
-            quantity: item.quantity,
-            unitPrice: product.price
-          };
-        });
-  
-        // Deduct product stock
-        for (const item of orderItemsData) {
-          await tx.product.update({
-            where: { id: item.productId },
-            data: {
-              stockQuantity: {
-                decrement: item.quantity
-              }
-            }
-          });
-        }
-  
-        // Create order and order items
-        const order = await tx.order.create({
-          data: {
-            userId,
-            status: 'Pending',
-            orderDate: new Date(),
-            orderItems: {
-              create: orderItemsData
-            }
-          },
-          include: {
-            orderItems: true
-          }
-        });
-  
-        res.status(201).json({ message: 'Order placed', order });
-      });
-    } catch (err) {
-      console.error('Order Error:', err);
-      res.status(500).json({ message: 'Order placement failed', error: err.message });
-    }
-  },
-  
+  console.log("🟢 Incoming request to placeOrder");
 
-  getMyOrders: async (req, res) => {
+  const userId = String(req.user?.id || "");
+  const { items } = req.body;
+
+  console.log("➡️ User ID:", userId);
+  console.log("➡️ Items received:", items);
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized: No user ID found" });
+  }
+
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ message: "No items provided" });
+  }
+
+  try {
+    let order; // store final order
+
+    await prisma.$transaction(async (tx) => {
+      const productNames = items.map((i) => i.productName);
+      console.log("🛒 Product names:", productNames);
+
+      // find products by name (case insensitive)
+      const products = await tx.product.findMany({
+        where: {
+          name: { in: productNames, mode: "insensitive" },
+        },
+      });
+
+      console.log("📦 Products found:", products);
+
+      const orderItemsData = items.map((item) => {
+        const product = products.find(
+          (p) => p.name.toLowerCase() === item.productName.toLowerCase()
+        );
+
+        if (!product) throw new Error(`Invalid product name: ${item.productName}`);
+
+        if (product.stockQuantity < item.quantity) {
+          throw new Error(`Not enough stock for ${product.name}`);
+        }
+
+        return {
+          productId: String(product.id),
+          quantity: item.quantity,
+          unitPrice: product.price,
+        };
+      });
+
+      // Update stock
+      for (const item of orderItemsData) {
+        console.log(`🧮 Updating stock for productId ${item.productId}`);
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            stockQuantity: { decrement: item.quantity },
+          },
+        });
+      }
+
+      // Create order
+      order = await tx.order.create({
+        data: {
+          userId: String(userId),
+          status: "Pending",
+          orderDate: new Date(),
+          orderItems: { create: orderItemsData },
+        },
+        include: { orderItems: true },
+      });
+    });
+
+    console.log("✅ Order placed successfully:", order);
+
+    res.status(201).json({
+      message: "Order placed successfully",
+      order,
+    });
+  } catch (err) {
+    console.error("❌ OrderTwo Error:", err);
+    res.status(500).json({
+      message: "Order placement failed",
+      error: err.message,
+      stack: err.stack,
+    });
+  }
+},
+getMyOrders: async (req, res) => {
   const userId = req.user.id;
 
   try {

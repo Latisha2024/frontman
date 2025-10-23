@@ -22,6 +22,7 @@ router.use('/admin/shift-alerts', require('./admin/shiftAlert'));
 
 router.use('/distributor/catalog', require('./distributor/catalog'));
 router.use('/distributor/order', require('./distributor/order'));
+router.use('/distributor/orders', require('./distributor/orders'));
 router.use('/distributor/stock', require('./distributor/stock'));
 router.use('/distributor/cart', require('./distributor/cart'));
 router.use('/distributor/promo', require('./distributor/promo'));
@@ -48,6 +49,7 @@ router.use('/fieldExecutive/customers', require('./fieldExecutive/customers'));
 router.use('/fieldExecutive/orders', require('./fieldExecutive/orders'));
 router.use('/fieldExecutive/operations', require('./fieldExecutive/operations'));
 router.use('/fieldExecutive/stock', require('./fieldExecutive/stock'));
+router.use('/fieldExecutive/products', require('./fieldExecutive/products'));
 
 router.use('/plumber/incentives', require('./plumber/incentive'));
 router.use('/plumber/points', require('./plumber/points'));
