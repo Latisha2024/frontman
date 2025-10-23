@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:5001',
+        url: 'https://frontman-1.onrender.com',
         description: 'Development server'
       }
     ],

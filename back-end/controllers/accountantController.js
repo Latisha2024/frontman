@@ -1,11 +1,11 @@
-// accountantController.js
+
 
 const prisma = require('../prisma/prisma');
 
 const accountantController = {
   getFinancialSummary: async (req, res) => {
     try {
-      // ... (No changes needed in this function)
+      
       const incomeResult = await prisma.financialLog.aggregate({
         _sum: {
           amount: true,
@@ -33,7 +33,7 @@ const accountantController = {
         },
       });
 
-      // Prisma aggregate returns numbers, so these are likely fine
+     
       const totalIncome = incomeResult._sum.amount ?? 0;
       const totalExpenses = expenseResult._sum.amount ?? 0;
       const pendingInvoicesAmount = pendingInvoicesResult._sum.totalAmount ?? 0;
@@ -58,13 +58,13 @@ const accountantController = {
         include: { createdByUser: { select: { name: true } } },
       });
 
-      // FIX: Convert amount from Decimal (string) to a floating-point number
+      
       const formattedLogs = financialLogs.map(log => ({
         ...log,
         amount: parseFloat(log.amount),
       }));
 
-      res.json({ financialLogs: formattedLogs }); // Send the formatted logs instead
+      res.json({ financialLogs: formattedLogs });
     } catch (err) {
       console.error('getAllFinancialLogs error:', err);
       res.status(500).json({ message: 'Failed to fetch financial logs', error: err.message });
@@ -73,7 +73,7 @@ const accountantController = {
 
   createFinancialLog: async (req, res) => {
     try {
-      // ... (No changes needed, this function already uses parseFloat)
+      
       const { type, amount, description, category, reference } = req.body;
       const createdBy = req.user.id;
 
@@ -95,7 +95,7 @@ const accountantController = {
     }
   },
 
-  // ... (No other changes needed in the rest of the file)
+ 
 
   deleteFinancialLog: async (req, res) => {
     try {
@@ -107,6 +107,26 @@ const accountantController = {
       res.status(500).json({ message: 'Failed to delete financial log', error: err.message });
     }
   },
+
+  getAllUsers: async (req, res) => {
+    try {
+      const users = await prisma.user.findMany({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+        orderBy: {
+          name: 'asc',
+        },
+      });
+      res.json(users);
+    } catch (err) {
+      console.error('getAllUsers error:', err);
+      res.status(500).json({ message: 'Failed to fetch users' });
+    }
+  },
+   
 
   getAllInvoices: async (req, res) => {
     try {
@@ -179,6 +199,9 @@ const accountantController = {
       res.status(500).json({ message: 'Failed to send invoice', error: err.message });
     }
   },
+
+
+  
 
   verifyPayment: async (req, res) => {
     try {

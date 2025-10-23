@@ -19,9 +19,9 @@
               {}
             ],
             "url": {
-              "raw": "http://localhost:5001/auth/login",
+              "raw": "https://frontman-1.onrender.com/auth/login",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "auth",
@@ -46,9 +46,9 @@
               {}
             ],
             "url": {
-              "raw": "http://localhost:5001/auth/register",
+              "raw": "https://frontman-1.onrender.com/auth/register",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "auth",
@@ -81,9 +81,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/products",
+              "raw": "https://frontman-1.onrender.com/admin/products",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -108,9 +108,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/stock",
+              "raw": "https://frontman-1.onrender.com/admin/stock",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -135,9 +135,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/users",
+              "raw": "https://frontman-1.onrender.com/admin/users",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -162,9 +162,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/orders",
+              "raw": "https://frontman-1.onrender.com/admin/orders",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -189,9 +189,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/warranty-cards",
+              "raw": "https://frontman-1.onrender.com/admin/warranty-cards",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -216,9 +216,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/reports",
+              "raw": "https://frontman-1.onrender.com/admin/reports",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -243,9 +243,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/invoices",
+              "raw": "https://frontman-1.onrender.com/admin/invoices",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -270,9 +270,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/search",
+              "raw": "https://frontman-1.onrender.com/admin/search",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -297,9 +297,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/notifications",
+              "raw": "https://frontman-1.onrender.com/admin/notifications",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -324,9 +324,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/audit-logs",
+              "raw": "https://frontman-1.onrender.com/admin/audit-logs",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -351,9 +351,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/dashboard",
+              "raw": "https://frontman-1.onrender.com/admin/dashboard",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -378,9 +378,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/incentives",
+              "raw": "https://frontman-1.onrender.com/admin/incentives",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -405,9 +405,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/points",
+              "raw": "https://frontman-1.onrender.com/admin/points",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -432,9 +432,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/location",
+              "raw": "https://frontman-1.onrender.com/admin/location",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -459,9 +459,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/admin/shift-alerts",
+              "raw": "https://frontman-1.onrender.com/admin/shift-alerts",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "admin",
@@ -491,9 +491,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/distributor/catalog",
+              "raw": "https://frontman-1.onrender.com/distributor/catalog",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "distributor",
@@ -518,9 +518,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/distributor/order",
+              "raw": "https://frontman-1.onrender.com/distributor/order",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "distributor",
@@ -545,9 +545,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/distributor/stock",
+              "raw": "https://frontman-1.onrender.com/distributor/stock",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "distributor",
@@ -577,9 +577,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/accountant/invoice/68752d50d0cee31553856b24",
+              "raw": "https://frontman-1.onrender.com/accountant/invoice/68752d50d0cee31553856b24",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "accountant",
@@ -610,9 +610,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/worker/attendance",
+              "raw": "https://frontman-1.onrender.com/worker/attendance",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "worker",
@@ -637,9 +637,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/worker/production",
+              "raw": "https://frontman-1.onrender.com/worker/production",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "worker",
@@ -664,9 +664,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/worker/shift-alerts",
+              "raw": "https://frontman-1.onrender.com/worker/shift-alerts",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "worker",
@@ -696,9 +696,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/field-executive/followups",
+              "raw": "https://frontman-1.onrender.com/field-executive/followups",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "field-executive",
@@ -723,9 +723,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/fieldExecutive/dvr",
+              "raw": "https://frontman-1.onrender.com/fieldExecutive/dvr",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "fieldExecutive",
@@ -750,9 +750,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/fieldExecutive/delivery",
+              "raw": "https://frontman-1.onrender.com/fieldExecutive/delivery",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "fieldExecutive",
@@ -782,9 +782,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/user/incentives",
+              "raw": "https://frontman-1.onrender.com/user/incentives",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "user",
@@ -809,9 +809,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/user/points",
+              "raw": "https://frontman-1.onrender.com/user/points",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "user",
@@ -841,9 +841,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/user/location",
+              "raw": "https://frontman-1.onrender.com/user/location",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "user",
@@ -871,9 +871,9 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5001/user/location",
+              "raw": "https://frontman-1.onrender.com/user/location",
               "host": [
-                "http://localhost:5001"
+                "https://frontman-1.onrender.com"
               ],
               "path": [
                 "user",
